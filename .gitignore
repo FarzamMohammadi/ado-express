@@ -2,3 +2,5 @@
 *.sty
 *.log
 **/__pycache__/
+.env
+/files/*
