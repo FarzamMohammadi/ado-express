@@ -68,12 +68,12 @@ try:
             updated_successfully = release_updated_successfuly(release_client, deployment_to_update.release_project_name, release_stage_name, matching_release_to_update.id)
 
             if not updated_successfully:
-                handle_failed_update(deployment_to_update.critical, deployment_to_update)
+                handle_failed_update(deployment_to_update)
             else:
                 logging.info(f'Message:Release Update Successful - Project:{deployment_to_update.release_project_name} Release:{deployment_to_update.release_name} Destination Environment:{release_stage_name} At:{datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}')
         else: 
             failure_reason = f'Destination Environment "{release_stage_name}" not found'
-            handle_failed_update(deployment_to_update.critical, deployment_to_update, failure_reason)
+            handle_failed_update(deployment_to_update, failure_reason)
             continue
             
 except Exception as e:

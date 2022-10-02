@@ -13,21 +13,21 @@ class Deployment_Details():
    :type release_number: int
    :param release_rollback:
    :type release_rollback: int
-   :type critical: bool
-   :param critical:
+   :type is_crucial: bool
+   :param is_crucial:
    """
 
-   def __init__(self, release_project_name=None, release_name=None, release_number=None, release_rollback=None, critical=False):
+   def __init__(self, release_project_name=None, release_name=None, release_number=None, release_rollback=None, is_crucial=False):
       self.release_project_name = release_project_name
       self.release_name = release_name
       self.release_number = release_number
       self.release_rollback = release_rollback
 
-      if critical is None: 
-         self.critical = False
+      if is_crucial is None: 
+         self.is_crucial = False
       else :
          try:
-            self.critical = bool(strtobool(critical))
+            self.is_crucial = bool(strtobool(is_crucial))
          except:
-            logging.error(f'Message:Unable to read value of "Critical" - At:{datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}')
+            logging.error(f'Message:Unable to read value of "Crucial" - At:{datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}')
 
