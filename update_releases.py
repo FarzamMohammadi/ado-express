@@ -8,8 +8,9 @@ from msrest.authentication import BasicAuthentication
 
 from utils import find_matching_release, get_data_from_deployment_plan_file, update_release
 
-logging.basicConfig(filename='deployment_error.log', encoding='utf-8', level=logging.INFO)
-logging.info(f'Message:Starting release stage updates - Date & Time:{datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}')
+logging.basicConfig(filename='deployment_error.log', encoding='utf-8', level=logging.INFO,
+                    format='%(levelname)s:%(asctime)s \t%(pathname)s:line:%(lineno)d \t%(message)s')
+logging.info(f'Message:Starting release stage updates')
 
 # Get environment variables
 load_dotenv()
@@ -34,7 +35,7 @@ try:
         matching_release_to_update = find_matching_release(release_client, deployment_to_update)
         
         if matching_release_to_update is None: 
-            raise Exception(f'Unable to find matching release to update. Stopping the process. - Project:{deployment_to_update.release_project_name} Release:{deployment_to_update.release_name} At:{datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}')
+            raise Exception(f'Unable to find matching release to update. Stopping the process. - Project:{deployment_to_update.release_project_name} Release:{deployment_to_update.release_name}')
         
         update_release(release_client, deployment_to_update, matching_release_to_update, release_client_v6)
 
