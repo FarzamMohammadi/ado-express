@@ -47,24 +47,24 @@ def get_data_from_deployment_plan_file():
 
 def handle_failed_update(deployment_to_update, release_client, release_client_v6, release_to_update_data, reason=None):
     if reason is not None:
-        logging.error(f'Message:Release Update Unsuccessful - Reason: {reason} - Project:{deployment_to_update.release_project_name} Release:{deployment_to_update.release_name} At:{datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}')
+        logging.error(f'Message:Release Update Unsuccessful - Reason: {reason} - Project:{deployment_to_update.release_project_name} Release:{deployment_to_update.release_name}')
     else:
-        logging.error(f'Message:Release Update Unsuccessful - Reason: Please check logs - Project:{deployment_to_update.release_project_name} Release:{deployment_to_update.release_name} At:{datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}')
+        logging.error(f'Message:Release Update Unsuccessful - Reason: Please check logs - Project:{deployment_to_update.release_project_name} Release:{deployment_to_update.release_name}')
 
     if deployment_to_update.is_crucial is True:
-        logging.error(f'Message:Release update was crucial. Now attempting rollback. - Project:{deployment_to_update.release_project_name} Release:{deployment_to_update.release_name} At:{datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}')
+        logging.error(f'Message:Release update was crucial. Now attempting rollback. - Project:{deployment_to_update.release_project_name} Release:{deployment_to_update.release_name}')
        
         # Search projects to find specified release for roll back
         matching_release_to_rollback = find_matching_release(release_client, deployment_to_update, rollback=True)
 
         if matching_release_to_rollback is None: 
-            raise Exception(f'Unable to find matching roll back update. Stopping the process. - Project:{deployment_to_update.release_project_name} Release:{deployment_to_update.release_name} At:{datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}')
+            raise Exception(f'Unable to find matching roll back update. Stopping the process. - Project:{deployment_to_update.release_project_name} Release:{deployment_to_update.release_name}')
         
         roll_back_release(release_client, deployment_to_update, matching_release_to_rollback, release_client_v6)
 
         raise Exception('A curcial release update failed. Roll back was attempted. Now, stopping the process.')
     else:
-        logging.info(f'Message:The failed release update was not curcial. Now moving on to the next update... Project:{deployment_to_update.release_project_name} Release:{deployment_to_update.release_name} At:{datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}')
+        logging.info(f'Message:The failed release update was not curcial. Now moving on to the next update... Project:{deployment_to_update.release_project_name} Release:{deployment_to_update.release_name}')
 
 def release_updated_successfuly(release_client, project_name, release_id):
     updated_successfully = False
@@ -99,17 +99,17 @@ def roll_back_release(release_client, deployment_to_update, matching_release_to_
                 comment = 'Rolled back automatically due to failed update via Ado-Express'
                 update_release_environment(comment, release_client_v6, deployment_to_update, release_to_update_data, matching_release_environment)
             else: 
-                logging.info(f'Message:Release is already rolling back - Project:{deployment_to_update.release_project_name} Release:{deployment_to_update.release_name} Destination Environment:{release_stage_name} At:{datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}')
+                logging.info(f'Message:Release is already rolling back - Project:{deployment_to_update.release_project_name} Release:{deployment_to_update.release_name} Destination Environment:{release_stage_name}')
                 
             # Check the status of release update
-            logging.info(f'Message:Monitoring rollback Status - Project:{deployment_to_update.release_project_name} Release:{deployment_to_update.release_name} Destination Environment:{release_stage_name} At:{datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}')
+            logging.info(f'Message:Monitoring rollback Status - Project:{deployment_to_update.release_project_name} Release:{deployment_to_update.release_name} Destination Environment:{release_stage_name}')
             updated_successfully = release_updated_successfuly(release_client, deployment_to_update.release_project_name, release_to_update_data.id)
 
             if updated_successfully:
-                logging.info(f'Message:Release roll back Successful - Project:{deployment_to_update.release_project_name} Release:{deployment_to_update.release_name} Destination Environment:{release_stage_name} At:{datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}')
+                logging.info(f'Message:Release roll back Successful - Project:{deployment_to_update.release_project_name} Release:{deployment_to_update.release_name} Destination Environment:{release_stage_name}')
                 return
 
-        logging.error(f'Message:Unable to roll back. Please check this release manually. - Project:{deployment_to_update.release_project_name} Release:{deployment_to_update.release_name} Destination Environment:{release_stage_name} At:{datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}')
+        logging.error(f'Message:Unable to roll back. Please check this release manually. - Project:{deployment_to_update.release_project_name} Release:{deployment_to_update.release_name} Destination Environment:{release_stage_name}')
 
 
 def update_release(release_client, deployment_to_update, matching_release_to_update, release_client_v6):
@@ -126,16 +126,16 @@ def update_release(release_client, deployment_to_update, matching_release_to_upd
                 comment = 'Deployed automatically via Ado-Express'
                 update_release_environment(comment, release_client_v6, deployment_to_update, release_to_update_data, matching_release_environment)
             else: 
-                logging.info(f'Message:Release is already updating - Project:{deployment_to_update.release_project_name} Release:{deployment_to_update.release_name} Destination Environment:{release_stage_name} At:{datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}')
+                logging.info(f'Message:Release is already updating - Project:{deployment_to_update.release_project_name} Release:{deployment_to_update.release_name} Destination Environment:{release_stage_name}')
                 
             # Check the status of release update
-            logging.info(f'Message:Monitoring update Status - Project:{deployment_to_update.release_project_name} Release:{deployment_to_update.release_name} Destination Environment:{release_stage_name} At:{datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}')
+            logging.info(f'Message:Monitoring update Status - Project:{deployment_to_update.release_project_name} Release:{deployment_to_update.release_name} Destination Environment:{release_stage_name}')
             updated_successfully = release_updated_successfuly(release_client, deployment_to_update.release_project_name, release_to_update_data.id)
 
             if not updated_successfully:
                 handle_failed_update(deployment_to_update, release_client, release_client_v6, release_to_update_data)
             else:
-                logging.info(f'Message:Release Update Successful - Project:{deployment_to_update.release_project_name} Release:{deployment_to_update.release_name} Destination Environment:{release_stage_name} At:{datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}')
+                logging.info(f'Message:Release Update Successful - Project:{deployment_to_update.release_project_name} Release:{deployment_to_update.release_name} Destination Environment:{release_stage_name}')
         else: 
             failure_reason = f'Destination Environment "{release_stage_name}" not found'
             handle_failed_update(deployment_to_update, release_client, release_client_v6, release_to_update_data, failure_reason)
