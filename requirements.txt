@@ -1,4 +1,6 @@
-azure_storage==0.37.0
+azure_devops==6.0.0b4
+azure_storage==0.36.0
 msrest==0.6.21
+openpyxl==3.0.10
 pandas==1.4.4
 python-dotenv==0.21.0

@@ -8,7 +8,7 @@ from msrest.authentication import BasicAuthentication
 
 from utils import find_matching_release, get_data_from_deployment_plan_file, update_release
 
-logging.basicConfig(filename='deployment_error.log', encoding='utf-8', level=logging.INFO,
+logging.basicConfig(filename='deployment.log', encoding='utf-8', level=logging.INFO,
                     format='%(levelname)s:%(asctime)s \t%(pathname)s:line:%(lineno)d \t%(message)s')
 logging.info(f'Message:Starting release stage updates')
 
