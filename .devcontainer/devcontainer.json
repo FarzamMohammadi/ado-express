@@ -1,0 +1,11 @@
+{ 
+    "name": "ADO Express", 
+    "build": { 
+        "dockerfile": "Dockerfile", 
+        "context": "..",
+        "args": { 
+			"VARIANT": "3.10-bullseye"
+		}
+    },
+    "postCreateCommand": "./.devcontainer/postCreateCommand.sh"
+} 
