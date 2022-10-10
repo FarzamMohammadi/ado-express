@@ -1,6 +1,6 @@
 pip3 install --user -r requirements.txt
-if [ -f deployment.log ]; then 
-    cat deployment.log >> deployment_stale.log 
+if [ -f files/logs/deployment.log ]; then 
+    cat files/logs/deployment.log >> files/logs/deployment_stale.log
 fi
-echo > deployment.log
-tail -f deployment.log & python update_releases.py
+echo > files/logs/deployment.log
+tail -f files/logs/deployment.log & python ado_express/main.py

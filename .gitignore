@@ -2,5 +2,7 @@
 *.sty
 *.log
 **/__pycache__/
-.env
-/files/*
+# .env
+/files/deployment/*
+/files/logs/*
+/files/search-results/*
