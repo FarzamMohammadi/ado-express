@@ -1,9 +1,8 @@
 import datetime
 import logging
-
 from distutils.util import strtobool
 
-class Deployment_Details():
+class DeploymentDetails:
    """
    :param release_project_name:
    :type release_project_name: str
@@ -30,4 +29,3 @@ class Deployment_Details():
             self.is_crucial = bool(strtobool(is_crucial))
          except:
             logging.error(f'Message:Unable to read value of "Crucial" - At:{datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}')
-
