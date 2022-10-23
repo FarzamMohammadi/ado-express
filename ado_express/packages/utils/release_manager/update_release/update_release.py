@@ -1,0 +1,118 @@
+import logging
+import time
+from azure.devops.v5_1.release.models import ReleaseEnvironmentUpdateMetadata
+
+from packages.authentication import MSAuthentication
+from packages.common.constants import Constants
+from packages.common.enums import ReleaseEnvironmentStatuses
+from packages.common.environment_variables import EnvironmentVariables
+from packages.utils.asset_retrievers import ReleaseFinder
+from packages.utils.asset_retrievers.release_environment_finder import ReleaseEnvironmentFinder
+
+class UpdateRelease:
+    
+    def __init__(self, constants: Constants, ms_authentication: MSAuthentication, environment_variables: EnvironmentVariables, release_finder: ReleaseFinder):
+        self.constants = constants
+        self.ms_authentication = ms_authentication
+        self.release_client = ms_authentication.client
+        self.release_client_v6 = ms_authentication.client_v6
+        self.environment_variables = environment_variables
+        self.environment_statuses = ReleaseEnvironmentStatuses()
+        self.release_finder = release_finder
+
+        
+    def update_release(self, deployment_detail, release_to_update):
+        # Get specified release environments
+        release_environment_finder = ReleaseEnvironmentFinder(self.ms_authentication, self.environment_variables)
+        matching_release_environment = release_environment_finder.get_release_environment(deployment_detail, release_to_update.id)
+        
+        if matching_release_environment is not None:
+            
+            if matching_release_environment.status not in self.environment_statuses.InProgress:
+                # Update Release
+                comment = 'Deployed automatically via Ado-Express'
+                self.update_release_environment(comment, deployment_detail, release_to_update, matching_release_environment)
+            else: 
+                logging.info(f'Message:Release is already updating - Project:{deployment_detail.release_project_name} Release:{deployment_detail.release_name} Destination Environment:{self.environment_variables.RELEASE_STAGE_NAME}')
+            
+            return (True, None)
+        else: 
+            failure_reason = f'Destination Release Environment "{self.environment_variables.RELEASE_STAGE_NAME}" not found'
+            return (False, failure_reason)
+
+
+    def get_release_update_result(self, deployment_detail, release_to_update):
+        updated_successfully = False
+        update_complete = False
+
+        while not update_complete:
+            release_to_update_data = self.release_client.get_release(project=deployment_detail.release_project_name, release_id=release_to_update.id)
+            for environment in release_to_update_data.environments:
+                if (str(environment.name).lower() == self.environment_variables.RELEASE_STAGE_NAME.lower()):
+                    if environment.status in self.environment_statuses.Succeeded: 
+                        updated_successfully = True
+                        update_complete = True
+                        break
+                    elif environment.status in self.environment_statuses.Failed:
+                        update_complete = True
+                        break       
+            time.sleep(5)
+                            
+        return updated_successfully
+
+    def update_release_environment(self, comment, deployment_detail, release_to_update, matching_release_environment):
+        update_metadata = ReleaseEnvironmentUpdateMetadata(comment, status=2)
+        return self.release_client_v6.update_release_environment(environment_update_data=update_metadata, project=deployment_detail.release_project_name, release_id=release_to_update.id, environment_id=matching_release_environment.id)
+
+
+    def handle_failed_update(self, deployment_detail, via_stage=False, failure_reason=None):
+        if failure_reason is not None:
+            logging.error(f'Message:Release Update Unsuccessful - Reason: {failure_reason} - Project:{deployment_detail.release_project_name} Release:{deployment_detail.release_name}')
+        else:
+            logging.error(f'Message:Release Update Unsuccessful - Reason: Please check logs - Project:{deployment_detail.release_project_name} Release:{deployment_detail.release_name}')
+
+        if deployment_detail.is_crucial is True:
+            logging.error(f'Message:Release update was crucial. Now attempting rollback. - Project:{deployment_detail.release_project_name} Release:{deployment_detail.release_name}')
+        
+            # Search projects to find specified release for roll back
+            release_to_rollback = self.release_finder.get_release(deployment_detail, find_via_stage=via_stage, rollback=True)
+
+            if release_to_rollback is None:
+                raise Exception(f'Unable to find matching roll back update. Stopping the process. - Project:{deployment_detail.release_project_name} Release:{deployment_detail.release_name}')
+            
+            self.roll_back_release(deployment_detail, release_to_rollback)
+
+            raise Exception('A curcial release update failed. Roll back was attempted. Now, stopping the process.')
+        else:
+            logging.info(f'Message:The failed release update was not curcial. Now moving on to the next update... Project:{deployment_detail.release_project_name} Release:{deployment_detail.release_name}')
+    
+    def roll_back_release(self, deployment_detail, release_to_rollback):
+        release_stage_name = self.environment_variables.RELEASE_STAGE_NAME
+        release_name = deployment_detail.release_name
+        release_project_name = deployment_detail.release_project_name
+        release_log_details = f'Project:{release_project_name} Release:{release_name} Destination Environment:{release_stage_name}'
+
+        # Get specified release environments
+        release_to_update = self.release_client.get_release(project=release_project_name, release_id=release_to_rollback.id)
+        
+        for environment in release_to_update.environments:
+            if (str(environment.name).lower() == self.environment_variables.RELEASE_STAGE_NAME.lower()):
+                matching_release_environment = environment
+        
+        if matching_release_environment is not None:
+            if matching_release_environment.status not in self.environment_statuses.InProgress:
+                # Rollback Release
+                comment = 'Rolled back automatically due to failed update via Ado-Express'
+                self.update_release_environment(comment, deployment_detail, release_to_update, matching_release_environment)
+            else: 
+                logging.info(f'Message:Release is already rolling back - {release_log_details}')
+                
+            # Check the status of release update
+            logging.info(f'Message:Monitoring rollback Status - {release_log_details}')
+            updated_successfully = self.get_release_update_result(deployment_detail, release_to_update)
+
+            if updated_successfully:
+                logging.info(f'Message:Release roll back Successful - {release_log_details}')
+                return
+
+        logging.error(f'Message:Unable to roll back. Please check this release manually. - {release_log_details}')
