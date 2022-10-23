@@ -9,16 +9,16 @@
 
 ## To Run
 1. Create virtual environment: 
-    "python -m venv ./venv"
+        "python -m venv ./venv"
 2. Activate VENV:
-    Windows - ".\venv\Scripts\activate"
-    Linux/macOS - "source venv/bin/activate"
+        Windows - ".\venv\Scripts\activate"
+        Linux/macOS - "source venv/bin/activate"
 3. Install Dependencies:
-    "pip install -r requirements.txt"
+        "pip install -r requirements.txt"
 4. Set ado_express as working directory:
-    "cd ado_express"
+        "cd ado_express"
 5. Start app:
-    "python main.py"
+        "python main.py"
 
 ## VS Code Development Container
     If you wish to run this app without any installations, you can do so by running your local development environment inside a container. 
