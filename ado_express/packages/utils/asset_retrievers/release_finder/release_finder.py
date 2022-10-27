@@ -32,7 +32,7 @@ class ReleaseFinder:
                         file.write(f"Release Definition: {deployment_detail.release_name}\t Release: {release_to_check.name}\t Stage: {env.name}\t Status: {env.status}\t Modified On: {env.modified_on}\n")            
 
     def find_matching_release_via_source_stage(self, releases, deployment_detail: DeploymentDetails, rollback=False):
-        environment_name_to_find = self.environment_variables.RELEASE_STAGE_NAME if rollback else self.environment_variables.VIA_STAGE_SOURCE
+        environment_name_to_find = self.environment_variables.RELEASE_STAGE_NAME if rollback else self.environment_variables.VIA_STAGE_SOURCE_NAME
         
         for release in releases:
             release_to_check = self.release_client.get_release(project=deployment_detail.release_project_name, release_id=release.id)
