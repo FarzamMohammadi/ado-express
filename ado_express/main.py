@@ -16,33 +16,45 @@ logging.info('Message:Starting application')
 
 class Startup:
     constants = Constants()
+    deployment_plan = DeploymentPlan(constants)
     environment_variables = EnvironmentVariables()
     ms_authentication = MSAuthentication(environment_variables)
-    deployment_plan = DeploymentPlan(constants)
     release_finder = ReleaseFinder(ms_authentication, deployment_plan.deployment_details, environment_variables)
 
+    search_only = environment_variables.SEARCH_ONLY
+    search_file_path = constants.SEARCH_RESULTS_FILE_PATH
     via_stage = environment_variables.VIA_STAGE
+    via_stage_latest_release = environment_variables.VIA_STAGE_LATEST_RELEASE
+
     time_format = '%Y-%m-%d %H:%M:%S'
     datetime_now = datetime.now(timezone('US/Eastern'))
-
+    
     def start_request(self):
-        if (self.environment_variables.SEARCH_ONLY):
+        if (self.search_only):
             logging.info('Message:Starting the search...')
             try:
-                file_path = self.constants.SEARCH_RESULTS_FILE_PATH
-
-                if os.path.isfile(file_path):
-                    with open(file_path, "a") as file:
+                if os.path.isfile(self.search_file_path):
+                    with open(self.search_file_path, "a") as file:
                         file.write(f"\n\nNew Search Results:\nSearched Date & Time:{self.datetime_now.strftime(self.time_format)}\n\n")
                 else:
-                    with open(file_path, "a") as file:
+                    with open(self.search_file_path, "a") as file:
                         file.write(f"New Search Results:\nSearched Date & Time:{self.datetime_now.strftime(self.time_format)}\n\n")
 
-                self.release_finder.get_releases(find_via_stage=self.via_stage)
+                if self.via_stage_latest_release:
+                    for deployment_detail in self.deployment_plan.deployment_details:
+                        soruce_release = self.release_finder.get_release(deployment_detail, find_via_stage=self.via_stage)
+                        destination_release = self.release_finder.get_release(deployment_detail, find_via_stage=self.via_stage, rollback=True)
+
+                        with open(self.search_file_path, "a") as file:
+                            file.write(f"\n{deployment_detail.release_name} Results:\n") 
+                            file.write(f"Release: Release Name: {soruce_release.name} -Based on last release in '{self.environment_variables.VIA_STAGE_SOURCE_NAME}' stage\n") 
+                            file.write(f"Rollback: Release Name: {destination_release.name} -Based on last release in '{self.environment_variables.RELEASE_STAGE_NAME}' stage\n")            
+           
+                else:    
+                    self.release_finder.get_releases(find_via_stage=self.via_stage)
 
             except Exception as e:
                 logging.error(f'There was an error in the search process. Please continue manually.\nException:{e}')
-
         else:
             logging.info('Message:Starting the update...')
             try:
