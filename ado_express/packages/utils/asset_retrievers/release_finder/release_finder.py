@@ -77,24 +77,24 @@ class ReleaseFinder:
 
             return self.find_matching_release_via_name(releases, release_number)
 
-    def get_releases(self, find_via_stage=False, rollback=False):
-        for deployment_detail in self.deployment_details:
-            # Gets release definitions names 
-            release_definitions = self.release_client.get_release_definitions(project=deployment_detail.release_project_name)
+    def get_releases(self, deployment_detail, find_via_stage=False, rollback=False):
+        # Gets release definitions names 
+        release_definitions = self.release_client.get_release_definitions(project=deployment_detail.release_project_name)
+        
+        for definition in release_definitions.value:
             
-            for definition in release_definitions.value:
-                
-                if (str(definition.name).lower() == str(deployment_detail.release_name).lower()):
-                    release_definition = definition
+            if (str(definition.name).lower() == str(deployment_detail.release_name).lower()):
+                release_definition = definition
 
-            # Get release id from release to know which needs to be deployed to new env
-            releases = self.release_client.get_releases(project=deployment_detail.release_project_name, definition_id=release_definition.id).value
-            
-            if find_via_stage:
-                self.find_matching_releases_via_stage(releases, deployment_detail) 
-            else:
-                if not rollback:
-                    release_number = deployment_detail.release_number
-                else: 
-                    release_number = deployment_detail.release_rollback
-                self.find_matching_releases_via_name(releases, release_number, deployment_detail)
+        # Get release id from release to know which needs to be deployed to new env
+        releases = self.release_client.get_releases(project=deployment_detail.release_project_name, definition_id=release_definition.id).value
+        
+        if find_via_stage:
+            self.find_matching_releases_via_stage(releases, deployment_detail) 
+        else:
+            if not rollback:
+                release_number = deployment_detail.release_number
+            else: 
+                release_number = deployment_detail.release_rollback
+                
+            self.find_matching_releases_via_name(releases, release_number, deployment_detail)
