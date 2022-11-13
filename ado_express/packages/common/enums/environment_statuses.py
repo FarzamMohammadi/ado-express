@@ -9,6 +9,7 @@ class ReleaseEnvironmentStatuses:
     class Succeeded(BaseEnum):
         SUCCEEDED = 'succeeded'
         PARTIALLY_SUCCEEDED = 'partiallySucceeded'
+        
     class NotStarted(BaseEnum):
         NOT_STARTED = 'notStarted'
 

@@ -56,7 +56,7 @@ class ReleaseFinder:
 
             for env in release_to_check.environments:
 
-                if str(env.name).lower() == self.environment_variables.RELEASE_STAGE_NAME and env.status in self.environment_statuses .Succeeded:
+                if str(env.name).lower() == self.environment_variables.RELEASE_STAGE_NAME and env.status in self.environment_statuses.Succeeded:
                     log = f"Release Definition: {deployment_detail.release_name}\t Release: {release_to_check.name}\t Stage: {env.name}\t Status: {env.status}\t Modified On: {env.modified_on}\n"            
                     logs.append(log)
         

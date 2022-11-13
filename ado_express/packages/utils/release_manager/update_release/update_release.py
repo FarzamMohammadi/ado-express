@@ -32,9 +32,9 @@ class UpdateRelease:
                 # Update Release
                 comment = 'Deployed automatically via Ado-Express'
                 self.update_release_environment(comment, deployment_detail, release_to_update, matching_release_environment)
-                logging.info(f'Message:Update triggered - Project:{deployment_detail.release_project_name} Release Definition:{deployment_detail.release_name} Release:{release_to_update.name} Environment:{self.environment_variables.RELEASE_STAGE_NAME}')
+                logging.info(f'Update triggered - Project:{deployment_detail.release_project_name} Release Definition:{deployment_detail.release_name} Release:{release_to_update.name} Environment:{self.environment_variables.RELEASE_STAGE_NAME}')
             else: 
-                logging.info(f'Message:Release is already updating - Project:{deployment_detail.release_project_name} Release Definition:{deployment_detail.release_name} Release:{release_to_update.name} Environment:{self.environment_variables.RELEASE_STAGE_NAME}')
+                logging.info(f'Release is already updating - Project:{deployment_detail.release_project_name} Release Definition:{deployment_detail.release_name} Release:{release_to_update.name} Environment:{self.environment_variables.RELEASE_STAGE_NAME}')
             
             return (True, None)
         else: 
@@ -68,12 +68,12 @@ class UpdateRelease:
 
     def handle_failed_update(self, deployment_detail, via_stage=False, failure_reason=None):
         if failure_reason is not None:
-            logging.error(f'Message:Release Update Unsuccessful - Reason: {failure_reason} - Project:{deployment_detail.release_project_name} Release:{deployment_detail.release_name}')
+            logging.error(f'Release Update Unsuccessful - Reason: {failure_reason} - Project:{deployment_detail.release_project_name} Release:{deployment_detail.release_name}')
         else:
-            logging.error(f'Message:Release Update Unsuccessful - Reason: Please check logs - Project:{deployment_detail.release_project_name} Release:{deployment_detail.release_name}')
+            logging.error(f'Release Update Unsuccessful - Reason: Please check logs - Project:{deployment_detail.release_project_name} Release:{deployment_detail.release_name}')
 
         if deployment_detail.is_crucial is True:
-            logging.error(f'Message:Release update was crucial. Now attempting rollback. - Project:{deployment_detail.release_project_name} Release:{deployment_detail.release_name}')
+            logging.error(f'Release update was crucial. Now attempting rollback. - Project:{deployment_detail.release_project_name} Release:{deployment_detail.release_name}')
         
             # Search projects to find specified release for roll back
             release_to_rollback = self.release_finder.get_release(deployment_detail, find_via_stage=via_stage, rollback=True)
@@ -85,7 +85,7 @@ class UpdateRelease:
 
             raise Exception('A curcial release update failed. Roll back was attempted. Now, stopping the process.')
         else:
-            logging.info(f'Message:The failed release update was not curcial. Now moving on to the next update... Project:{deployment_detail.release_project_name} Release:{deployment_detail.release_name}')
+            logging.info(f'The failed release update was not curcial. Now moving on to the next update... Project:{deployment_detail.release_project_name} Release:{deployment_detail.release_name}')
     
     def roll_back_release(self, deployment_detail, release_to_rollback):
         release_stage_name = self.environment_variables.RELEASE_STAGE_NAME
@@ -106,14 +106,14 @@ class UpdateRelease:
                 comment = 'Rolled back automatically due to failed update via Ado-Express'
                 self.update_release_environment(comment, deployment_detail, release_to_update, matching_release_environment)
             else: 
-                logging.info(f'Message:Release is already rolling back - {release_log_details}')
+                logging.info(f'Release is already rolling back - {release_log_details}')
                 
             # Check the status of release update
-            logging.info(f'Message:Monitoring rollback Status - {release_log_details}')
+            logging.info(f'Monitoring rollback Status - {release_log_details}')
             updated_successfully = self.get_release_update_result(deployment_detail, release_to_update)
 
             if updated_successfully:
-                logging.info(f'Message:Release roll back Successful - {release_log_details}')
+                logging.info(f'Release roll back Successful - {release_log_details}')
                 return
 
-        logging.error(f'Message:Unable to roll back. Please check this release manually. - {release_log_details}')
+        logging.error(f'Unable to roll back. Please check this release manually. - {release_log_details}')
