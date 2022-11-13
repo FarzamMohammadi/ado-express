@@ -1,9 +1,7 @@
 import concurrent.futures
 import logging
 import os
-import shutil
 import time
-from pandas import DataFrame
 from datetime import datetime
 
 from packages.authentication import MSAuthentication
@@ -39,16 +37,13 @@ class Startup:
         # Start Log
         if self.search_only:
             logging.info('Message:Starting the search...')
-
-            # if self.via_stage_latest_release:
-            #     shutil.copy(constants.LOG_FILE_PATH, constants.SEARCH_RESULTS_DEPLOYMENT_PLAN_FILE_PATH)
                 
             if os.path.isfile(self.search_file_path):
                 with open(self.search_file_path, "a") as file:
-                    file.write(f"\n\nNew Search Results:\nSearched Date & Time:{self.datetime_now.strftime(self.time_format)}\n\n")
+                    file.write(f"\n\nNew Search Results:\nSearched Date & Time:{self.datetime_now.strftime(self.time_format)}\n")
             else:
                 with open(self.search_file_path, "a") as file:
-                    file.write(f"New Search Results:\nSearched Date & Time:{self.datetime_now.strftime(self.time_format)}\n\n")
+                    file.write(f"New Search Results:\nSearched Date & Time:{self.datetime_now.strftime(self.time_format)}\n")
         else:
             logging.info('Message:Starting the update...')
         
@@ -60,14 +55,12 @@ class Startup:
                     soruce_release = self.release_finder.get_release(deployment_detail, find_via_stage=self.via_stage)
                     destination_release = self.release_finder.get_release(deployment_detail, find_via_stage=self.via_stage, rollback=True)
 
-                    df = DataFrame({'Project Name': [{deployment_detail.release_project_name}], 'Release Name': [{deployment_detail.release_name}], 'Release Number': [{destination_release.name}], 'Rollback Number': [{soruce_release.name}], 'Crucial': ''})
-                    df.to_excel(constants.SEARCH_RESULTS_DEPLOYMENT_PLAN_FILE_PATH, sheet_name="EXT", index=False)
-                    
                     with open(self.search_file_path, "a") as file:
-                        file.write(f"\n{deployment_detail.release_name} Results:\n") 
-                        file.write(f"Release: Release Name: {soruce_release.name} -Based on last release in '{self.environment_variables.VIA_STAGE_SOURCE_NAME}' stage\n") 
-                        file.write(f"Rollback: Release Name: {destination_release.name} -Based on last release in '{self.environment_variables.RELEASE_STAGE_NAME}' stage\n")      
-        
+                        file.write(f"""
+                        \n{deployment_detail.release_name} Results:
+                        Target Release: {soruce_release.name} (Based on last release in '{self.environment_variables.VIA_STAGE_SOURCE_NAME}' stage)
+                        Rollback Release: {destination_release.name} (Based on last release in '{self.environment_variables.RELEASE_STAGE_NAME}' stage)
+                        """)
                 else:    
                     self.release_finder.get_releases(deployment_detail, find_via_stage=self.via_stage)
 
@@ -84,13 +77,13 @@ class Startup:
 
                 if update_attempt_successful:
                     # Check the status of release update
-                    logging.info(f'Message:Monitoring update Status - Project:{deployment_detail.release_project_name} Release:{deployment_detail.release_name} Destination Environment:{self.environment_variables.RELEASE_STAGE_NAME}')
+                    logging.info(f'Message:Monitoring update Status - Project:{deployment_detail.release_project_name} Release Definition:{deployment_detail.release_name} Release:{release_to_update.name} Environment:{self.environment_variables.RELEASE_STAGE_NAME}')
                     release_updated_successfully = update_manager.get_release_update_result(deployment_detail, release_to_update)
 
                     if not release_updated_successfully:
                         update_manager.handle_failed_update(deployment_detail, self.via_stage)
                     else:
-                        logging.info(f'Message:Release Update Successful - Project:{deployment_detail.release_project_name} Release:{deployment_detail.release_name} Destination Environment:{self.environment_variables.RELEASE_STAGE_NAME}')
+                        logging.info(f'Message:Release Update Successful - Project:{deployment_detail.release_project_name} Release Definition:{deployment_detail.release_name} Release:{release_to_update.name} Environment:{self.environment_variables.RELEASE_STAGE_NAME}')
                 else:
                     update_manager.handle_failed_update(deployment_detail, self.via_stage, failure_reason=update_comment)
 
