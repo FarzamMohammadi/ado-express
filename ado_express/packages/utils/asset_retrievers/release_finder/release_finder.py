@@ -21,16 +21,21 @@ class ReleaseFinder:
 
     def find_matching_releases_via_name(self, releases, release_number, deployment_detail: DeploymentDetails):
         constants = Constants()
+        logs = ['\n']
 
         for release in releases:
-
+            
             if str(release.name).lower() == (self.environment_variables.RELEASE_NAME_FORMAT.split('$')[0].lower() + str(release_number)):
                 release_to_check = self.release_client.get_release(project=deployment_detail.release_project_name, release_id=release.id)
 
                 for env in release_to_check.environments:
-                    with open(constants.SEARCH_RESULTS_FILE_PATH, "a") as file:
-                        file.write(f"Release Definition: {deployment_detail.release_name}\t Release: {release_to_check.name}\t Stage: {env.name}\t Status: {env.status}\t Modified On: {env.modified_on}\n")            
+                    log = f"Release Definition: {deployment_detail.release_name}\t Release: {release_to_check.name}\t Stage: {env.name}\t Status: {env.status}\t Modified On: {env.modified_on}\n"            
+                    logs.append(log)
+                
+        with open(constants.SEARCH_RESULTS_FILE_PATH, "a") as file:
+            file.write(''.join(map(str, logs)) if len(logs) > 1 else (f'\nNO RESULTS AVAILABLE - Release Definition: {deployment_detail.release_name}\n'))
 
+                
     def find_matching_release_via_source_stage(self, releases, deployment_detail: DeploymentDetails, rollback=False):
         environment_name_to_find = self.environment_variables.RELEASE_STAGE_NAME if rollback else self.environment_variables.VIA_STAGE_SOURCE_NAME
         
@@ -44,16 +49,19 @@ class ReleaseFinder:
 
     def find_matching_releases_via_stage(self, releases, deployment_detail: DeploymentDetails):
         constants = Constants()
+        logs = ['\n']
 
         for release in releases:
             release_to_check = self.release_client.get_release(project=deployment_detail.release_project_name, release_id=release.id)
 
             for env in release_to_check.environments:
-                
-                if str(env.name).lower() == self.environment_variables.RELEASE_STAGE_NAME and env.status in self.environment_statuses .Succeeded:
-                    with open(constants.SEARCH_RESULTS_FILE_PATH, "a") as file:
-                        file.write(f"Release Definition: {deployment_detail.release_name}\t Release: {release_to_check.name}\t Stage: {env.name}\t Status: {env.status}\t Modified On: {env.modified_on}\n")            
 
+                if str(env.name).lower() == self.environment_variables.RELEASE_STAGE_NAME and env.status in self.environment_statuses .Succeeded:
+                    log = f"Release Definition: {deployment_detail.release_name}\t Release: {release_to_check.name}\t Stage: {env.name}\t Status: {env.status}\t Modified On: {env.modified_on}\n"            
+                    logs.append(log)
+        
+        with open(constants.SEARCH_RESULTS_FILE_PATH, "a") as file:
+            file.write(''.join(map(str, logs)) if len(logs) > 1 else (f'\nNO RESULTS AVAILABLE - Release Definition: {deployment_detail.release_name}\n'))
 
     def get_release(self, deployment_detail, find_via_stage=False, rollback=False):
         # Gets release definitions names 
@@ -77,24 +85,24 @@ class ReleaseFinder:
 
             return self.find_matching_release_via_name(releases, release_number)
 
-    def get_releases(self, find_via_stage=False, rollback=False):
-        for deployment_detail in self.deployment_details:
-            # Gets release definitions names 
-            release_definitions = self.release_client.get_release_definitions(project=deployment_detail.release_project_name)
+    def get_releases(self, deployment_detail, find_via_stage=False, rollback=False):
+        # Gets release definitions names 
+        release_definitions = self.release_client.get_release_definitions(project=deployment_detail.release_project_name)
+        
+        for definition in release_definitions.value:
             
-            for definition in release_definitions.value:
-                
-                if (str(definition.name).lower() == str(deployment_detail.release_name).lower()):
-                    release_definition = definition
+            if (str(definition.name).lower() == str(deployment_detail.release_name).lower()):
+                release_definition = definition
 
-            # Get release id from release to know which needs to be deployed to new env
-            releases = self.release_client.get_releases(project=deployment_detail.release_project_name, definition_id=release_definition.id).value
-            
-            if find_via_stage:
-                self.find_matching_releases_via_stage(releases, deployment_detail) 
-            else:
-                if not rollback:
-                    release_number = deployment_detail.release_number
-                else: 
-                    release_number = deployment_detail.release_rollback
-                self.find_matching_releases_via_name(releases, release_number, deployment_detail)
+        # Get release id from release to know which needs to be deployed to new env
+        releases = self.release_client.get_releases(project=deployment_detail.release_project_name, definition_id=release_definition.id).value
+        
+        if find_via_stage:
+            self.find_matching_releases_via_stage(releases, deployment_detail) 
+        else:
+            if not rollback:
+                release_number = deployment_detail.release_number
+            else: 
+                release_number = deployment_detail.release_rollback
+                
+            self.find_matching_releases_via_name(releases, release_number, deployment_detail)

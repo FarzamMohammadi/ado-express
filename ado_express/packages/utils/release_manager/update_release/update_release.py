@@ -32,8 +32,9 @@ class UpdateRelease:
                 # Update Release
                 comment = 'Deployed automatically via Ado-Express'
                 self.update_release_environment(comment, deployment_detail, release_to_update, matching_release_environment)
+                logging.info(f'Message:Update triggered - Project:{deployment_detail.release_project_name} Release Definition:{deployment_detail.release_name} Release:{release_to_update.name} Environment:{self.environment_variables.RELEASE_STAGE_NAME}')
             else: 
-                logging.info(f'Message:Release is already updating - Project:{deployment_detail.release_project_name} Release:{deployment_detail.release_name} Destination Environment:{self.environment_variables.RELEASE_STAGE_NAME}')
+                logging.info(f'Message:Release is already updating - Project:{deployment_detail.release_project_name} Release Definition:{deployment_detail.release_name} Release:{release_to_update.name} Environment:{self.environment_variables.RELEASE_STAGE_NAME}')
             
             return (True, None)
         else: 
@@ -90,7 +91,7 @@ class UpdateRelease:
         release_stage_name = self.environment_variables.RELEASE_STAGE_NAME
         release_name = deployment_detail.release_name
         release_project_name = deployment_detail.release_project_name
-        release_log_details = f'Project:{release_project_name} Release:{release_name} Destination Environment:{release_stage_name}'
+        release_log_details = f'Project:{release_project_name} Release:{release_name} Environment:{release_stage_name}'
 
         # Get specified release environments
         release_to_update = self.release_client.get_release(project=release_project_name, release_id=release_to_rollback.id)
