@@ -1,4 +1,5 @@
 python --version
+pip3 install --upgrade pip
 pip3 install --user -r /workspaces/ado-express/requirements.txt
 if [ -f files/logs/deployment.log ]; then 
     cat files/logs/deployment.log >> files/logs/deployment_stale.log

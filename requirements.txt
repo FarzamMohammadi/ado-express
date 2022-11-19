@@ -1,5 +1,6 @@
 azure_devops==6.0.0b4
 azure_storage==0.36.0
+Jinja2==3.1.2
 msrest==0.6.21
 openpyxl==3.0.10
 pandas==1.4.4
