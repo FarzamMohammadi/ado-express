@@ -11,6 +11,7 @@ from packages.common.environment_variables import EnvironmentVariables
 from packages.common.models import DeploymentDetails
 from packages.utils import DeploymentPlan
 from packages.utils.asset_retrievers.release_finder import ReleaseFinder
+from packages.utils.asset_retrievers.work_item_manager.work_item_manager import WorkItemManager
 from packages.utils.excel_manager import ExcelManager
 from packages.utils.release_manager.update_release import UpdateRelease
 from packages.utils.release_note_helpers import needs_deployment
@@ -118,16 +119,18 @@ class Startup:
                 logging.error(f'There was an error. Please check their status and continue manually.\nException:{e}')
 
 if __name__ == '__main__':
-    startup = Startup()
-    t1 = time.perf_counter()
+    # startup = Startup()
+    # t1 = time.perf_counter()
 
-    with concurrent.futures.ThreadPoolExecutor() as executor:
-        results = executor.map(startup.start_request, deployment_plan.deployment_details)
+    # with concurrent.futures.ThreadPoolExecutor() as executor:
+    #     results = executor.map(startup.start_request, deployment_plan.deployment_details)
     
-    if environment_variables.VIA_STAGE_LATEST_RELEASE:
-        for row in results:
-            if row is not None:
-                excel_manager.save_or_concat_file(row, constants.SEARCH_RESULTS_DEPLOYMENT_PLAN_FILE_PATH)
+    # if environment_variables.VIA_STAGE_LATEST_RELEASE:
+    #     for row in results:
+    #         if row is not None:
+    #             excel_manager.save_or_concat_file(row, constants.SEARCH_RESULTS_DEPLOYMENT_PLAN_FILE_PATH)
 
-    t2 = time.perf_counter()
-    logging.info(f'Tasks completed in {t2-t1} seconds')
+    # t2 = time.perf_counter()
+    # logging.info(f'Tasks completed in {t2-t1} seconds')
+    ms_authentication = MSAuthentication(environment_variables)
+    work_item_manager = WorkItemManager(ms_authentication)
