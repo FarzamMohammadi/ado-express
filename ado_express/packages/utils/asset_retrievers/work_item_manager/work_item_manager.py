@@ -1,3 +1,4 @@
+from collections import defaultdict
 from packages.authentication.ms_authentication.ms_authentication import MSAuthentication
 
 class WorkItemManager:
@@ -7,25 +8,27 @@ class WorkItemManager:
         self.work_item_tracking_client = ms_authentication.work_item_tracking_client
         self.git_client = ms_authentication.git_client
 
-        query_work_items = self.get_query_work_items(None)
+    def get_query_builds(self, query_id):
+        builds_dict = defaultdict(list)
+        query_work_items = self.get_query_work_items(query_id)
 
         for query_work_item in query_work_items:
-            work_item = self.get_work_item(query_work_item.id) # TODO: Send each query work item individually
+            work_item = self.get_work_item(query_work_item.id)
             relations = self.get_work_item_relations(work_item)
             pull_requests = self.get_pull_requests(relations)
 
             for pr in pull_requests:
-                pr_commit_statuses = self.get_statuses_from_pull_request(pr)
-                if pr_commit_statuses is None: continue # No completed PRs found
-                    
-                for status in pr_commit_statuses:
-                    builds = self.get_status_builds(status) # Returns dict of deployments {'definition_name': 'build_number'}
-                    if builds is not None:
-                        for key in builds:
-                            print(builds[key])
+                merged_commit_statuses, project = self.get_statuses_from_pull_request(pr)
+                if merged_commit_statuses is None: continue # No merged PRs found
+
+                for status in merged_commit_statuses:
+                    build_dict = self.get_status_builds(status, project) # Returns dict of deployments {'definition_name': 'build_number'}
+
+                    if build_dict is not None: self.merge_builds_dict(build_dict, builds_dict)
+        
+        return builds_dict
 
     def get_query_work_items(self, query_id):
-        query_id = ''
         query_results = self.work_item_tracking_client.query_by_id(id=query_id)
 
         return query_results.work_items
@@ -67,6 +70,7 @@ class WorkItemManager:
         state_key = 'succeeded'
         commit_id = pull_request.last_merge_commit.commit_id
         repository_id = pull_request.repository.id
+        project = pull_request.repository.project.name
 
         statuses = self.git_client.get_statuses(commit_id, repository_id)
 
@@ -74,11 +78,11 @@ class WorkItemManager:
 
             if status.state == state_key: pr_commit_statuses.append(status)
 
-        return pr_commit_statuses
+        return pr_commit_statuses, project
     
-    def get_status_builds(self, status, project=None):
+    def get_status_builds(self, status, project):
         build_id = status.target_url.split('/')[-1]
-        project = "International" # TODO: Find and pass the project from previous methods
+
         try:
             build = self.buid_client.get_build(project, build_id)
         except:
@@ -88,4 +92,11 @@ class WorkItemManager:
         build_number = build.build_number
 
         return {str(definition_name).lower(): str(build_number).lower()}
-
+    
+    def merge_builds_dict(self, dict_to_merge, dict_to_merge_into):
+        for key, value in dict_to_merge.items():
+            if key in dict_to_merge_into: dict_to_merge_into[key].append(value)
+            else: dict_to_merge_into |= {key: [value]}
+        
+        return dict_to_merge_into
+                    
