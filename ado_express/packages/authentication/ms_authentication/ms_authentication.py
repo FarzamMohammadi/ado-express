@@ -14,6 +14,7 @@ class MSAuthentication:
         self._release_client = self.get_release_client()
         self._release_client_v6 = self.get_release_client(version=6)
         self._work_item_tracking_client = self.connection.clients.get_work_item_tracking_client()
+        self._work_client = self.connection.clients.get_work_client()
     
     @property
     def build_client(self):
@@ -30,6 +31,10 @@ class MSAuthentication:
     @property
     def git_client(self):
         return self._git_client
+
+    @property
+    def work_client(self):
+        return self._work_client
 
     @property
     def work_item_tracking_client(self):

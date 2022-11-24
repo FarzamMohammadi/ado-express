@@ -4,12 +4,13 @@ from packages.authentication.ms_authentication.ms_authentication import MSAuthen
 class WorkItemManager:
 
     def __init__(self, ms_authentication: MSAuthentication):
+        self.release_client = ms_authentication.client
         self.buid_client = ms_authentication.build_client
         self.work_item_tracking_client = ms_authentication.work_item_tracking_client
         self.git_client = ms_authentication.git_client
 
-    def get_query_builds(self, query_id):
-        builds_dict = defaultdict(list)
+    def get_query_build_ids(self, query_id):
+        build_ids = []
         query_work_items = self.get_query_work_items(query_id)
 
         for query_work_item in query_work_items:
@@ -22,11 +23,11 @@ class WorkItemManager:
                 if merged_commit_statuses is None: continue # No merged PRs found
 
                 for status in merged_commit_statuses:
-                    build_dict = self.get_status_builds(status, project) # Returns dict of deployments {'definition_name': 'build_number'}
+                    build_id = self.get_build_id_from_status(status, project) # Returns dict of deployments {'definition_name': 'build_number'}
 
-                    if build_dict is not None: self.merge_builds_dict(build_dict, builds_dict)
+                    if build_id is not None: build_ids.append(build_id)
         
-        return builds_dict
+        return build_ids
 
     def get_query_work_items(self, query_id):
         query_results = self.work_item_tracking_client.query_by_id(id=query_id)
@@ -75,28 +76,17 @@ class WorkItemManager:
         statuses = self.git_client.get_statuses(commit_id, repository_id)
 
         for status in statuses:
-
-            if status.state == state_key: pr_commit_statuses.append(status)
+            
+            if status.state == state_key: 
+                pr_commit_statuses.append(status)
 
         return pr_commit_statuses, project
-    
-    def get_status_builds(self, status, project):
+
+    def get_build_id_from_status(self, status, project):
         build_id = status.target_url.split('/')[-1]
 
         try:
             build = self.buid_client.get_build(project, build_id)
+            return build.id # Only return id if build was found
         except:
-            return # No build found (possbile error in ADO)
-
-        definition_name = build.definition.name
-        build_number = build.build_number
-
-        return {str(definition_name).lower(): str(build_number).lower()}
-    
-    def merge_builds_dict(self, dict_to_merge, dict_to_merge_into):
-        for key, value in dict_to_merge.items():
-            if key in dict_to_merge_into: dict_to_merge_into[key].append(value)
-            else: dict_to_merge_into |= {key: [value]}
-        
-        return dict_to_merge_into
-                    
+            return None # No build found (possbile error in ADO)

@@ -60,13 +60,23 @@ class Startup:
         self.search_file_path = constants.SEARCH_RESULTS_FILE_PATH
         self.via_stage = environment_variables.VIA_STAGE
         self.via_stage_latest_release = environment_variables.VIA_STAGE_LATEST_RELEASE
+        self.query = environment_variables.QUERY
         self.time_format = '%Y-%m-%d %H:%M:%S'
         self.datetime_now = datetime.now(timezone('US/Eastern'))
     
     def start_request(self, deployment_detail: DeploymentDetails):
         if self.search_only:
             try:
-                if self.via_stage_latest_release:
+                if self.query is not None:
+                    work_item_manager = WorkItemManager(self.ms_authentication)
+                    build_ids = work_item_manager.get_query_build_ids(self.query)
+                    releases_dict = self.release_finder.get_releases_via_builds(build_ids)
+                    for release_definition, release_name in releases_dict.items():
+                        print(release_definition)
+                        print(release_name)
+                        print()
+
+                elif self.via_stage_latest_release:
                     target_release = self.release_finder.get_release(deployment_detail, find_via_stage=self.via_stage)
                     rollback_release = self.release_finder.get_release(deployment_detail, find_via_stage=self.via_stage, rollback=True)
 
@@ -119,18 +129,16 @@ class Startup:
                 logging.error(f'There was an error. Please check their status and continue manually.\nException:{e}')
 
 if __name__ == '__main__':
-    # startup = Startup()
-    # t1 = time.perf_counter()
-
-    # with concurrent.futures.ThreadPoolExecutor() as executor:
-    #     results = executor.map(startup.start_request, deployment_plan.deployment_details)
+    startup = Startup()
+    t1 = time.perf_counter()
+    startup.start_request(None)
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        results = executor.map(startup.start_request, deployment_plan.deployment_details)
     
-    # if environment_variables.VIA_STAGE_LATEST_RELEASE:
-    #     for row in results:
-    #         if row is not None:
-    #             excel_manager.save_or_concat_file(row, constants.SEARCH_RESULTS_DEPLOYMENT_PLAN_FILE_PATH)
+    if environment_variables.VIA_STAGE_LATEST_RELEASE:
+        for row in results:
+            if row is not None:
+                excel_manager.save_or_concat_file(row, constants.SEARCH_RESULTS_DEPLOYMENT_PLAN_FILE_PATH)
 
-    # t2 = time.perf_counter()
-    # logging.info(f'Tasks completed in {t2-t1} seconds')
-    ms_authentication = MSAuthentication(environment_variables)
-    work_item_manager = WorkItemManager(ms_authentication)
+    t2 = time.perf_counter()
+    logging.info(f'Tasks completed in {t2-t1} seconds')

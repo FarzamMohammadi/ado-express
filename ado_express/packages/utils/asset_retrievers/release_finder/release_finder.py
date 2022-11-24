@@ -7,6 +7,8 @@ from packages.common.models import DeploymentDetails
 class ReleaseFinder:
 
     def __init__(self, ms_authentication: MSAuthentication, deployment_details: list[DeploymentDetails], environment_variables: EnvironmentVariables):
+        self.work_client = ms_authentication.work_client
+        self.build_client = ms_authentication.build_client
         self.release_client = ms_authentication.client
         self.release_client_v6 = ms_authentication.client_v6
         self.deployment_details = deployment_details
@@ -106,3 +108,22 @@ class ReleaseFinder:
                 release_number = deployment_detail.release_rollback
                 
             self.find_matching_releases_via_name(releases, release_number, deployment_detail)
+    
+    def get_releases_via_builds(self, build_ids, release_name_split_key='Release-'):
+        releases_dict = dict()
+
+        for build_id in build_ids:
+            build_releases = self.release_client.get_releases(artifact_version_id=build_id).value
+            
+            for release in build_releases:
+                release_definition = release.release_definition
+                release_definition_name = release_definition.name
+
+                if release_definition_name in releases_dict:
+                     
+                    if release.name.split(release_name_split_key)[-1] > releases_dict[release_definition_name].split(release_name_split_key)[-1]: releases_dict[release_definition_name] = release.name
+                
+                else: releases_dict[release_definition_name] = release.name
+        
+        return releases_dict
+
