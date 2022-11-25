@@ -1,4 +1,5 @@
 import concurrent.futures
+from itertools import repeat
 import logging
 import os
 import sys
@@ -37,7 +38,7 @@ class Startup:
         if self.search_only:
             logging.info('Starting the search...')
 
-            if self.via_stage_latest_release:
+            if self.via_stage_latest_release or self.query:
                 # Create new deployment excel file
                 self.deployment_plan_columns = constants.DEPLOYMENT_PLAN_HEADERS
                 self.deployment_plan_path = constants.SEARCH_RESULTS_DEPLOYMENT_PLAN_FILE_PATH
@@ -71,10 +72,32 @@ class Startup:
                     work_item_manager = WorkItemManager(self.ms_authentication)
                     build_ids = work_item_manager.get_query_build_ids(self.query)
                     releases_dict = self.release_finder.get_releases_via_builds(build_ids)
-                    for release_definition, release_name in releases_dict.items():
-                        print(release_definition)
-                        print(release_name)
-                        print()
+                    rollback_dict = dict()
+                    rows = []
+
+                    # Get rollback
+                    with concurrent.futures.ThreadPoolExecutor() as executor:
+                        rollbacks = executor.map(self.release_finder.get_release, {k for k, v in releases_dict.items()}, repeat(self.via_stage), repeat(True))
+
+                        for rollback in rollbacks:
+                            if all(rollback.values()): rollback_dict |= rollback # If rollback for target environment is found
+                            else: releases_dict.pop(next(iter(rollback))) # Remove key & value from releases_dict
+
+                    for release_location, release_target in releases_dict.items():
+                        project = release_location.split('/')[0] 
+                        release_name = release_location.split('/')[1]
+                    
+                        new_row = excel_manager.pd.DataFrame({
+                            self.deployment_plan_columns[0]: project, 
+                            self.deployment_plan_columns[1]: release_name, 
+                            self.deployment_plan_columns[2]: release_target, 
+                            self.deployment_plan_columns[3]: rollback_dict[release_location],
+                            self.deployment_plan_columns[4]: ''
+                            }, index=[0])
+                        
+                        rows.append(new_row)
+                    
+                    return rows
 
                 elif self.via_stage_latest_release:
                     target_release = self.release_finder.get_release(deployment_detail, find_via_stage=self.via_stage)
@@ -131,11 +154,14 @@ class Startup:
 if __name__ == '__main__':
     startup = Startup()
     t1 = time.perf_counter()
-    startup.start_request(None)
-    with concurrent.futures.ThreadPoolExecutor() as executor:
-        results = executor.map(startup.start_request, deployment_plan.deployment_details)
-    
-    if environment_variables.VIA_STAGE_LATEST_RELEASE:
+
+    if environment_variables.SEARCH_ONLY and environment_variables.QUERY != None:
+        results = startup.start_request(None)
+    else:
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            results = executor.map(startup.start_request, deployment_plan.deployment_details)
+        
+    if environment_variables.VIA_STAGE_LATEST_RELEASE or environment_variables.QUERY:
         for row in results:
             if row is not None:
                 excel_manager.save_or_concat_file(row, constants.SEARCH_RESULTS_DEPLOYMENT_PLAN_FILE_PATH)

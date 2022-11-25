@@ -38,15 +38,23 @@ class ReleaseFinder:
             file.write(''.join(map(str, logs)) if len(logs) > 1 else (f'\nNO RESULTS AVAILABLE - Release Definition: {deployment_detail.release_name}\n'))
 
                 
-    def find_matching_release_via_source_stage(self, releases, deployment_detail: DeploymentDetails, rollback=False):
+    def find_matching_release_via_source_stage(self, releases, deployment_detail, rollback=False):
         environment_name_to_find = self.environment_variables.RELEASE_STAGE_NAME if rollback else self.environment_variables.VIA_STAGE_SOURCE_NAME
+        if isinstance(deployment_detail, str): is_query_call = True
+        # If deployment details are coming from query dict they will be str
+        project = deployment_detail.split('/')[0] if is_query_call else deployment_detail.release_project_name 
         
         for release in releases:
-            release_to_check = self.release_client.get_release(project=deployment_detail.release_project_name, release_id=release.id)
+            release_to_check = self.release_client.get_release(project, release_id=release.id)
 
             for env in release_to_check.environments:
+                
                 if str(env.name).lower() == environment_name_to_find and env.status in self.environment_statuses.Succeeded:
-                    return release
+                    
+                    if is_query_call: return {deployment_detail: release.name}
+                    else: return release
+            
+        return {deployment_detail: None} # If no matching release was found
 
 
     def find_matching_releases_via_stage(self, releases, deployment_detail: DeploymentDetails):
@@ -66,16 +74,19 @@ class ReleaseFinder:
             file.write(''.join(map(str, logs)) if len(logs) > 1 else (f'\nNO RESULTS AVAILABLE - Release Definition: {deployment_detail.release_name}\n'))
 
     def get_release(self, deployment_detail, find_via_stage=False, rollback=False):
+        # If deployment details are coming from query dict they will be str
+        project = deployment_detail.split('/')[0] if isinstance(deployment_detail, str) else deployment_detail.release_project_name 
+        release_name = deployment_detail.split('/')[1] if isinstance(deployment_detail, str) else deployment_detail.release_name
         # Gets release definitions names 
-        release_definitions = self.release_client.get_release_definitions(project=deployment_detail.release_project_name)
+        release_definitions = self.release_client.get_release_definitions(project)
         
         for definition in release_definitions.value:
             
-            if (str(definition.name).lower() == str(deployment_detail.release_name).lower()):
+            if (str(definition.name).lower() == str(release_name).lower()):
                 release_definition = definition
 
         # Get release id from release to know which needs to be deployed to new env
-        releases = self.release_client.get_releases(project=deployment_detail.release_project_name, definition_id=release_definition.id).value
+        releases = self.release_client.get_releases(project, definition_id=release_definition.id).value
         
         if find_via_stage:
             return self.find_matching_release_via_source_stage(releases, deployment_detail, rollback) 
@@ -100,7 +111,7 @@ class ReleaseFinder:
         releases = self.release_client.get_releases(project=deployment_detail.release_project_name, definition_id=release_definition.id).value
         
         if find_via_stage:
-            self.find_matching_releases_via_stage(releases, deployment_detail) 
+            return self.find_matching_releases_via_stage(releases, deployment_detail) 
         else:
             if not rollback:
                 release_number = deployment_detail.release_number
@@ -114,16 +125,18 @@ class ReleaseFinder:
 
         for build_id in build_ids:
             build_releases = self.release_client.get_releases(artifact_version_id=build_id).value
-            
+
             for release in build_releases:
+                release_project = release.project_reference.name
                 release_definition = release.release_definition
                 release_definition_name = release_definition.name
+                dict_key = f'{release_project}/{release_definition_name}'
 
-                if release_definition_name in releases_dict:
-                     
-                    if release.name.split(release_name_split_key)[-1] > releases_dict[release_definition_name].split(release_name_split_key)[-1]: releases_dict[release_definition_name] = release.name
+                if dict_key in releases_dict:
+
+                    if release.name.split(release_name_split_key)[-1] > releases_dict[dict_key].split(release_name_split_key)[-1]: releases_dict[dict_key] = release.name
                 
-                else: releases_dict[release_definition_name] = release.name
+                else: releases_dict[dict_key] = release.name
         
         return releases_dict
 
