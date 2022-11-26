@@ -120,8 +120,6 @@ class Startup:
                             }, index=[0])
 
                         return new_row
-                    else: 
-                        return None
                 else:    
                     self.release_finder.get_releases(deployment_detail, find_via_stage=self.via_stage)
 

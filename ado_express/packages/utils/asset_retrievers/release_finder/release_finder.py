@@ -40,7 +40,7 @@ class ReleaseFinder:
                 
     def find_matching_release_via_source_stage(self, releases, deployment_detail, rollback=False):
         environment_name_to_find = self.environment_variables.RELEASE_STAGE_NAME if rollback else self.environment_variables.VIA_STAGE_SOURCE_NAME
-        if isinstance(deployment_detail, str): is_query_call = True
+        is_query_call = True if isinstance(deployment_detail, str) else False
         # If deployment details are coming from query dict they will be str
         project = deployment_detail.split('/')[0] if is_query_call else deployment_detail.release_project_name 
         
@@ -121,6 +121,7 @@ class ReleaseFinder:
             self.find_matching_releases_via_name(releases, release_number, deployment_detail)
     
     def get_releases_via_builds(self, build_ids, release_name_split_key='Release-'):
+        environment_name_to_find = self.environment_variables.VIA_STAGE_SOURCE_NAME
         releases_dict = dict()
 
         for build_id in build_ids:
@@ -133,10 +134,22 @@ class ReleaseFinder:
                 dict_key = f'{release_project}/{release_definition_name}'
 
                 if dict_key in releases_dict:
-
-                    if release.name.split(release_name_split_key)[-1] > releases_dict[dict_key].split(release_name_split_key)[-1]: releases_dict[dict_key] = release.name
                 
-                else: releases_dict[dict_key] = release.name
-        
+                    if release.name.split(release_name_split_key)[-1] > releases_dict[dict_key].split(release_name_split_key)[-1]: 
+                        if environment_name_to_find is None: releases_dict[dict_key] = release.name
+                        else:
+                            release_to_add = self.release_client.get_release(project=release_project, release_id=release.id)
+                            
+                            for env in release_to_add.environments:
+                                if str(env.name).lower() == environment_name_to_find and env.status in self.environment_statuses.Succeeded: releases_dict[dict_key] = release.name
+                
+                else: 
+                    if environment_name_to_find is None: releases_dict[dict_key] = release.name
+                    else:
+                        release_to_add = self.release_client.get_release(project=release_project, release_id=release.id)
+                        
+                        for env in release_to_add.environments:
+                            if str(env.name).lower() == environment_name_to_find and env.status in self.environment_statuses.Succeeded: releases_dict[dict_key] = release.name
+            
         return releases_dict
 
