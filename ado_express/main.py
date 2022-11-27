@@ -151,13 +151,29 @@ class Startup:
 
 if __name__ == '__main__':
     startup = Startup()
-    t1 = time.perf_counter()
+    crucial_release_definitions = environment_variables.CRUCIAL_RELEASE_DEFINITIONS
+    deployment_details = deployment_plan.deployment_details
+    crucial_deployment_details = []
+    t1 = time.perf_counter() 
 
     if environment_variables.SEARCH_ONLY and environment_variables.QUERY != None:
         results = startup.start_request(None)
     else:
-        with concurrent.futures.ThreadPoolExecutor() as executor:
-            results = executor.map(startup.start_request, deployment_plan.deployment_details)
+        if crucial_release_definitions is not None:
+
+            for i, deployment_detail in deployment_details:
+                deployment_release_name = deployment_detail.release_name
+                if deployment_release_name in crucial_release_definitions:
+                    crucial_deployment_details.append(deployment_detail)
+                    del deployment_details[i]
+        
+        if crucial_deployment_details: # First deploy crucial releases if there are any
+            with concurrent.futures.ThreadPoolExecutor() as executor:
+                crucial_deployment_results = executor.map(startup.start_request, crucial_deployment_details)
+                
+
+        with concurrent.futures.ThreadPoolExecutor() as executor: # Then deploy the rest of the releases
+            results = executor.map(startup.start_request, deployment_details)
         
     if environment_variables.VIA_STAGE_LATEST_RELEASE or environment_variables.QUERY:
         for row in results:
