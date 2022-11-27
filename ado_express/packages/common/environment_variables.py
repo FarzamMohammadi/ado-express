@@ -14,7 +14,9 @@ class EnvironmentVariables:
     VIA_STAGE = os.getenv("VIA_STAGE", default='False').lower() in ('true', '1', 't') or sys.argv[7].lower() in ('true', '1', 't') if len(sys.argv) > 7 else False # argument 7
     VIA_STAGE_SOURCE_NAME = None if os.getenv('VIA_STAGE_SOURCE_NAME') == '' else os.getenv('VIA_STAGE_SOURCE_NAME') or sys.argv[1] if len(sys.argv) > 8 else None # argument 8
     VIA_STAGE_LATEST_RELEASE = os.getenv("VIA_STAGE_LATEST_RELEASE", default='False').lower() in ('true', '1', 't') or sys.argv[9].lower() in ('true', '1', 't') if len(sys.argv) > 9 else False # argument 9
-
+    CRUCIAL_RELEASE_DEFINITIONS = os.getenv('CRUCIAL_RELEASE_DEFINITIONS').split(',') if os.getenv('CRUCIAL_RELEASE_DEFINITIONS') is not None else sys.argv[10].split(',') if len(sys.argv) > 10 else None # argument 10
+    USE_SEARCH_RESULTS = os.getenv('USE_SEARCH_RESULTS', default='False').lower() in ('true', '1', 't') or sys.argv[11].lower() in ('true', '1', 't') if len(sys.argv) > 11 else False # argument 11
+    
     if not SEARCH_ONLY and VIA_STAGE and VIA_STAGE_SOURCE_NAME is None:
         raise Exception('To deploy via stage you must provide a VIA_STAGE_SOURCE_NAME')
     
