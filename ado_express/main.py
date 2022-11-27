@@ -24,8 +24,8 @@ logging.info('Starting application')
 logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
 
 constants = Constants()
-deployment_plan = DeploymentPlan(constants)
 environment_variables = EnvironmentVariables()
+deployment_plan = DeploymentPlan(constants, environment_variables)
 excel_manager = ExcelManager()
 
 class Startup:
