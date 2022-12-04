@@ -86,16 +86,18 @@ class Startup:
                     for release_location, release_target in releases_dict.items():
                         project = release_location.split('/')[0] 
                         release_name = release_location.split('/')[1]
-                    
-                        new_row = excel_manager.pd.DataFrame({
-                            self.deployment_plan_columns[0]: project, 
-                            self.deployment_plan_columns[1]: release_name, 
-                            self.deployment_plan_columns[2]: release_target, 
-                            self.deployment_plan_columns[3]: rollback_dict[release_location],
-                            self.deployment_plan_columns[4]: ''
-                            }, index=[0])
+                        release_rollback = rollback_dict[release_location]
                         
-                        rows.append(new_row)
+                        if release_target > release_rollback: # Prevents unwanted releases (caused by skipped stages in a release, e.g. one that has only been deployed to PROD but not QA)
+                            new_row = excel_manager.pd.DataFrame({
+                                self.deployment_plan_columns[0]: project, 
+                                self.deployment_plan_columns[1]: release_name, 
+                                self.deployment_plan_columns[2]: release_target, 
+                                self.deployment_plan_columns[3]: release_rollback,
+                                self.deployment_plan_columns[4]: ''
+                                }, index=[0])
+                        
+                            rows.append(new_row)
                     
                     return rows
 
