@@ -174,9 +174,11 @@ if __name__ == '__main__':
             results = executor.map(startup.start_request, deployment_details)
         
     if environment_variables.VIA_STAGE_LATEST_RELEASE or environment_variables.QUERY:
-        for row in results:
-            if row is not None:
-                excel_manager.save_or_concat_file(row, constants.SEARCH_RESULTS_DEPLOYMENT_PLAN_FILE_PATH)
+        if results:
+            for row in results:
+                if row is not None:
+                    excel_manager.save_or_concat_file(row, constants.SEARCH_RESULTS_DEPLOYMENT_PLAN_FILE_PATH)
+        else: logging.info(f'No results found - please check the configuration')
 
     t2 = time.perf_counter()
     logging.info(f'Tasks completed in {t2-t1} seconds')

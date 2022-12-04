@@ -1,3 +1,6 @@
+import concurrent.futures
+from itertools import repeat
+
 from packages.authentication import MSAuthentication
 from packages.common.constants import Constants
 from packages.common.enums import ReleaseEnvironmentStatuses
@@ -119,37 +122,52 @@ class ReleaseFinder:
                 release_number = deployment_detail.release_rollback
                 
             self.find_matching_releases_via_name(releases, release_number, deployment_detail)
-    
-    def get_releases_via_builds(self, build_ids, release_name_split_key='Release-'):
+
+    def get_releases_dict_from_build_releases(self, release, release_name_split_key):
         environment_name_to_find = self.environment_variables.VIA_STAGE_SOURCE_NAME
         releases_dict = dict()
+        release_project = release.project_reference.name
+        release_definition = release.release_definition
+        release_definition_name = release_definition.name
+        dict_key = f'{release_project}/{release_definition_name}'
 
-        for build_id in build_ids:
-            build_releases = self.release_client.get_releases(artifact_version_id=build_id).value
+        if dict_key in releases_dict:
+        
+            if release.name.split(release_name_split_key)[-1] > releases_dict[dict_key].split(release_name_split_key)[-1]: 
 
-            for release in build_releases:
-                release_project = release.project_reference.name
-                release_definition = release.release_definition
-                release_definition_name = release_definition.name
-                dict_key = f'{release_project}/{release_definition_name}'
-
-                if dict_key in releases_dict:
+                if environment_name_to_find is None: releases_dict[dict_key] = release.name
+                else:
+                    release_to_add = self.release_client.get_release(project=release_project, release_id=release.id)
+                    
+                    for env in release_to_add.environments:
+                        if str(env.name).lower() == environment_name_to_find and env.status in self.environment_statuses.Succeeded: releases_dict[dict_key] = release.name
+        else: 
+            if environment_name_to_find is None: releases_dict[dict_key] = release.name
+            else:
+                release_to_add = self.release_client.get_release(project=release_project, release_id=release.id)
                 
-                    if release.name.split(release_name_split_key)[-1] > releases_dict[dict_key].split(release_name_split_key)[-1]: 
-                        if environment_name_to_find is None: releases_dict[dict_key] = release.name
-                        else:
-                            release_to_add = self.release_client.get_release(project=release_project, release_id=release.id)
-                            
-                            for env in release_to_add.environments:
-                                if str(env.name).lower() == environment_name_to_find and env.status in self.environment_statuses.Succeeded: releases_dict[dict_key] = release.name
-                
-                else: 
-                    if environment_name_to_find is None: releases_dict[dict_key] = release.name
-                    else:
-                        release_to_add = self.release_client.get_release(project=release_project, release_id=release.id)
-                        
-                        for env in release_to_add.environments:
-                            if str(env.name).lower() == environment_name_to_find and env.status in self.environment_statuses.Succeeded: releases_dict[dict_key] = release.name
-            
+                for env in release_to_add.environments:
+                    if str(env.name).lower() == environment_name_to_find and env.status in self.environment_statuses.Succeeded: releases_dict[dict_key] = release.name
+        
         return releases_dict
+    
+    def get_releases_from_build_id(self, build_id):
+        return self.release_client.get_releases(artifact_version_id=build_id).value
+    
+    def get_releases_via_builds(self, build_ids, release_name_split_key='Release-'):
+        releases_dict = dict()
 
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            build_releases = executor.map(self.get_releases_from_build_id, build_ids)
+            releases_dicts = executor.map(self.get_releases_dict_from_build_releases, [item for sublist in build_releases for item in sublist], repeat(release_name_split_key))
+            
+            for release_dictionary in releases_dicts:
+
+                for release_definition, release_name in release_dictionary.items():
+
+                    if release_definition in releases_dict:
+                        if release_name.split(release_name_split_key)[-1] > releases_dict[release_definition].split(release_name_split_key)[-1]: releases_dict[release_definition] = release_name
+                    else: 
+                        releases_dict[release_definition] = release_name
+        
+        return releases_dict
