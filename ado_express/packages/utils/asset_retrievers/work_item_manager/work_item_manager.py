@@ -1,5 +1,5 @@
-from collections import defaultdict
 from packages.authentication.ms_authentication.ms_authentication import MSAuthentication
+from packages.common.enums import RelationTypes
 
 class WorkItemManager:
 
@@ -16,17 +16,20 @@ class WorkItemManager:
         for query_work_item in query_work_items:
             work_item = self.get_work_item(query_work_item.id)
             relations = self.get_work_item_relations(work_item)
-            pull_requests = self.get_pull_requests(relations)
 
-            for pr in pull_requests:
-                merged_commit_statuses, project = self.get_statuses_from_pull_request(pr)
+            for relation in relations:
+                relation_type = relation.url.split('/')[4].lower() # Pull request or direct commit
+                commit, repository = self.get_commit_from_relation(relation, relation_type)
 
-                if merged_commit_statuses is None: continue # No merged PRs found
+                if commit:
+                    commit_statuses, project = self.get_statuses_from_commit(commit, repository)
 
-                for status in merged_commit_statuses:
-                    build_id = self.get_build_id_from_status(status, project) # Returns dict of deployments {'definition_name': 'build_number'}
+                    if commit_statuses is None: continue # No merged commits found
 
-                    if build_id is not None: build_ids.append(build_id)
+                    for status in commit_statuses:
+                        build_id = self.get_build_id_from_status(status, project) # Returns dict of deployments {<definition_name>: <build_number>}
+
+                        if build_id is not None: build_ids.append(build_id)
         
         return build_ids
 
@@ -40,50 +43,52 @@ class WorkItemManager:
 
         return work_item
     
-    def get_work_item_relations(self, work_item, relation_name='Pull Request'):
+    def get_work_item_relations(self, work_item, relation_names=['pull request', 'fixed in commit']):
         relations = []
 
         if work_item.relations:
-            
+
             for relation in work_item.relations:
                 attributes_name = relation.attributes['name'] or None
 
-                if attributes_name is not None and str(attributes_name).lower() == relation_name.lower(): relations.append(relation)
+                if attributes_name is not None and str(attributes_name).lower() in relation_names: relations.append(relation)
         
         return relations
 
-    def get_pull_requests(self, relations):
-        pull_requests = []
+    def get_commit_from_relation(self, relation, relation_type):
         completed_status = 'completed'
-        split_key = '%2F'
-
-        for relation in relations:
-            repository_id = relation.url.split(split_key)[1]
-            pull_request_id = relation.url.split(split_key)[2]
-
-            pull_request = self.git_client.get_pull_request(repository_id, pull_request_id)
-
-            if pull_request.status == completed_status: pull_requests.append(pull_request) #Prevents non-complete PRs from getting checked
+        split_key = '%2f' # Could be upper case F for some urls, while lower case in others
         
-        return pull_requests
+        repository_id = relation.url.lower().split(split_key)[1] 
+        relation_item_id = relation.url.lower().split(split_key)[2]
+
+        if relation_type == RelationTypes.COMMIT:
+            commit = self.git_client.get_commit(relation_item_id, repository_id)
+            repository = self.git_client.get_repository(repository_id)
+
+            return commit, repository
+        elif relation_type == RelationTypes.PULL_REQUEST_ID:
+            pull_request = self.git_client.get_pull_request(repository_id, relation_item_id)
+
+            if pull_request.last_merge_commit is not None and pull_request.status == completed_status: return pull_request.last_merge_commit, pull_request.repository  #Prevents incomplete PRs from getting checked
+        
+        return None, None
     
-    def get_statuses_from_pull_request(self, pull_request):
-        if pull_request.last_merge_commit is None: return None # In case where pull request commit was not merged
+    def get_statuses_from_commit(self, commit, repository):
+        if commit is None: return None # In case where pull request commit was not merged
         
-        pr_commit_statuses = []
+        commit_statuses = []
         state_key = 'succeeded'
-        commit_id = pull_request.last_merge_commit.commit_id
-        repository_id = pull_request.repository.id
-        project = pull_request.repository.project.name
-
-        statuses = self.git_client.get_statuses(commit_id, repository_id)
+        project = repository.project.name
+        
+        statuses = self.git_client.get_statuses(commit.commit_id, repository.id)
 
         for status in statuses:
             
             if status.state == state_key: 
-                pr_commit_statuses.append(status)
+                commit_statuses.append(status)
 
-        return pr_commit_statuses, project
+        return commit_statuses, project
 
     def get_build_id_from_status(self, status, project):
         build_id = status.target_url.split('/')[-1]
