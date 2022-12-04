@@ -160,17 +160,13 @@ if __name__ == '__main__':
         results = startup.start_request(None)
     else:
         if crucial_release_definitions is not None:
+            # Separate crucial & regular deployments based on release defintions that match CRUCIAL_RELEASE_DEFINITIONS env variable list
+            crucial_deployment_details = [x for x in deployment_details if x.release_name in crucial_release_definitions]
+            deployment_details[:] = [x for x in deployment_details if x.release_name not in crucial_release_definitions]
 
-            for i, deployment_detail in deployment_details:
-                deployment_release_name = deployment_detail.release_name
-                if deployment_release_name in crucial_release_definitions:
-                    crucial_deployment_details.append(deployment_detail)
-                    del deployment_details[i]
-        
         if crucial_deployment_details: # First deploy crucial releases if there are any
             with concurrent.futures.ThreadPoolExecutor() as executor:
                 crucial_deployment_results = executor.map(startup.start_request, crucial_deployment_details)
-                
 
         with concurrent.futures.ThreadPoolExecutor() as executor: # Then deploy the rest of the releases
             results = executor.map(startup.start_request, deployment_details)
