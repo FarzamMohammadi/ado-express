@@ -20,6 +20,7 @@ class WorkItemManager:
 
             for pr in pull_requests:
                 merged_commit_statuses, project = self.get_statuses_from_pull_request(pr)
+
                 if merged_commit_statuses is None: continue # No merged PRs found
 
                 for status in merged_commit_statuses:
@@ -42,11 +43,13 @@ class WorkItemManager:
     def get_work_item_relations(self, work_item, relation_name='Pull Request'):
         relations = []
 
-        for relation in work_item.relations:
-            attributes_name = relation.attributes['name'] or None
+        if work_item.relations:
+            
+            for relation in work_item.relations:
+                attributes_name = relation.attributes['name'] or None
 
-            if attributes_name is not None and str(attributes_name).lower() == relation_name.lower(): relations.append(relation)
-                    
+                if attributes_name is not None and str(attributes_name).lower() == relation_name.lower(): relations.append(relation)
+        
         return relations
 
     def get_pull_requests(self, relations):
