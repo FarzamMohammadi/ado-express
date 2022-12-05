@@ -1,0 +1,34 @@
+name: Create a new release
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+  pull_request:
+    types:
+      - closed
+
+jobs:
+  github:
+    runs-on: ubuntu-latest
+    
+    steps:
+      
+      - name: Checkout
+        uses: actions/checkout@v3
+      
+      - name: Update script permission
+        run: chmod +x .github/scripts/release.py
+      
+      - name: Create new patch release
+        if: ${{ github.event_name == 'workflow_dispatch' || github.event_name == 'push' }}
+        run: .github/scripts/release.py patch
+        env:
+          GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+      
+      - name: Create new minor release
+        if: ${{ github.event_name == 'pull_request' && github.event.pull_request.merged == true}}
+        run: .github/scripts/release.py minor
+        env:
+          GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
