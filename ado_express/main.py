@@ -98,6 +98,8 @@ class Startup:
                                 }, index=[0])
                         
                             rows.append(new_row)
+
+                            logging.info(f'Added to search-results deployment plan: Project:{project}, Release Definition:{release_name}, Target:{release_target}, Rollback:{release_rollback}')
                     
                     return rows
 
