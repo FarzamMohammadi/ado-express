@@ -1,7 +1,27 @@
 # ADO Express
-**Azure DevOps release management tool**
+**Azure DevOps Release Management Tool**
 
-Search, create and deploy releases - all in the most automated way possible. Tired of creating release notes? Or wasting time by manually deploying and monitoring the status of releases? So was I, and here is my solution. Enjoy!
+Search, create release notes and deploy releases - all in the most automated way possible. Tired of creating release notes? Or wasting time by manually deploying and monitoring the status of releases? So was I, and here is my solution. Enjoy!
+
+----------------------------------
+
+- [Search](#search)
+    - [Export the results to an excel file](#create-search-release-notes-export-search-results-to-excel-file)
+    - [Log the results](#create-search-release-logs)
+- [Deploy](#deploy)
+    - [Deploy via release number](#deploy-via-release-number)
+	- [Deploy via stage/environment](#deploy-via-stageenvironment)
+- [Ways to run](#ways-to-run)
+    - [Use executable](#1-use-executable-simplest-method---no-install-required)
+    - [Use VSCode Development Container](#2-use-vscode-development-container-docker--vscode-installation-required)
+    - [Run the application locally](#3-run-the-application-locally-python--dependency-installation-required)
+- [Files & Resources](#files--resources)
+- [Environment Variables](#environment-variables)
+    - [List of Variables/Arguments](#list-of-variablesarguments)
+- [Configuration Examples](#configuration-cxamples)
+- [Contribution, Issues & New Features](#contribution-issues--new-features)
+
+----------------------------------
 
 # Search
 There are two types of searches available:
@@ -9,8 +29,9 @@ There are two types of searches available:
 2. [**Log the results**](#create-search-release-logs)
 
 ## Create Search Release Notes (Export search results to excel file)
-### Getting Target Releases
-- Using ADO query ID:
+Both methods use the same procedure for [rollback release retrieval](#getting-rollback-releases-same-for-both-methods)
+
+1. Using ADO query ID:
     - How does it work?
         - Iterates through work items (regardless of type) in query to find the last release created by builds of merged commits
         - Steps for target release retrieval: 
@@ -18,20 +39,22 @@ There are two types of searches available:
             2. Goes through each work item to get merged commit builds from pull requests and pushes
             3. Gets all releases created by builds and compares them to find the latest 
             4. The latest deployed release specified by stage (*VIA_STAGE_SOURCE_NAME*) gets returned
-
+        - [Setps for rollback release retrieval](#getting-rollback-releases-same-for-both-methods)
+        
         [EXAMPLE CONFIGURATION](#search-by-query)
 
-- Using deployment plan excel file:
+2. Using deployment plan excel file:
     - How does it work?
         - Iterates through release definitions found in deployment plan file to create release notes
         - Steps for target release retrieval:
             1. Goes through each release definition in the deployment plan 
             2. Finds the latest release based on last successful deployment
             3. The latest deployed release specified by stage (*VIA_STAGE_SOURCE_NAME*) gets returned
+        - [Setps for rollback release retrieval](#getting-rollback-releases-same-for-both-methods)
 
         [EXAMPLE CONFIGURATION](#search-by-latest-release)
 
-### Getting Rollback Releases (Same for both methods): 
+### Getting Rollback Releases: 
 Finds the last deployed release in target stage and sets it as rollback.
 - Steps:
     1. Iterates through release definitions found in the release target retrieval step
@@ -87,11 +110,8 @@ The use of a deployment plan file is required. The default deployment plan can b
 
     [EXAMPLE CONFIGURATION](#deploy-via-stageenvironment-1)
 
-# Contribution, Issues & New Features
-You are more than welcome to contribute to this project by sharing your work through a pull request. If you face any issues or would like to request for any features or changes, let me know by creating a new issue here: [ADO-Express Issues](https://github.com/FarzamMohammadi/ado-express/issues)
-
 ---------------------------------
-# Ways to run:
+# Ways to run
 - [**Use executable** (No installation required)](#1-use-executable-simplest-method---no-install-required)
 - [**Use vscode development container** (Docker & VSCode installation required - Python & dependency installation not required)](#2-use-vscode-development-container-docker--vscode-installation-required)
 - [**Run the application locally** (python & dependency installation required)](#3-run-the-application-locally-python--dependency-installation-required)
@@ -167,11 +187,11 @@ All the files and resources can be found under the [files directory](https://git
 - *deployment-plan.xlsx*: Deployment plan file used by default for search and deployment
 
 ## [/logs](https://github.com/FarzamMohammadi/ado-express/tree/main/ado_express/files/logs)
-- *deployment-stale.log*: Used by development container postCreateCommand to copy contents of deployment.log to it
+- *deployment-stale.log*: Used by development container postCreateCommand to copy contents of deployment.log
 - *deployment.log*: Containts deployment logs
 
 ## [/search-results](https://github.com/FarzamMohammadi/ado-express/tree/main/ado_express/files/search-results)
-- *deployment-plan.xlsx*: The output of search results that results in release note creation. This can also be used for deployment if *USE_SEARCH_RESULTS* is set to true
+- *deployment-plan.xlsx*: The output of search results. This can also be used for deployment if *USE_SEARCH_RESULTS* is set to true
 - *search-results.log*: Contains search logs
 # Environment Variables
 ### Considerations:
@@ -197,7 +217,8 @@ All the files and resources can be found under the [files directory](https://git
 
 **Based on your format, you may need to set *RELEASE_NAME_FORMAT* in quotation marks**
 
-# While I continue to work on making the use of this tool easier, it could be confusing at first to know how to set the environment variables. Here are examples of each run setting environment variables to help with the use of this tool:
+# Configuration Examples
+While I continue to work on making the use of this tool easier, it could be confusing at first to know how to set the environment variables. Here are examples of each run setting environment variables to help with the use of this tool:
 
 ## Search by query: 
 .env:
@@ -260,3 +281,8 @@ CMD:
     RELEASE_NAME_FORMAT=Release-$(rev:r) <- '$' will be used to split the release names and numbers
     VIA_STAGE=True
     VIA_STAGE_SOURCE_NAME=QA
+
+----------------------------------
+
+# Contribution, Issues & New Features
+You are more than welcome to contribute to this project by sharing your work through a pull request. If you face any issues or would like to request for any features or changes, let me know by creating a new issue here: [ADO-Express Issues](https://github.com/FarzamMohammadi/ado-express/issues)
