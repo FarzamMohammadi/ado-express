@@ -171,7 +171,7 @@ All the files and resources can be found under the [files directory](https://git
 - *deployment.log*: Containts deployment logs
 
 ## [/search-results](https://github.com/FarzamMohammadi/ado-express/tree/main/ado_express/files/search-results)
-- *deployment-plan.xlsx*: The output of search results that results in release note creation. This can also by used for deployment if USE_SEARCH_RESULTS environment variable is set to true
+- *deployment-plan.xlsx*: The output of search results that results in release note creation. This can also be used for deployment if *USE_SEARCH_RESULTS* is set to true
 - *search-results.log*: Contains search logs
 # Environment Variables
 ### Considerations:
@@ -195,17 +195,26 @@ All the files and resources can be found under the [files directory](https://git
 ### Order of Command Line Arguments
     <ORGANIZATION_URL> <PERSONAL_ACCESS_TOKEN> <QUERY> <RELEASE_STAGE_NAME> <RELEASE_NAME_FORMAT> <SEARCH_ONLY> <VIA_STAGE> <VIA_STAGE_SOURCE_NAME> <VIA_STAGE_LATEST_RELEASE> <CRUCIAL_RELEASE_DEFINITIONS> <USE_SEARCH_RESULTS>
 
-While I am intent on making the use of this tool easier, it could be confusing at first to know how to set the environment variables. Here are various examples of pre-setup .env variables to help with the use of this tool:
+**Based on your format, you may need to set *RELEASE_NAME_FORMAT* in quotation marks**
+
+# While I continue to work on making the use of this tool easier, it could be confusing at first to know how to set the environment variables. Here are examples of each run setting environment variables to help with the use of this tool:
 
 ## Search by query: 
-    PERSONAL_ACCESS_TOKEN=xxxx
+.env:
+
+    PERSONAL_ACCESS_TOKEN=token
     ORGANIZATION_URL=https://dev.azure.com/xxxx
     RELEASE_STAGE_NAME=PROD
     RELEASE_NAME_FORMAT=Release-$(rev:r) <- '$' will be used to split the release names and numbers
     SEARCH_ONLY=True
     VIA_STAGE=True
     VIA_STAGE_SOURCE_NAME=QA
-    QUERY=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+    QUERY=queryID
+
+CMD:
+
+    ado-express-win.exe https://dev.azure.com/xxxx token queryID PROD "Release-$(rev:r)" True True QA
+**Set *RELEASE_NAME_FORMAT* in quotations**
 
 ## Search by latest release:
     PERSONAL_ACCESS_TOKEN=xxxx
@@ -237,11 +246,17 @@ While I am intent on making the use of this tool easier, it could be confusing a
     RELEASE_STAGE_NAME=PROD
     RELEASE_NAME_FORMAT=Release-$(rev:r) <- '$' will be used to split the release names and numbers
     CRUCIAL_RELEASE_DEFINITIONS=realeaseX,releaseY,releaseZ
+    USE_SEARCH_RESULTS=True
 
+CMD:
+
+    ado-express-win.exe https://dev.azure.com/xxxx token None PROD "Release-$(rev:r)" False True QA False None True
+    
+**Set *RELEASE_NAME_FORMAT* in quotation marks**
 ## Deploy via stage/environment:
-    PERSONAL_ACCESS_TOKEN=xxxx
+    PERSONAL_ACCESS_TOKEN=token
     ORGANIZATION_URL=https://dev.azure.com/xxxx
     RELEASE_STAGE_NAME=PROD
-    RELEASE_NAME_FORMAT=Release-$(rev:r)
+    RELEASE_NAME_FORMAT=Release-$(rev:r) <- '$' will be used to split the release names and numbers
     VIA_STAGE=True
     VIA_STAGE_SOURCE_NAME=QA
