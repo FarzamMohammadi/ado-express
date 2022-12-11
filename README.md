@@ -92,34 +92,33 @@ You are more than welcome to contribute to this project by sharing your work thr
 
 ---------------------------------
 # Ways to run:
-- Use executable (No installation required)
-- Use vscode development container (Docker & VSCode installation required - Python & dependency installation NOT required)
-- Run the application locally (python & dependency installation required)
+- [**Use executable** (No installation required)](#1-use-executable-simplest-method---no-install-required)
+- [**Use vscode development container** (Docker & VSCode installation required - Python & dependency installation not required)](#2-use-vscode-development-container-docker--vscode-installation-required)
+- [**Run the application locally** (python & dependency installation required)](#3-run-the-application-locally-python--dependency-installation-required)
 
 ## 1. Use executable (Simplest method - No install required)
-Executables for Windows and Linux are available in repositroy release artifacts. 
+Executables for Windows and Linux are available in repository release artifacts. 
 
-To run, download and enter the following command (make sure to set the environment variables needed for your task via the run command. For more information about environment variables, see [Environment Variables](#Environment-Variables)):
+To run, download and enter the following command (pass the environment variables as parameters in command). For more information about environment variables, see [Environment Variables](#Environment-Variables)):
 
-    main.exe <ORGANIZATION_URL> <PERSONAL_ACCESS_TOKEN> <QUERY> <RELEASE_STAGE_NAME> <RELEASE_NAME_FORMAT> <SEARCH_ONLY> <VIA_STAGE> <VIA_STAGE_SOURCE_NAME> <VIA_STAGE_LATEST_RELEASE> <CRUCIAL_RELEASE_DEFINITIONS> <USE_SEARCH_RESULTS>
+    ado-express-{OS}.exe <ORGANIZATION_URL> <PERSONAL_ACCESS_TOKEN> <QUERY> <RELEASE_STAGE_NAME> <RELEASE_NAME_FORMAT> <SEARCH_ONLY> <VIA_STAGE> <VIA_STAGE_SOURCE_NAME> <VIA_STAGE_LATEST_RELEASE> <CRUCIAL_RELEASE_DEFINITIONS> <USE_SEARCH_RESULTS>
 
 ## 2. Use VSCode Development Container (Docker & VSCode installation required)
-If you wish to run or contribute to this app without any dependecy installations, you can do so by running your local development environment inside a container (https://code.visualstudio.com/docs/devcontainers/containers). Keep in mind that docker and vscode installation is required.
+You can run or contribute to this project without installing python or other project dependencies. You can do this by running your local development environment inside a container (https://code.visualstudio.com/docs/devcontainers/containers).
 
 Steps:
 1. Open the project in VS Code
 2. Press F1
 3. Search for "Dev Containers: Rebuild and Reopen in Container" and press enter (Docker must be running)
 
-**IMPORTANT: If the environment variables and deployment plan (in deployment or search-results directory) are set before running the development container then the start of the development will trigger an actual run (meaning it could possbile deploy your releases). To prevent this, simply don't setup the environment variables. You can always set them after the develeopment container has started.**
-
+**IMPORTANT: The start of a development container, will trigger the application to run. To prevent this, don't setup the environment variables. You can always set them after the development container has started.**
 ## To run the application within the development container:
 #### Environment Variables Configuration
 There are two ways to set the environment variables:
 1. Set them in .env file
 2. Pass them as arguments in the run command (Must remove example values from .env files) 
 
-Make sure to set them according to your task via either the run command or .env file. For more information about environment variables, see [Environment Variables](#Environment-Variables)). Once you have set the environment variables, run one of the following commands based on your environment variable configuration:
+Make sure to set them according to your task via either the run command or .env file. For more information about environment variables, see [Environment Variables](#Environment-Variables)).
 
 Using environment variables in .env:
     
@@ -142,15 +141,13 @@ Must have python (https://www.python.org/downloads/) and pip (https://www.active
     Linux/macOS - source venv/bin/activate
 ### 3. Install Dependencies:
     pip install -r requirements.txt
-### 4. Set "ado_express" as working directory:
-    cd ado_express
-### 5. Start app:
+### 4. Run application:
 #### Environment Variables Configuration
 There are two ways to set the environment variables:
 1. Set them in .env file
 2. Pass them as arguments in the run command (Must remove example values from .env files) 
 
-Make sure to set them according to your task via either the run command or .env file. For more information about environment variables, see [Environment Variables](#Environment-Variables)). Once you have set the environment variables, run one of the following commands based on your environment variable configuration:
+Make sure to set them according to your task via either the run command or .env file. For more information about environment variables, see [Environment Variables](#Environment-Variables)).
 
 Using environment variables in .env:
     
