@@ -92,8 +92,8 @@ class Startup:
                             new_row = excel_manager.pd.DataFrame({
                                 self.deployment_plan_columns[0]: project, 
                                 self.deployment_plan_columns[1]: release_name, 
-                                self.deployment_plan_columns[2]: release_target, 
-                                self.deployment_plan_columns[3]: release_rollback,
+                                self.deployment_plan_columns[2]: release_target.split('-')[1], 
+                                self.deployment_plan_columns[3]: release_rollback.split('-')[1],
                                 self.deployment_plan_columns[4]: ''
                                 }, index=[0])
                         
@@ -122,6 +122,8 @@ class Startup:
                             self.deployment_plan_columns[3]: str(rollback_release.name.split('-')[1]),
                             self.deployment_plan_columns[4]: ''
                             }, index=[0])
+                        
+                        logging.info(f'Added to search-results deployment plan: Project:{deployment_detail.release_project_name}, Release Definition:{deployment_detail.release_name}, Target:{target_release}, Rollback:{rollback_release}')
 
                         return new_row
                 else:    
