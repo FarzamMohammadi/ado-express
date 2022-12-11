@@ -1,21 +1,46 @@
 # ADO Express
-An Azure Devops release management tool. Able to create release notes using various methods and deploy releases - all in the most automated way possible. Tired of creating release notes? Or wasting time by manually deploying and monitoring releases? So was I, and here is my solution. Enjoy!
+**Azure Devops release management tool**
 
-# Search (Create release notes or just search existing releases)
-There are a total of four ways to search for releases, two of which create an excel file in the "ado_express/files/search-results" directory and output the results there, making it available for later use (e.g. deploying them after search is complete). The other two methods only log the search results and while they could prove useful, their primary purpose is for searching exsting releases.
+Able to create release notes using various methods and deploy releases - all in the most automated way possible. Tired of creating release notes? Or wasting time by manually deploying and monitoring releases? So was I, and here is my solution. Enjoy!
 
-Search and output results to excel file:
-* Using ADO query ID:
-    - Must provide a query ID from a saved ADO query. 
-    - The tool will iterate through all of the work items in query and output the latest release target based on your environment variables. 
-    - The target release will be determined using the stage provided in VIA_STAGE_SOURCE_NAME variable/argument. It will return the release target based on the latest release in the stage specified.
-    - The rollback release will determined using the stage provided in RELEASE_STAGE_NAME variable/argument. It will return the release rollback, based on the latest successful deployment of the release in the stage specified. In other words, rollback will be the last successful release in target stage specified. In the case of crucial deployment error, the tool can prevent deplyoment issues by rolling back the release to the previously successful release.
-* Using deployment-plan excel file:
-    - Provide deployment project and definition names in deployment/deployment-plan.xlsx file
-    - The target release will be determined using the stage provided in VIA_STAGE_SOURCE_NAME variable/argument. It will return the release target based on the latest release in the stage specified.
-    - The rollback release will determined using the stage provided in RELEASE_STAGE_NAME variable/argument. It will return the release rollback, based on the latest successful deployment of the release in the stage specified. In other words, rollback will be the last successful release in target stage specified. In the case of crucial deployment error, the tool can prevent deplyoment issues by rolling back the release to the previously successful release.
+# Search
+There are two types of search available:
+1. [**Export the results to an excel file** (Can be used later for deployment)](#create-search-release-notes-export-search-results-to-excel-file)
+2. [**Log the results**](#create-search-release-logs)
 
-Search and only log search results:
+## Create Search Release Notes (Export search results to excel file)
+- Using ADO query ID:
+    - How does it work?
+        - This search method will use all the work items (regardless of type) in your query to create release notes by retrieving the latest releases created in the said work item builds.  
+        - Getting Target Releases: It will do this by going though all the builds created via pull requests and pushes to the repositroy. After gettings all the work item builds, it will then go thorugh each release created by each build and return the latest one for that release definition based on the releases that have successfully been deployed to the stage set by the VIA_STAGE_SOURCE_NAME environment variable. This will then become the target release for each release definition found.
+
+        [EXAMPLE CONFIGURATION](#search-by-query)
+
+- Using deployment plan excel file:
+    - How does it work?
+        - This search method will use all the release definitions found in the deployment plan excel file to create release notes.
+        - Getting Target Releases: It will do this by going thorugh each release definitnon in the deployment plan and finding the latest release based that all the releases that have successfully been deployed to the stage set by the VIA_STAGE_SOURCE_NAME environment variable. 
+
+        [EXAMPLE CONFIGURATION](#search-by-latest-release)
+
+**Getting Rollback Releases** (Same for both methods): It's retrieved by going through each release definition found in the previous step, and finding the latest release based on what is the last successfully deployed release to the RELEASE_STAGE_NAME environment variable. Essentially, setting the last successfully deployed release found for release definition as rollback. This can be used to determine what release you need to rollback your deplyoment to, in case of deployment issues.
+
+## Create Search Release Logs 
+Both methdods require using the deployment plan excel file:
+
+1. Search by stage in release definition:
+    - How does it work? 
+        - Goes thorugh reach release definition in deployment plan and then finds and logs each successfully deployed release to the stage set in RELEASE_STAGE_NAME environment variable. Essentially returning all the previously deployed releases to that stage for that release definition. 
+    
+    [EXAMPLE CONFIGURATION](#search-by-stageenvironment-in-release-defintions) 
+
+2. Search by release definition and release number:
+    - How does it work? 
+        - Goes thorugh reach release definition in deployment plan and finds the exact release specified by release number. It will then find and log the name and status of each stages/environment for that particular release. 
+
+    [EXAMPLE CONFIGURATION](#search-by-release-number-in-release-defintions)
+
+
 # Contribution & Issues
 You are more than welcome to contribute to this project. You can do so, by sharing your work through a pull request. If you face any issues, let me know by creating a new issue here: [ADO-Express Issues](https://github.com/FarzamMohammadi/ado-express/issues)
 
@@ -89,6 +114,22 @@ Using command line arguments:
     
     python ado_express/main.py <ORGANIZATION_URL> <PERSONAL_ACCESS_TOKEN> <QUERY> <RELEASE_STAGE_NAME> <RELEASE_NAME_FORMAT> <SEARCH_ONLY> <VIA_STAGE> <VIA_STAGE_SOURCE_NAME> <VIA_STAGE_LATEST_RELEASE> <CRUCIAL_RELEASE_DEFINITIONS> <USE_SEARCH_RESULTS>
 
+
+---------------------------------
+Additional Information About the Project
+# Files & Resources
+All the files and resources can be found under the [files directory](https://github.com/FarzamMohammadi/ado-express/tree/main/ado_express/files).
+
+## [/deployment](https://github.com/FarzamMohammadi/ado-express/tree/main/ado_express/files/deployment)
+* *deployment-plan.xlsx*: Deployment plan file used by default for search and deployment
+
+## [/logs](https://github.com/FarzamMohammadi/ado-express/tree/main/ado_express/files/logs)
+* *deployment-stale.log*: Used by development container postCreateCommand to copy contents of deployment.log to it
+* *deployment.log*: Containts deployment logs
+
+## [/search-results](https://github.com/FarzamMohammadi/ado-express/tree/main/ado_express/files/search-results)
+* *deployment-plan.xlsx*: The output of search results that results in release note creation. This can also by used for deployment if USE_SEARCH_RESULTS environment variable is set to true
+* *search-results.log*: Contains search logs
 # Environment Variables
 ### Considerations:
 1. The default values of these variables are null and false
@@ -113,3 +154,36 @@ Using command line arguments:
 
 While I am intent on making the use of this tool easier, it could be confusing at first to know how to set the environment variables. Here are various examples of pre-setup .env variables to help with the use of this tool:
 
+## Search by query: 
+    PERSONAL_ACCESS_TOKEN=xxxx
+    ORGANIZATION_URL=https://dev.azure.com/xxxx
+    RELEASE_STAGE_NAME=PROD
+    RELEASE_NAME_FORMAT=Release-$(rev:r) <- '$' will be used to split the release names and numbers
+    SEARCH_ONLY=True
+    VIA_STAGE=True
+    VIA_STAGE_SOURCE_NAME=QA
+    QUERY=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+
+## Search by latest release:
+    PERSONAL_ACCESS_TOKEN=xxxx
+    ORGANIZATION_URL=https://dev.azure.com/xxxx
+    RELEASE_STAGE_NAME=PROD
+    RELEASE_NAME_FORMAT=Release-$(rev:r) <- '$' will be used to split the release names and numbers
+    VIA_STAGE=True
+    VIA_STAGE_LATEST_RELEASE=True
+    VIA_STAGE_SOURCE_NAME=QA
+    SEARCH_ONLY=True
+
+## Search by stage/environment in release defintions:
+    PERSONAL_ACCESS_TOKEN=xxxx
+    ORGANIZATION_URL=https://dev.azure.com/xxxx
+    RELEASE_STAGE_NAME=PROD
+    RELEASE_NAME_FORMAT=Release-$(rev:r) <- '$' will be used to split the release names and numbers
+    VIA_STAGE=True
+    SEARCH_ONLY=True
+
+## Search by release number in release defintions:
+    PERSONAL_ACCESS_TOKEN=xxxx
+    ORGANIZATION_URL=https://dev.azure.com/xxxx
+    RELEASE_NAME_FORMAT=Release-$(rev:r) <- '$' will be used to split the release names and numbers
+    SEARCH_ONLY=True
