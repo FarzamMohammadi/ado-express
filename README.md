@@ -29,7 +29,7 @@ There are two types of searches available:
 2. [**Log the results**](#create-search-release-logs)
 
 ## Create Search Release Notes (Export search results to excel file)
-Both methods use the same procedure for [rollback release retrieval](#getting-rollback-releases-same-for-both-methods)
+Both methods use the same procedure for [rollback release retrieval].(#getting-rollback-releases)
 
 1. Using ADO query ID:
     - How does it work?
@@ -39,7 +39,7 @@ Both methods use the same procedure for [rollback release retrieval](#getting-ro
             2. Goes through each work item to get merged commit builds from pull requests and pushes
             3. Gets all releases created by builds and compares them to find the latest 
             4. The latest deployed release specified by stage (*VIA_STAGE_SOURCE_NAME*) gets returned
-        - [Setps for rollback release retrieval](#getting-rollback-releases-same-for-both-methods)
+        - [Setps for rollback release retrieval](#getting-rollback-releases)
         
         [EXAMPLE CONFIGURATION](#search-by-query)
 
@@ -50,7 +50,7 @@ Both methods use the same procedure for [rollback release retrieval](#getting-ro
             1. Goes through each release definition in the deployment plan 
             2. Finds the latest release based on last successful deployment
             3. The latest deployed release specified by stage (*VIA_STAGE_SOURCE_NAME*) gets returned
-        - [Setps for rollback release retrieval](#getting-rollback-releases-same-for-both-methods)
+        - [Setps for rollback release retrieval](#getting-rollback-releases)
 
         [EXAMPLE CONFIGURATION](#search-by-latest-release)
 
