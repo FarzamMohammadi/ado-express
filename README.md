@@ -29,8 +29,6 @@ There are two types of searches available:
 2. [**Log the results**](#create-search-release-logs)
 
 ## Create Search Release Notes (Export search results to excel file)
-Both methods use the same procedure for [rollback release retrieval](#getting-rollback-releases).
-
 1. Using ADO query ID:
     - How does it work?
         - Iterates through work items (regardless of type) in query to find the last release created by builds of merged commits
@@ -62,10 +60,9 @@ Finds the last deployed release in target stage and sets it as rollback.
     3. Returns the latest deployed release that matches stage specified by *RELEASE_STAGE_NAME*
     
 ## Create Search Release Logs 
-Both methods need using the deployment plan excel file:
-
 1. Search by stage in release definition:
     - How does it work? 
+        - Must set release details in the deployment plan excel file
         - Goes through each release definition in deployment plan 
         - Checks the stage and deployment status of each release
         - Logs releases successfully deployed to stage specified by *RELEASE_STAGE_NAME*
@@ -74,6 +71,7 @@ Both methods need using the deployment plan excel file:
 
 2. Search by release definition and release number:
     - How does it work? 
+        - Must set release details in the deployment plan excel file
         - Goes through each release definition in deployment plan
         - Finds the exact release specified by release number 
         - Log the name and deployment status of each stages/environment for release
