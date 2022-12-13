@@ -1,28 +1,9 @@
 # ADO Express
 **Azure DevOps Release Management Tool**
 
-Search, create release notes and deploy releases - all in the most automated way possible. Tired of creating release notes? Or wasting time by manually deploying and monitoring the status of releases? So was I, and here is my solution. Enjoy!
+Create release notes, search, and deploy releases - all in the most automated way possible. Tired of creating release notes? Or wasting time by manually deploying and monitoring the status of releases? So was I, and here is my solution. Enjoy!
 
 ----------------------------------
-
-- [Search](#search)
-    - [Export the results to an excel file](#create-search-release-notes-export-search-results-to-excel-file)
-    - [Log the results](#create-search-release-logs)
-- [Deploy](#deploy)
-    - [Deploy via release number](#deploy-via-release-number)
-	- [Deploy via stage/environment](#deploy-via-stageenvironment)
-- [Ways to run](#ways-to-run)
-    - [Use executable](#1-use-executable-simplest-method---no-install-required)
-    - [Use VSCode Development Container](#2-use-vscode-development-container-docker--vscode-installation-required)
-    - [Run the application locally](#3-run-the-application-locally-python--dependency-installation-required)
-- [Files & Resources](#files--resources)
-- [Environment Variables](#environment-variables)
-    - [List of Variables/Arguments](#list-of-variablesarguments)
-- [Configuration Examples](#configuration-cxamples)
-- [Contribution, Issues & New Features](#contribution-issues--new-features)
-
-----------------------------------
-
 # Search
 There are two types of searches available:
 1. [**Export the results to an excel file** (Can be used later for deployment)](#create-search-release-notes-export-search-results-to-excel-file)
@@ -52,7 +33,7 @@ There are two types of searches available:
 
         [EXAMPLE CONFIGURATION](#search-by-latest-release)
 
-### Getting Rollback Releases: 
+### Getting Rollback Releases (Included in both search methods above)
 Finds the last deployed release in target stage and sets it as rollback.
 - Steps:
     1. Iterates through release definitions found in the release target retrieval step
@@ -79,14 +60,14 @@ Finds the last deployed release in target stage and sets it as rollback.
     [EXAMPLE CONFIGURATION](#search-by-release-number-in-release-defintions)
 
 # Deploy
-The use of a deployment plan file is required. The default deployment plan can be found [here](https://github.com/FarzamMohammadi/ado-express/tree/main/ado_express/files/deployment). You can use the search results deployment plan (found [here](https://github.com/FarzamMohammadi/ado-express/tree/main/ado_express/files/search-results)), by setting *USE_SEARCH_RESULTS* to true. There are two types of deployment available:
+The use of a deployment plan file is required. The default deployment plan can be found [here](./ado_express/files/deployment). You can use the search results deployment plan (found [here](./ado_express/files/search-results)), by setting *USE_SEARCH_RESULTS* to true. There are two types of deployment available:
 1. [**Deploy via release number**](#deploy-via-release-number)
 2. [**Deploy via stage/environment**](#deploy-via-stageenvironment)
 
 **If deployment is crucial (Same configuration for both deployment methods)**: 
 - Set the "Crucial" value to True in the deployment plan file (or pass as *CRUCIAL_RELEASE_DEFINITIONS*)
 - These deployments will run first in parallel
-- After successfully completion the rest of the deployments run in parallel
+- After successfully completion, the rest of the deployments run in parallel
 - In case of a crucial deployment error:
     - The application will attempt to rollback (deploy to rollback number) 
     - Then will stop the processes regardless of the status of rollback
@@ -110,18 +91,19 @@ The use of a deployment plan file is required. The default deployment plan can b
 
 ---------------------------------
 # Ways to run
-- [**Use executable** (No installation required)](#1-use-executable-simplest-method---no-install-required)
-- [**Use vscode development container** (Docker & VSCode installation required - Python & dependency installation not required)](#2-use-vscode-development-container-docker--vscode-installation-required)
-- [**Run the application locally** (python & dependency installation required)](#3-run-the-application-locally-python--dependency-installation-required)
+- [**Executable** (No installation required)](#1-executable-simplest-method---no-install-required)
+- [**VS CODE development container** (Docker & VSCode installation required - Python & dependency installation not required)](#2-vscode-development-container-docker--vscode-installation-required)
+- [**Run locally** (python & dependency installation required)](#3-run-locally-python--dependency-installation-required)
 
-## 1. Use executable (Simplest method - No install required)
-Executables for Windows and Linux are available in repository release artifacts. 
-
-To run, download and enter the following command (pass the environment variables as parameters in command). For more information about environment variables, see [Environment Variables](#Environment-Variables)):
+## 1. Executable (Simplest method - No install required)
+Executables for Windows and Linux are available in repository release artifacts. Download and run the executable file with the desired parameters. 
 
     ado-express-{OS}.exe <ORGANIZATION_URL> <PERSONAL_ACCESS_TOKEN> <QUERY> <RELEASE_STAGE_NAME> <RELEASE_NAME_FORMAT> <SEARCH_ONLY> <VIA_STAGE> <VIA_STAGE_SOURCE_NAME> <VIA_STAGE_LATEST_RELEASE> <CRUCIAL_RELEASE_DEFINITIONS> <USE_SEARCH_RESULTS>
 
-## 2. Use VSCode Development Container (Docker & VSCode installation required)
+### Environment Variables Configuration
+Pass the environment variables as parameters in command. More about environment variables here: [Environment Variables](#Environment-Variables):
+
+## 2. VSCode Development Container (Docker & VSCode installation required)
 You can run or contribute to this project without installing python or other project dependencies. You can do this by running your local development environment inside a container (https://code.visualstudio.com/docs/devcontainers/containers).
 
 Steps:
@@ -130,13 +112,14 @@ Steps:
 3. Search for "Dev Containers: Rebuild and Reopen in Container" and press enter (Docker must be running)
 
 **IMPORTANT: The start of a development container, will trigger the application to run. To prevent this, don't setup the environment variables. You can always set them after the development container has started.**
-## To run the application within the development container:
-#### Environment Variables Configuration
+
+### To run the application within the development container
+### Environment Variables Configuration
 There are two ways to set the environment variables:
 1. Set them in .env file
 2. Pass them as arguments in the run command (Must remove example values from .env files) 
 
-Make sure to set them according to your task via either the run command or .env file. For more information about environment variables, see [Environment Variables](#Environment-Variables)).
+Make sure to set them according to your task via either the run command or .env file. For more information about environment variables, see [Environment Variables](#Environment-Variables).
 
 Using environment variables in .env:
     
@@ -145,28 +128,22 @@ Using environment variables in .env:
 Using command line arguments:
     
     python ado_express/main.py <ORGANIZATION_URL> <PERSONAL_ACCESS_TOKEN> <QUERY> <RELEASE_STAGE_NAME> <RELEASE_NAME_FORMAT> <SEARCH_ONLY> <VIA_STAGE> <VIA_STAGE_SOURCE_NAME> <VIA_STAGE_LATEST_RELEASE> <CRUCIAL_RELEASE_DEFINITIONS> <USE_SEARCH_RESULTS>
-## 3. Run the application locally (Python & Dependency Installation Required)
+## 3. Run locally (Python & Dependency Installation Required)
 
 ### Python & pip installation
 Must have python (https://www.python.org/downloads/) and pip (https://www.activestate.com/resources/quick-reads/how-to-install-pip-on-windows/) installed. Then run the command below to update pip:
     
     python -m pip install --upgrade pip
-## To run the application:
-### 1. Create virtual environment: 
+
+### Run application
+#### 1. Create virtual environment
     python -m venv ./venv
-### 2. Activate VENV:
+#### 2. Activate VENV
     Windows - .\venv\Scripts\activate
     Linux/macOS - source venv/bin/activate
-### 3. Install Dependencies:
+#### 3. Install Dependencies
     pip install -r requirements.txt
-### 4. Run application:
-#### Environment Variables Configuration
-There are two ways to set the environment variables:
-1. Set them in .env file
-2. Pass them as arguments in the run command (Must remove example values from .env files) 
-
-Make sure to set them according to your task via either the run command or .env file. For more information about environment variables, see [Environment Variables](#Environment-Variables)).
-
+#### 4. Run application
 Using environment variables in .env:
     
     python ado_express/main.py
@@ -175,26 +152,31 @@ Using command line arguments:
     
     python ado_express/main.py <ORGANIZATION_URL> <PERSONAL_ACCESS_TOKEN> <QUERY> <RELEASE_STAGE_NAME> <RELEASE_NAME_FORMAT> <SEARCH_ONLY> <VIA_STAGE> <VIA_STAGE_SOURCE_NAME> <VIA_STAGE_LATEST_RELEASE> <CRUCIAL_RELEASE_DEFINITIONS> <USE_SEARCH_RESULTS>
 
+### Environment Variables Configuration
+There are two ways to set the environment variables:
+1. Set them in .env file
+2. Pass them as arguments in the run command (Must remove example values from .env files) 
+
+Make sure to set them according to your task via either the run command or .env file. For more information about environment variables, see [Environment Variables](#Environment-Variables).
 
 ---------------------------------
-Additional Information About the Project
 # Files & Resources
-All the files and resources can be found under the [files directory](https://github.com/FarzamMohammadi/ado-express/tree/main/ado_express/files).
+All the files and resources can be found under the [files directory](./ado_express/files).
 
-## [/deployment](https://github.com/FarzamMohammadi/ado-express/tree/main/ado_express/files/deployment)
+## [/deployment](./ado_express/files/deployment)
 - *deployment-plan.xlsx*: Deployment plan file used by default for search and deployment
 
-## [/logs](https://github.com/FarzamMohammadi/ado-express/tree/main/ado_express/files/logs)
+## [/logs](./ado_express/files/logs)
 - *deployment-stale.log*: Used by development container postCreateCommand to copy contents of deployment.log
 - *deployment.log*: Containts deployment logs
 
-## [/search-results](https://github.com/FarzamMohammadi/ado-express/tree/main/ado_express/files/search-results)
+## [/search-results](./ado_express/files/search-results)
 - *deployment-plan.xlsx*: The output of search results. This can also be used for deployment if *USE_SEARCH_RESULTS* is set to true
 - *search-results.log*: Contains search logs
 # Environment Variables
-### Considerations:
+### Considerations
 1. The default values of these variables are null and false
-2. You must remove the .env example values to use command line arguments
+2. You must remove the .env example values to use the command line arguments
 
 ## List of Variables/Arguments
 
@@ -218,10 +200,11 @@ All the files and resources can be found under the [files directory](https://git
 # Configuration Examples
 While I continue to work on making the use of this tool easier, it could be confusing at first to know how to set the environment variables. Here are examples of each run setting environment variables to help with the use of this tool:
 
-## Search by query: 
+## Search
+### Search by query
 .env:
 
-    PERSONAL_ACCESS_TOKEN=token
+    PERSONAL_ACCESS_TOKEN=tokenxxxx
     ORGANIZATION_URL=https://dev.azure.com/xxxx
     RELEASE_STAGE_NAME=PROD
     RELEASE_NAME_FORMAT=Release-$(rev:r) <- '$' will be used to split the release names and numbers
@@ -232,10 +215,10 @@ While I continue to work on making the use of this tool easier, it could be conf
 
 CMD:
 
-    ado-express-win.exe https://dev.azure.com/xxxx token queryID PROD "Release-$(rev:r)" True True QA
+    ado-express-linux.exe https://dev.azure.com/xxxx tokenxxxx queryID PROD "Release-$(rev:r)" True True QA
 **Set *RELEASE_NAME_FORMAT* in quotations**
 
-## Search by latest release:
+### Search by latest release
     PERSONAL_ACCESS_TOKEN=xxxx
     ORGANIZATION_URL=https://dev.azure.com/xxxx
     RELEASE_STAGE_NAME=PROD
@@ -245,7 +228,7 @@ CMD:
     VIA_STAGE_SOURCE_NAME=QA
     SEARCH_ONLY=True
 
-## Search by stage/environment in release defintions:
+### Search by stage/environment in release defintions
     PERSONAL_ACCESS_TOKEN=xxxx
     ORGANIZATION_URL=https://dev.azure.com/xxxx
     RELEASE_STAGE_NAME=PROD
@@ -253,14 +236,15 @@ CMD:
     VIA_STAGE=True
     SEARCH_ONLY=True
 
-## Search by release number in release defintions:
+### Search by release number in release defintions
     PERSONAL_ACCESS_TOKEN=xxxx
     ORGANIZATION_URL=https://dev.azure.com/xxxx
     RELEASE_NAME_FORMAT=Release-$(rev:r) <- '$' will be used to split the release names and numbers
     SEARCH_ONLY=True
 
-## Deploy via release number:
-    PERSONAL_ACCESS_TOKEN=xxxx
+## Deploy
+### Deploy via release number
+    PERSONAL_ACCESS_TOKEN=tokenxxxx
     ORGANIZATION_URL=https://dev.azure.com/xxxx
     RELEASE_STAGE_NAME=PROD
     RELEASE_NAME_FORMAT=Release-$(rev:r) <- '$' will be used to split the release names and numbers
@@ -269,10 +253,10 @@ CMD:
 
 CMD:
 
-    ado-express-win.exe https://dev.azure.com/xxxx token None PROD "Release-$(rev:r)" False True QA False None True
-    
+    ado-express-win.exe https://dev.azure.com/xxxx token None PROD "Release-$(rev:r)" False False None False realeaseX,releaseY,releaseZ True
+
 **Set *RELEASE_NAME_FORMAT* in quotation marks**
-## Deploy via stage/environment:
+### Deploy via stage/environment
     PERSONAL_ACCESS_TOKEN=token
     ORGANIZATION_URL=https://dev.azure.com/xxxx
     RELEASE_STAGE_NAME=PROD
