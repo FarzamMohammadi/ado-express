@@ -18,7 +18,7 @@ There are two types of searches available:
             2. Goes through each work item to get merged commit builds from pull requests and pushes
             3. Gets all releases created by builds and compares them to find the latest 
             4. The latest deployed release specified by stage (*VIA_STAGE_SOURCE_NAME*) gets returned
-        - [Setps for rollback release retrieval](#getting-rollback-releases)
+        - [Setps for rollback release retrieval](#getting-rollback-releases-included-in-both-search-methods-above)
         
         [EXAMPLE CONFIGURATION](#search-by-query)
 
@@ -29,7 +29,7 @@ There are two types of searches available:
             1. Goes through each release definition in the deployment plan 
             2. Finds the latest release based on last successful deployment
             3. The latest deployed release specified by stage (*VIA_STAGE_SOURCE_NAME*) gets returned
-        - [Setps for rollback release retrieval](#getting-rollback-releases)
+        - [Setps for rollback release retrieval](#getting-rollback-releases-included-in-both-search-methods-above)
 
         [EXAMPLE CONFIGURATION](#search-by-latest-release)
 
@@ -117,7 +117,7 @@ Steps:
 ### Environment Variables Configuration
 There are two ways to set the environment variables:
 1. Set them in .env file
-2. Pass them as arguments in the run command (Must remove example values from .env files) 
+2. Pass them as arguments in the run command
 
 Make sure to set them according to your task via either the run command or .env file. For more information about environment variables, see [Environment Variables](#Environment-Variables).
 
@@ -155,7 +155,7 @@ Using command line arguments:
 ### Environment Variables Configuration
 There are two ways to set the environment variables:
 1. Set them in .env file
-2. Pass them as arguments in the run command (Must remove example values from .env files) 
+2. Pass them as arguments in the run command
 
 Make sure to set them according to your task via either the run command or .env file. For more information about environment variables, see [Environment Variables](#Environment-Variables).
 
@@ -174,11 +174,8 @@ All the files and resources can be found under the [files directory](./ado_expre
 - *deployment-plan.xlsx*: The output of search results. This can also be used for deployment if *USE_SEARCH_RESULTS* is set to true
 - *search-results.log*: Contains search logs
 # Environment Variables
-### Considerations
-1. The default values of these variables are null and false
-2. You must remove the .env example values to use the command line arguments
-
 ## List of Variables/Arguments
+Note: The default values of these variables are null and false
 
 - **ORGANIZATION_URL**=< Your organizations ADO URL - Example: https://dev.azure.com/{organization} >
 - **PERSONAL_ACCESS_TOKEN**=< Personal access token (https://learn.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate?view=azure-devops&tabs=Windows) >
@@ -215,7 +212,7 @@ While I continue to work on making the use of this tool easier, it could be conf
 
 CMD:
 
-    ado-express-linux.exe https://dev.azure.com/xxxx tokenxxxx queryID PROD "Release-$(rev:r)" True True QA
+    ./ado-express-linux.exe https://dev.azure.com/xxxx tokenxxxx queryID PROD "Release-$(rev:r)" True True QA
 **Set *RELEASE_NAME_FORMAT* in quotations**
 
 ### Search by latest release
@@ -253,7 +250,7 @@ CMD:
 
 CMD:
 
-    ado-express-win.exe https://dev.azure.com/xxxx token None PROD "Release-$(rev:r)" False False None False realeaseX,releaseY,releaseZ True
+    ./ado-express-win.exe https://dev.azure.com/xxxx token None PROD "Release-$(rev:r)" False False None False realeaseX,releaseY,releaseZ True
 
 **Set *RELEASE_NAME_FORMAT* in quotation marks**
 ### Deploy via stage/environment
