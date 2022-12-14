@@ -3,6 +3,4 @@
 *.log
 **/__pycache__/
 .env
-/files/deployment/*
-/files/logs/*
-/files/search-results/*
+ado_express/files/*
