@@ -162,27 +162,37 @@ if __name__ == '__main__':
     crucial_deployment_details = []
     t1 = time.perf_counter() 
 
-    if environment_variables.SEARCH_ONLY and environment_variables.QUERY != None:
+    # If a query is provided then do query run first (it'll either be deployed later or stop after notes creation)
+    if environment_variables.QUERY != None:
         results = startup.start_request(None)
-    else:
+        # Use search results (if doing deployment after)
+        environment_variables.USE_SEARCH_RESULTS = True 
+    # Run search    
+    if environment_variables.SEARCH_ONLY:
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            results = executor.map(startup.start_request, deployment_details)
+    # Create release notes 
+    if environment_variables.QUERY or environment_variables.VIA_STAGE_LATEST_RELEASE:
+        if results:
+            for row in results:
+                if row is not None:
+                    logging.info(f'Exporting Release notes to: .files/search-results/deployment-plan.xlsx')
+                    excel_manager.save_or_concat_file(row, constants.SEARCH_RESULTS_DEPLOYMENT_PLAN_FILE_PATH)
+        else: logging.info(f'No results found - please check the configuration')
+    # Run deployment
+    if not environment_variables.SEARCH_ONLY: 
+
         if crucial_release_definitions is not None:
             # Separate crucial & regular deployments based on release defintions that match CRUCIAL_RELEASE_DEFINITIONS env variable list
             crucial_deployment_details = [x for x in deployment_details if x.release_name in crucial_release_definitions]
             deployment_details[:] = [x for x in deployment_details if x.release_name not in crucial_release_definitions]
 
-        if crucial_deployment_details: # First deploy crucial releases if there are any
+        if crucial_deployment_details: # First, deploy crucial releases if there are any
             with concurrent.futures.ThreadPoolExecutor() as executor:
                 crucial_deployment_results = executor.map(startup.start_request, crucial_deployment_details)
 
-        with concurrent.futures.ThreadPoolExecutor() as executor: # Then deploy the rest of the releases
+        with concurrent.futures.ThreadPoolExecutor() as executor: # Then, deploy the rest of the releases
             results = executor.map(startup.start_request, deployment_details)
-        
-    if environment_variables.VIA_STAGE_LATEST_RELEASE or environment_variables.QUERY:
-        if results:
-            for row in results:
-                if row is not None:
-                    excel_manager.save_or_concat_file(row, constants.SEARCH_RESULTS_DEPLOYMENT_PLAN_FILE_PATH)
-        else: logging.info(f'No results found - please check the configuration')
 
     t2 = time.perf_counter()
     logging.info(f'Tasks completed in {t2-t1} seconds')
