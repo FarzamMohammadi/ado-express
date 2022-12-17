@@ -89,13 +89,11 @@ class Startup:
             target_release_number = target_release.split('-')[1]
             rollback_release_number = rollback_release.split('-')[1]
 
-            # if (needs_deployment(target_release_number, rollback_release_number)): #TODO REMOVE THIS
-                # deployment_detail = DeploymentDetails(project, release_name, target_release_number, rollback_release_number)
-                # deployment_details.append(deployment_detail)
-            deployment_detail = DeploymentDetails(project, release_name, target_release_number, rollback_release_number, None)
-            deployment_details.append(deployment_detail)
-            logging.info(f'Release found from query: Project:{project}, Release Definition:{release_name}, Target:{target_release_number}, Rollback:{rollback_release_number}')
+            if (needs_deployment(target_release_number, rollback_release_number)):
+                deployment_detail = DeploymentDetails(project, release_name, target_release_number, rollback_release_number)
+                deployment_details.append(deployment_detail)
 
+            logging.info(f'Release found from query: Project:{project}, Release Definition:{release_name}, Target:{target_release_number}, Rollback:{rollback_release_number}')
         
         return deployment_details
 
@@ -111,28 +109,6 @@ class Startup:
         self.release_finder.get_releases(deployment_detail, find_via_stage=self.via_stage)
     
     def deploy(self, deployment_detail: DeploymentDetails):
-                # if release_target > release_rollback: # Prevents unwanted releases (caused by skipped stages in a release, e.g. one that has only been deployed to PROD but not QA)
-                #     new_row = excel_manager.pd.DataFrame({
-                #         self.deployment_plan_columns[0]: project, 
-                #         self.deployment_plan_columns[1]: release_name, 
-                #         self.deployment_plan_columns[2]: release_target.split('-')[1], 
-                #         self.deployment_plan_columns[3]: release_rollback.split('-')[1],
-                #         self.deployment_plan_columns[4]: ''
-                #         }, index=[0])
-                
-                #     rows.append(new_row)
-
-
-                        # new_row = excel_manager.pd.DataFrame({
-                        #     self.deployment_plan_columns[0]: str(deployment_detail.release_project_name), 
-                        #     self.deployment_plan_columns[1]: str(deployment_detail.release_name), 
-                        #     self.deployment_plan_columns[2]: str(target_release.name.split('-')[1]), 
-                        #     self.deployment_plan_columns[3]: str(rollback_release.name.split('-')[1]),
-                        #     self.deployment_plan_columns[4]: ''
-                        #     }, index=[0])
-                    
-                        # logging.info(f'Added to search-results deployment plan: Project:{deployment_detail.release_project_name}, Release Definition:{deployment_detail.release_name}, Target:{target_release}, Rollback:{rollback_release}')  
-                    
         try:
             release_to_update = self.release_finder.get_release(deployment_detail, find_via_stage=self.via_stage)
             update_manager = UpdateRelease(constants, self.ms_authentication, environment_variables, self.release_finder)
