@@ -162,10 +162,8 @@ if __name__ == '__main__':
     deployment_details = None
 
     # If a query is provided then do query run first (it'll either be deployed later or stop after notes creation)
-    if environment_variables.QUERY != None:
-        deployment_details = startup.get_deployment_details_from_query() # Here will provide deployment details
-        # Use search results (if doing deployment after)
-        environment_variables.USE_SEARCH_RESULTS = True
+    if environment_variables.QUERY:
+        deployment_details = startup.get_deployment_details_from_query()
     else:
         # If not a query run then get deployment details from deployment plan
         deployment_plan_details = deployment_plan.get_data_from_deployment_plan_file()

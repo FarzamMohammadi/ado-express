@@ -13,7 +13,7 @@ class DeploymentPlan():
 
 
     def get_data_from_deployment_plan_file(self):
-        file_path = self.constants.SEARCH_RESULTS_DEPLOYMENT_PLAN_FILE_PATH if self.environment_variables.USE_SEARCH_RESULTS else self.constants.DEPLOYMENT_PLAN_FILE_PATH
+        file_path = self.constants.DEPLOYMENT_PLAN_FILE_PATH
         
         release_dataframe = pd.read_excel(file_path).replace(np.nan, None, regex=True).apply(lambda x: x.str.strip() if x.dtype == "object" else x)
         deployment_details = []

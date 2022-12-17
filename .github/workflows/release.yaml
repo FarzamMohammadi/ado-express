@@ -49,7 +49,7 @@ jobs:
       
       - name: Build python executable for Windows PyInstaller and upload to GitHub release  
         if: github.event_name == 'push'
-        run: pyinstaller --noconfirm --onefile --console --add-data "./ado_express/files:files/" --add-data "./ado_express/packages:packages/" --hidden-import "azure" --hidden-import "azure.devops" --hidden-import "azure.storage" --hidden-import "jinja2" --hidden-import "msrest" --hidden-import "openpyxl" --hidden-import "pandas" --hidden-import "dotenv" --hidden-import "distutils" --collect-all "azure.devops" --name "ado-express" "./ado_express/main.py"
+        run: pyinstaller --noconfirm --onefile --console --add-data "./ado_express/files:files/" --add-data "./ado_express/packages:packages/" --hidden-import "azure" --hidden-import "azure.devops" --hidden-import "azure.storage" --hidden-import "jinja2" --hidden-import "msrest" --hidden-import "openpyxl" --hidden-import "pandas" --hidden-import "dotenv" --hidden-import "distutils" --hidden-import "validators" --collect-all "azure.devops" --name "ado-express" "./ado_express/main.py"
 
       - name: Gets latest created release info
         id: latest_release_info
