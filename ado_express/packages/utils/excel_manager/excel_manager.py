@@ -3,6 +3,8 @@ import pandas as pd
 
 from typing import List
 
+from packages.common.models import DeploymentDetails
+
 class ExcelManager:
 
     def __init__(self):
@@ -19,6 +21,15 @@ class ExcelManager:
                 df.insert(loc=index, column=str(name), value=None)
 
         return df
+
+    def convert_deplyoment_detail_to_excel_row(self, file_headers: List[str], deployment_details: DeploymentDetails):
+        return self.pd.DataFrame({
+                file_headers[0]: deployment_details.release_project_name, 
+                file_headers[1]: deployment_details.release_name, 
+                file_headers[2]: deployment_details.release_number,
+                file_headers[3]: deployment_details.release_rollback,
+                file_headers[4]: ''
+                }, index=[0])
 
     def insert_row(self, df, new_df: pd.DataFrame):
         return pd.concat([df, new_df], axis=0)

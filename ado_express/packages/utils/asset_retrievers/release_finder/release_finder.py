@@ -9,12 +9,11 @@ from packages.common.models import DeploymentDetails
 
 class ReleaseFinder:
 
-    def __init__(self, ms_authentication: MSAuthentication, deployment_details: list[DeploymentDetails], environment_variables: EnvironmentVariables):
+    def __init__(self, ms_authentication: MSAuthentication, environment_variables: EnvironmentVariables):
         self.work_client = ms_authentication.work_client
         self.build_client = ms_authentication.build_client
         self.release_client = ms_authentication.client
         self.release_client_v6 = ms_authentication.client_v6
-        self.deployment_details = deployment_details
         self.environment_variables = environment_variables
         self.environment_statuses = ReleaseEnvironmentStatuses()
 
