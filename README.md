@@ -129,7 +129,7 @@ Executables for Windows and Linux are available in repository release artifacts.
 
     ado-express-{OS}.exe <CRUCIAL_RELEASE_DEFINITIONS> <ORGANIZATION_URL> <PERSONAL_ACCESS_TOKEN> <QUERY> <RELEASE_STAGE_NAME> <RELEASE_NAME_FORMAT> <SEARCH_ONLY> <VIA_STAGE> <VIA_STAGE_SOURCE_NAME> <VIA_STAGE_LATEST_RELEASE>
 
-### Environment Variables Configuration
+#### Environment Variables Configuration
 Pass the environment variables as parameters in command. More about environment variables here: [Environment Variables](#Environment-Variables):
 
 ## 2. Locally in Development Container (Docker & VSCode installation required)
@@ -182,7 +182,7 @@ Using command line arguments:
     
     python ado_express/main.py <CRUCIAL_RELEASE_DEFINITIONS> <ORGANIZATION_URL> <PERSONAL_ACCESS_TOKEN> <QUERY> <RELEASE_STAGE_NAME> <RELEASE_NAME_FORMAT> <SEARCH_ONLY> <VIA_STAGE> <VIA_STAGE_SOURCE_NAME> <VIA_STAGE_LATEST_RELEASE>
 
-### Environment Variables Configuration
+#### Environment Variables Configuration
 There are two ways to set the environment variables:
 1. Set them in .env file
 2. Pass them as arguments in the run command
