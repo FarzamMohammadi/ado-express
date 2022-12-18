@@ -170,9 +170,10 @@ if __name__ == '__main__':
                         excel_manager.save_or_concat_file(row, deployment_plan_path)
             else: logging.info(f'No results found - please check the configuration')
         else:    
-            # Else run a log only search
-            with concurrent.futures.ThreadPoolExecutor() as executor:
-                results = executor.map(startup.search_and_log_details_only, deployment_plan_details)
+            # Else run a log-only search
+            for deployment_detail in deployment_plan_details:
+                startup.search_and_log_details_only(deployment_detail)
+
     # Run deployment
     else:
         crucial_release_definitions = environment_variables.CRUCIAL_RELEASE_DEFINITIONS
