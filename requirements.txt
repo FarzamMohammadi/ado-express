@@ -5,3 +5,4 @@ msrest==0.6.21
 openpyxl==3.0.10
 pandas==1.4.4
 python-dotenv==0.21.0
+validators==0.20.0

@@ -1,2 +1,2 @@
-def needs_deployment(target_release, rollback_release):
-        return target_release.name.split('-')[1] > rollback_release.name.split('-')[1]
+def needs_deployment(target_release_number, rollback_release_number):
+        return target_release_number > rollback_release_number
