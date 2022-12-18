@@ -113,11 +113,11 @@ The use of a deployment plan file is required. The default deployment plan can b
 Finds the last deployed release in target stage and sets it as rollback. **Query** and **via_latest** features use this method for getting rollback releases.
 
 - How does it work?
-    - Steps:
-        1. Iterates through release definitions found in the release target retrieval step
-        2. Checks the stage and deployment status of each
-        3. Returns the latest deployed release that matches stage specified by *RELEASE_STAGE_NAME*
-            - In other words, the last release in the release definition deployed to *RELEASE_STAGE_NAME*
+    Steps:
+    1. Iterates through release definitions found in the release target retrieval step
+    2. Checks the stage and deployment status of each
+    3. Returns the latest deployed release that matches stage specified by *RELEASE_STAGE_NAME*
+        - In other words, the last release in the release definition deployed to *RELEASE_STAGE_NAME*
 
 ---------------------------------
 # Ways to run
