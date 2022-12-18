@@ -127,7 +127,7 @@ Finds the last deployed release in target stage and sets it as rollback. **Query
 ## 1. Executable (Simplest method - No installation required)
 Executables for Windows and Linux are available in repository release artifacts. Download and run the executable file with the desired parameters. 
 
-    ado-express-{OS}.exe <CRUCIAL_RELEASE_DEFINITIONS> <ORGANIZATION_URL> <PERSONAL_ACCESS_TOKEN> <QUERY> <RELEASE_STAGE_NAME> <RELEASE_NAME_FORMAT> <SEARCH_ONLY> <VIA_STAGE> <VIA_STAGE_SOURCE_NAME> <VIA_STAGE_LATEST_RELEASE>
+    ado-express-{OS}.exe <CRUCIAL_RELEASE_DEFINITIONS> <ORGANIZATION_URL> <PERSONAL_ACCESS_TOKEN> <QUERY> <RELEASE_NAME_FORMAT> <RELEASE_STAGE_NAME> <SEARCH_ONLY> <VIA_STAGE> <VIA_STAGE_SOURCE_NAME> <VIA_STAGE_LATEST_RELEASE>
 
 #### Environment Variables Configuration
 There are two ways to set the environment variables:
@@ -154,7 +154,7 @@ Using environment variables in .env:
 
 Using command line arguments:
     
-    python ado_express/main.py <CRUCIAL_RELEASE_DEFINITIONS> <ORGANIZATION_URL> <PERSONAL_ACCESS_TOKEN> <QUERY> <RELEASE_STAGE_NAME> <RELEASE_NAME_FORMAT> <SEARCH_ONLY> <VIA_STAGE> <VIA_STAGE_SOURCE_NAME> <VIA_STAGE_LATEST_RELEASE>
+    python ado_express/main.py <CRUCIAL_RELEASE_DEFINITIONS> <ORGANIZATION_URL> <PERSONAL_ACCESS_TOKEN> <QUERY> <RELEASE_NAME_FORMAT> <RELEASE_STAGE_NAME> <SEARCH_ONLY> <VIA_STAGE> <VIA_STAGE_SOURCE_NAME> <VIA_STAGE_LATEST_RELEASE>
 
 #### Environment Variables Configuration
 There are three ways to set the environment variables:
@@ -185,7 +185,7 @@ Using environment variables in .env:
 
 Using command line arguments:
     
-    python ado_express/main.py <CRUCIAL_RELEASE_DEFINITIONS> <ORGANIZATION_URL> <PERSONAL_ACCESS_TOKEN> <QUERY> <RELEASE_STAGE_NAME> <RELEASE_NAME_FORMAT> <SEARCH_ONLY> <VIA_STAGE> <VIA_STAGE_SOURCE_NAME> <VIA_STAGE_LATEST_RELEASE>
+    python ado_express/main.py <CRUCIAL_RELEASE_DEFINITIONS> <ORGANIZATION_URL> <PERSONAL_ACCESS_TOKEN> <QUERY> <RELEASE_NAME_FORMAT> <RELEASE_STAGE_NAME> <SEARCH_ONLY> <VIA_STAGE> <VIA_STAGE_SOURCE_NAME> <VIA_STAGE_LATEST_RELEASE>
 
 #### Environment Variables Configuration
 There are three ways to set the environment variables:
@@ -211,21 +211,21 @@ All the files and resources can be found under the [files directory](./ado_expre
 - *search-results.log*: Contains search logs
 # Environment Variables
 ## List of Variables/Arguments
-Note: The default values of these variables are null and false
+Note: The default values of these variables are none/null and false
 
 - **CRUCIAL_RELEASE_DEFINITIONS**=< Array of release definitions that are crucial to the deployment process - Example: releaseone,releasetwo,releasethree >
 - **ORGANIZATION_URL**=< Your organizations ADO URL - Example: https://dev.azure.com/{organization} >
 - **PERSONAL_ACCESS_TOKEN**=< Personal access token (https://learn.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate?view=azure-devops&tabs=Windows) >
 - **QUERY**=< ID of ADO query containing work items to retrieve releases from (ID must be from a saved query and cannot be from a temporary query) >
-- **RELEASE_STAGE_NAME**=< Name of the stage you wish to deploy your releases to (Target)- Example: PROD >
 - **RELEASE_NAME_FORMAT**=< Release name format - Example: Release-$(rev:r) >
+- **RELEASE_STAGE_NAME**=< Name of the stage you wish to deploy your releases to (Target)- Example: PROD >
 - **SEARCH_ONLY**=< true/false >
 - **VIA_STAGE**=< true/false >
 - **VIA_STAGE_SOURCE_NAME**=< Name of the stage that has releases successfully deployed to it already (Rollback) - Example: QA >
 - **VIA_STAGE_LATEST_RELEASE**=< true/false >
 
 ### Order of Command Line Arguments
-    <ORGANIZATION_URL> <PERSONAL_ACCESS_TOKEN> <QUERY> <RELEASE_STAGE_NAME> <RELEASE_NAME_FORMAT> <SEARCH_ONLY> <VIA_STAGE> <VIA_STAGE_SOURCE_NAME> <VIA_STAGE_LATEST_RELEASE> <CRUCIAL_RELEASE_DEFINITIONS>
+    <CRUCIAL_RELEASE_DEFINITIONS> <ORGANIZATION_URL> <PERSONAL_ACCESS_TOKEN> <QUERY> <RELEASE_NAME_FORMAT> <RELEASE_STAGE_NAME> <SEARCH_ONLY> <VIA_STAGE> <VIA_STAGE_SOURCE_NAME> <VIA_STAGE_LATEST_RELEASE>
 
 **Based on your format, you may need to set *RELEASE_NAME_FORMAT* in quotation marks**
 
@@ -236,10 +236,10 @@ While I continue to work on making the use of this tool easier, it could be conf
 ### Search via query
 .env:
 
-    PERSONAL_ACCESS_TOKEN=tokenxxxx
     ORGANIZATION_URL=https://dev.azure.com/xxxx
-    RELEASE_STAGE_NAME=PROD
+    PERSONAL_ACCESS_TOKEN=tokenxxxx
     RELEASE_NAME_FORMAT=Release-$(rev:r) <- '$' will be used to split the release names and numbers
+    RELEASE_STAGE_NAME=PROD
     SEARCH_ONLY=True
     VIA_STAGE=True
     VIA_STAGE_SOURCE_NAME=QA
@@ -247,67 +247,76 @@ While I continue to work on making the use of this tool easier, it could be conf
 
 CMD:
 
-    ./ado-express-linux.exe None https://dev.azure.com/xxxx tokenxxxx queryURL PROD "Release-$(rev:r)" True True QA
+    ./ado-express-linux.exe None https://dev.azure.com/xxxx tokenxxxx queryURL "Release-$(rev:r)" PROD True True QA
 **Set *RELEASE_NAME_FORMAT* in quotations**
 
 ### Search via latest release
-    PERSONAL_ACCESS_TOKEN=xxxx
     ORGANIZATION_URL=https://dev.azure.com/xxxx
-    RELEASE_STAGE_NAME=PROD
+    PERSONAL_ACCESS_TOKEN=xxxx
     RELEASE_NAME_FORMAT=Release-$(rev:r) <- '$' will be used to split the release names and numbers
+    RELEASE_STAGE_NAME=PROD
+    SEARCH_ONLY=True
     VIA_STAGE=True
     VIA_STAGE_LATEST_RELEASE=True
     VIA_STAGE_SOURCE_NAME=QA
-    SEARCH_ONLY=True
 
 ### Search via stage/environment in release defintions
-    PERSONAL_ACCESS_TOKEN=xxxx
+Required: ORGANIZATION_URL, PERSONAL_ACCESS_TOKEN, RELEASE_STAGE_NAME, RELEASE_NAME_FORMAT, SEARCH_ONLY, VIA_STAGE
+
     ORGANIZATION_URL=https://dev.azure.com/xxxx
-    RELEASE_STAGE_NAME=PROD
+    PERSONAL_ACCESS_TOKEN=xxxx
     RELEASE_NAME_FORMAT=Release-$(rev:r) <- '$' will be used to split the release names and numbers
-    VIA_STAGE=True
+    RELEASE_STAGE_NAME=PROD
     SEARCH_ONLY=True
+    VIA_STAGE=True
 
 ### Search via release number in release defintions
-    PERSONAL_ACCESS_TOKEN=xxxx
+Required: ORGANIZATION_URL, PERSONAL_ACCESS_TOKEN, RELEASE_NAME_FORMAT, SEARCH_ONLY
+
     ORGANIZATION_URL=https://dev.azure.com/xxxx
+    PERSONAL_ACCESS_TOKEN=xxxx
     RELEASE_NAME_FORMAT=Release-$(rev:r) <- '$' will be used to split the release names and numbers
     SEARCH_ONLY=True
 
 ## Deploy
 
 ### Deploy via query
-.env:
+Required: ORGANIZATION_URL, PERSONAL_ACCESS_TOKEN, RELEASE_STAGE_NAME, RELEASE_NAME_FORMAT, VIA_STAGE, VIA_STAGE_SOURCE_NAME, QUERY
 
-    PERSONAL_ACCESS_TOKEN=tokenxxxx
+.env:
     ORGANIZATION_URL=https://dev.azure.com/xxxx
-    RELEASE_STAGE_NAME=PROD
+    PERSONAL_ACCESS_TOKEN=tokenxxxx
     RELEASE_NAME_FORMAT=Release-$(rev:r) <- '$' will be used to split the release names and numbers
+    RELEASE_STAGE_NAME=PROD
     VIA_STAGE=True
     VIA_STAGE_SOURCE_NAME=QA
     QUERY=queryID/queryURL
 
 CMD:
 
-    ./ado-express-linux.exe None https://dev.azure.com/xxxx tokenxxxx queryID PROD "Release-$(rev:r)" False True QA
+    ./ado-express-linux.exe None https://dev.azure.com/xxxx tokenxxxx queryID "Release-$(rev:r)" PROD False True QA
 **Set *RELEASE_NAME_FORMAT* in quotations**
 ### Deploy via release number
+Required: ORGANIZATION_URL, PERSONAL_ACCESS_TOKEN, RELEASE_STAGE_NAME, RELEASE_NAME_FORMAT
+
     CRUCIAL_RELEASE_DEFINITIONS=realeaseX,releaseY,releaseZ
-    PERSONAL_ACCESS_TOKEN=tokenxxxx
     ORGANIZATION_URL=https://dev.azure.com/xxxx
-    RELEASE_STAGE_NAME=PROD
+    PERSONAL_ACCESS_TOKEN=tokenxxxx
     RELEASE_NAME_FORMAT=Release-$(rev:r) <- '$' will be used to split the release names and numbers
+    RELEASE_STAGE_NAME=PROD
 
 CMD:
 
-    ./ado-express-win.exe realeaseX,releaseY,releaseZ https://dev.azure.com/xxxx token None PROD "Release-$(rev:r)" False False None False
+    ./ado-express-win.exe realeaseX,releaseY,releaseZ https://dev.azure.com/xxxx token None "Release-$(rev:r)" PROD False False None False
 
 **Set *RELEASE_NAME_FORMAT* in quotation marks**
 ### Deploy via stage/environment
-    PERSONAL_ACCESS_TOKEN=token
+Required: ORGANIZATION_URL, PERSONAL_ACCESS_TOKEN, RELEASE_STAGE_NAME, RELEASE_NAME_FORMAT, VIA_STAGE, VIA_STAGE_SOURCE_NAME
+    
     ORGANIZATION_URL=https://dev.azure.com/xxxx
-    RELEASE_STAGE_NAME=PROD
+    PERSONAL_ACCESS_TOKEN=token
     RELEASE_NAME_FORMAT=Release-$(rev:r) <- '$' will be used to split the release names and numbers
+    RELEASE_STAGE_NAME=PROD
     VIA_STAGE=True
     VIA_STAGE_SOURCE_NAME=QA
 
