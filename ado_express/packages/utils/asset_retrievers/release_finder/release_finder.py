@@ -1,5 +1,6 @@
 import concurrent.futures
 from itertools import repeat
+import logging
 
 from packages.authentication import MSAuthentication
 from packages.common.constants import Constants
@@ -9,12 +10,11 @@ from packages.common.models import DeploymentDetails
 
 class ReleaseFinder:
 
-    def __init__(self, ms_authentication: MSAuthentication, deployment_details: list[DeploymentDetails], environment_variables: EnvironmentVariables):
+    def __init__(self, ms_authentication: MSAuthentication, environment_variables: EnvironmentVariables):
         self.work_client = ms_authentication.work_client
         self.build_client = ms_authentication.build_client
         self.release_client = ms_authentication.client
         self.release_client_v6 = ms_authentication.client_v6
-        self.deployment_details = deployment_details
         self.environment_variables = environment_variables
         self.environment_statuses = ReleaseEnvironmentStatuses()
 
@@ -25,8 +25,7 @@ class ReleaseFinder:
                 return release
 
     def find_matching_releases_via_name(self, releases, release_number, deployment_detail: DeploymentDetails):
-        constants = Constants()
-        logs = ['\n']
+        found = False
 
         for release in releases:
             
@@ -34,12 +33,10 @@ class ReleaseFinder:
                 release_to_check = self.release_client.get_release(project=deployment_detail.release_project_name, release_id=release.id)
 
                 for env in release_to_check.environments:
-                    log = f"Release Definition: {deployment_detail.release_name}\t Release: {release_to_check.name}\t Stage: {env.name}\t Status: {env.status}\t Modified On: {env.modified_on}\n"            
-                    logs.append(log)
+                    logging.info(f"Release Definition: {deployment_detail.release_name}\t Release: {release_to_check.name}\t Stage: {env.name}\t Status: {env.status}\t Modified On: {env.modified_on}\n")            
+                    found = True
                 
-        with open(constants.SEARCH_RESULTS_FILE_PATH, "a") as file:
-            file.write(''.join(map(str, logs)) if len(logs) > 1 else (f'\nNO RESULTS AVAILABLE - Release Definition: {deployment_detail.release_name}\n'))
-
+        if not found: logging.info(f"\nNO RESULTS AVAILABLE - Release Definition: {deployment_detail.release_name}\n")
                 
     def find_matching_release_via_source_stage(self, releases, deployment_detail, rollback=False):
         environment_name_to_find = self.environment_variables.RELEASE_STAGE_NAME if rollback else self.environment_variables.VIA_STAGE_SOURCE_NAME
@@ -61,20 +58,18 @@ class ReleaseFinder:
 
 
     def find_matching_releases_via_stage(self, releases, deployment_detail: DeploymentDetails):
-        constants = Constants()
-        logs = ['\n']
-
+        found = False
+        
         for release in releases:
             release_to_check = self.release_client.get_release(project=deployment_detail.release_project_name, release_id=release.id)
 
             for env in release_to_check.environments:
 
                 if str(env.name).lower() == self.environment_variables.RELEASE_STAGE_NAME and env.status in self.environment_statuses.Succeeded:
-                    log = f"Release Definition: {deployment_detail.release_name}\t Release: {release_to_check.name}\t Stage: {env.name}\t Status: {env.status}\t Modified On: {env.modified_on}\n"            
-                    logs.append(log)
-        
-        with open(constants.SEARCH_RESULTS_FILE_PATH, "a") as file:
-            file.write(''.join(map(str, logs)) if len(logs) > 1 else (f'\nNO RESULTS AVAILABLE - Release Definition: {deployment_detail.release_name}\n'))
+                    logging.info(f"Release Definition: {deployment_detail.release_name}\t Release: {release_to_check.name}\t Stage: {env.name}\t Status: {env.status}\t Modified On: {env.modified_on}\n")          
+                    found = True
+                    
+        if not found: logging.info(f'\nNO RESULTS AVAILABLE - Release Definition: {deployment_detail.release_name}\n')
 
     def get_release(self, deployment_detail, find_via_stage=False, rollback=False):
         # If deployment details are coming from query dict they will be str

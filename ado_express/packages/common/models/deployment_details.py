@@ -1,7 +1,3 @@
-import datetime
-import logging
-from distutils.util import strtobool
-
 class DeploymentDetails:
    """
    :param release_project_name:
@@ -21,11 +17,4 @@ class DeploymentDetails:
       self.release_name = release_name
       self.release_number = release_number
       self.release_rollback = release_rollback
-
-      if is_crucial is None: 
-         self.is_crucial = False
-      else :
-         try:
-            self.is_crucial = bool(strtobool(is_crucial))
-         except:
-            logging.error(f'Unable to read value of "Crucial" - At:{datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}')
+      self.is_crucial = is_crucial

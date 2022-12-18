@@ -1,88 +1,68 @@
 import os
+import re
 import sys
+import validators
 from dotenv import load_dotenv
 
+none_types = ["none", "null", "nill", " ", ""]
+
+def get_validated_string_input(index, key, type=None):
+        if len(sys.argv) > index:
+            str_input = sys.argv[index].strip()
+        else:
+            str_input = os.getenv(key).strip()
+
+        if not isinstance(str_input, str) or (str_input.strip().lower() in none_types):
+            return None
+        else: 
+            if type == "url":
+                if not validators.url(str_input):
+                    raise Exception(f"Invalid {key} provided.")
+            if type == "query":
+                if validators.url(str_input):
+                    try:
+                        str_input = re.findall("[0-9A-Fa-f]{8}[-]?[0-9A-Fa-f]{4}[-]?[0-9A-Fa-f]{4}[-]?[0-9A-Fa-f]{4}[-]?[0-9A-Fa-f]{12}", str_input)[0] # If the entire query URL is passed get the ID from it
+                    except:
+                        raise Exception(f"Invalid {key} provided.")
+                
+        return str_input
+
+def get_validated_list_input(index, key):
+        if len(sys.argv) > index:
+            str_input = sys.argv[index].split(',')
+        else:
+            str_input = os.getenv(key).split(',')
+
+        if any(i in str_input for i in none_types) or not isinstance(str_input, list):
+            return None
+        
+        return str_input
+def get_validated_bool_input(index, key):
+        if len(sys.argv) > index:
+            str_input = sys.argv[index].strip()
+        else:
+            str_input = os.getenv(key).strip()
+
+        if str_input.strip().lower() in none_types:
+            return False
+        else: 
+            if str_input.lower() in ("true", "1", "t"):
+                return True
+            return False
 class EnvironmentVariables:
 
     load_dotenv()
-    ORGANIZATION_URL = (
-        os.getenv("ORGANIZATION_URL")
-        if os.getenv("ORGANIZATION_URL") is not None
-        else sys.argv[1]
-            if len(sys.argv) > 1
-            else None
-    )  # cmd arg 1
-    PERSONAL_ACCESS_TOKEN = (
-        os.getenv("PERSONAL_ACCESS_TOKEN")
-        if os.getenv("PERSONAL_ACCESS_TOKEN") is not None
-        else sys.argv[2]
-            if len(sys.argv) > 2
-            else None
-    )  # cmd arg 2
-    QUERY = (
-        os.getenv("QUERY")
-        if os.getenv("QUERY") is not None
-        else sys.argv[3]
-            if len(sys.argv) > 3
-            else None
-    )  # cmd arg 3
-    RELEASE_STAGE_NAME = (
-        os.getenv("RELEASE_STAGE_NAME")
-        if os.getenv("RELEASE_STAGE_NAME") is not None
-        else sys.argv[4]
-            if len(sys.argv) > 4
-            else None
-    )  # cmd arg 4
-    RELEASE_NAME_FORMAT = (
-        os.getenv("RELEASE_NAME_FORMAT")
-        if os.getenv("RELEASE_NAME_FORMAT") is not None
-        else sys.argv[5]
-            if len(sys.argv) > 5
-            else None
-    )  # cmd arg 5
-    SEARCH_ONLY = (
-        os.getenv("SEARCH_ONLY", default="False").lower() in ("true", "1", "t")
-        if os.getenv("SEARCH_ONLY") is not None
-        else sys.argv[6].lower() in ("true", "1", "t")
-            if len(sys.argv) > 6
-            else False
-    )  # cmd arg 6
-    VIA_STAGE = (
-        os.getenv("VIA_STAGE", default="False").lower() in ("true", "1", "t")
-        if os.getenv("VIA_STAGE") is not None
-        else sys.argv[7].lower() in ("true", "1", "t")
-            if len(sys.argv) > 7
-            else False
-    )  # cmd arg 7
-    VIA_STAGE_SOURCE_NAME = (
-        os.getenv("VIA_STAGE_SOURCE_NAME")
-        if os.getenv("VIA_STAGE_SOURCE_NAME") is not None
-        else sys.argv[8]
-            if len(sys.argv) > 8
-            else None
-    )  # cmd arg 8
-    VIA_STAGE_LATEST_RELEASE = (
-        os.getenv("VIA_STAGE_LATEST_RELEASE", default="False").lower()
-        in ("true", "1", "t")
-        if os.getenv("VIA_STAGE_LATEST_RELEASE") is not None
-        else sys.argv[9].lower() in ("true", "1", "t")
-            if len(sys.argv) > 9
-            else False
-    )  # cmd arg 9
-    CRUCIAL_RELEASE_DEFINITIONS = (
-        os.getenv("CRUCIAL_RELEASE_DEFINITIONS").split(",")
-        if os.getenv("CRUCIAL_RELEASE_DEFINITIONS") is not None
-        else sys.argv[10].split(",")
-            if len(sys.argv) > 10
-            else None
-    )  # cmd arg 10
-    USE_SEARCH_RESULTS = (
-        os.getenv("USE_SEARCH_RESULTS", default="False").lower() in ("true", "1", "t")
-        if os.getenv("USE_SEARCH_RESULTS") is not None
-        else sys.argv[11].lower() in ("true", "1", "t")
-            if len(sys.argv) > 11
-            else False
-    )  # cmd arg 11
+
+    CRUCIAL_RELEASE_DEFINITIONS = get_validated_list_input(1, "CRUCIAL_RELEASE_DEFINITIONS") # cmd arg 1
+    ORGANIZATION_URL = get_validated_string_input(2, "ORGANIZATION_URL", "url") # cmd arg 2
+    PERSONAL_ACCESS_TOKEN = get_validated_string_input(3, "PERSONAL_ACCESS_TOKEN") # cmd arg 3
+    QUERY = get_validated_string_input(4, "QUERY", "query") # cmd arg 4
+    RELEASE_STAGE_NAME = get_validated_string_input(5, "RELEASE_STAGE_NAME") # cmd arg 5
+    RELEASE_NAME_FORMAT = get_validated_string_input(6, "RELEASE_NAME_FORMAT") # cmd arg 6
+    SEARCH_ONLY = get_validated_bool_input(7, "SEARCH_ONLY") # cmd arg 7
+    VIA_STAGE = get_validated_bool_input(8, "VIA_STAGE") # cmd arg 8
+    VIA_STAGE_SOURCE_NAME = get_validated_string_input(9, "VIA_STAGE_SOURCE_NAME") # cmd arg 9
+    VIA_STAGE_LATEST_RELEASE = get_validated_bool_input(10, "VIA_STAGE_LATEST_RELEASE") # cmd arg 10
 
     if not SEARCH_ONLY and VIA_STAGE and VIA_STAGE_SOURCE_NAME is None:
         raise Exception("To deploy via stage you must provide a VIA_STAGE_SOURCE_NAME")
@@ -103,5 +83,5 @@ class EnvironmentVariables:
         and (VIA_STAGE_SOURCE_NAME is None or RELEASE_STAGE_NAME is None)
     ):
         raise Exception(
-            "To search query via stage VIA_STAGE_SOURCE_NAME & RELEASE_STAGE_NAME must be provided"
+            "To search query via stage, VIA_STAGE_SOURCE_NAME & RELEASE_STAGE_NAME must be provided"
         )
