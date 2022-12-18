@@ -27,7 +27,7 @@ There are two types of searches available:
             3. Gets all releases created by builds and compares them to find the latest 
             4. The latest deployed release specified by stage (*VIA_STAGE_SOURCE_NAME*) gets returned
                 - Grabbing the latest release already deployed to *VIA_STAGE_SOURCE_NAME* and not yet deployed to *RELEASE_STAGE_NAME*
-        - [Setps for rollback release retrieval](#getting-rollback-releases-included-in-both-search-methods-above)
+        - [Setps for rollback release retrieval](#getting-rollback-releases)
         
         [EXAMPLE CONFIGURATION](#search-via-query)
 
@@ -39,17 +39,9 @@ There are two types of searches available:
             2. Finds the latest release based on last successful deployment
             3. The latest deployed release specified by stage (*VIA_STAGE_SOURCE_NAME*) gets returned
                 - Grabbing the latest release already deployed to *VIA_STAGE_SOURCE_NAME* and not yet deployed to *RELEASE_STAGE_NAME*
-        - [Setps for rollback release retrieval](#getting-rollback-releases-included-in-both-search-methods-above)
+        - [Setps for rollback release retrieval](#getting-rollback-releases)
 
         [EXAMPLE CONFIGURATION](#search-via-latest-release)
-
-### Getting Rollback Releases (Included in both search methods above)
-Finds the last deployed release in target stage and sets it as rollback.
-- Steps:
-    1. Iterates through release definitions found in the release target retrieval step
-    2. Checks the stage and deployment status of each
-    3. Returns the latest deployed release that matches stage specified by *RELEASE_STAGE_NAME*
-        - In other words, the last release in the release definition deployed to *RELEASE_STAGE_NAME*
     
 ## Create Search Release Logs 
 1. Search via stage in release definition:
@@ -95,7 +87,7 @@ There are three types of deployment available:
         3. Gets all releases created by builds and compares them to find the latest 
         4. The latest deployed release specified by stage (*VIA_STAGE_SOURCE_NAME*) gets returned
             - Grabbing the latest release already deployed to *VIA_STAGE_SOURCE_NAME* and not yet deployed to *RELEASE_STAGE_NAME*
-    - [Setps for rollback release retrieval](#getting-rollback-releases-included-in-both-search-methods-above)
+    - [Setps for rollback release retrieval](#getting-rollback-releases)
     
     [EXAMPLE CONFIGURATION](#deploy-via-query-1)
 ## Deploy via release number
@@ -116,6 +108,16 @@ The use of a deployment plan file is required. The default deployment plan can b
     - **Rollback**: Found by going through all the releases in release definition. Then selecting the last release successfully deployed to stage specified by *RELEASE_STAGE_NAME*
 
     [EXAMPLE CONFIGURATION](#deploy-via-stageenvironment-1)
+
+# Getting Rollback Releases
+Using query and via_latest features use this method for getting rollback releases.
+- How does it work?
+    Finds the last deployed release in target stage and sets it as rollback.
+    - Steps:
+        1. Iterates through release definitions found in the release target retrieval step
+        2. Checks the stage and deployment status of each
+        3. Returns the latest deployed release that matches stage specified by *RELEASE_STAGE_NAME*
+            - In other words, the last release in the release definition deployed to *RELEASE_STAGE_NAME*
 
 ---------------------------------
 # Ways to run
