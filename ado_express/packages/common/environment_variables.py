@@ -57,8 +57,8 @@ class EnvironmentVariables:
     ORGANIZATION_URL = get_validated_string_input(2, "ORGANIZATION_URL", "url") # cmd arg 2
     PERSONAL_ACCESS_TOKEN = get_validated_string_input(3, "PERSONAL_ACCESS_TOKEN") # cmd arg 3
     QUERY = get_validated_string_input(4, "QUERY", "query") # cmd arg 4
-    RELEASE_STAGE_NAME = get_validated_string_input(5, "RELEASE_STAGE_NAME") # cmd arg 5
-    RELEASE_NAME_FORMAT = get_validated_string_input(6, "RELEASE_NAME_FORMAT") # cmd arg 6
+    RELEASE_NAME_FORMAT = get_validated_string_input(5, "RELEASE_NAME_FORMAT") # cmd arg 5
+    RELEASE_STAGE_NAME = get_validated_string_input(6, "RELEASE_STAGE_NAME") # cmd arg 6
     SEARCH_ONLY = get_validated_bool_input(7, "SEARCH_ONLY") # cmd arg 7
     VIA_STAGE = get_validated_bool_input(8, "VIA_STAGE") # cmd arg 8
     VIA_STAGE_SOURCE_NAME = get_validated_string_input(9, "VIA_STAGE_SOURCE_NAME") # cmd arg 9
