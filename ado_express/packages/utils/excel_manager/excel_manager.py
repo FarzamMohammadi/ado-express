@@ -28,7 +28,7 @@ class ExcelManager:
                 file_headers[1]: deployment_details.release_name, 
                 file_headers[2]: deployment_details.release_number,
                 file_headers[3]: deployment_details.release_rollback,
-                file_headers[4]: ''
+                file_headers[4]: deployment_details.is_crucial
                 }, index=[0])
 
     def insert_row(self, df, new_df: pd.DataFrame):

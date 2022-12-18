@@ -98,12 +98,20 @@ class Startup:
         return deployment_details
 
     def get_deployment_detail_from_latest_release(self, deployment_detail: DeploymentDetails):
-        target_release = self.release_finder.get_release(deployment_detail, find_via_stage=self.via_stage)
-        rollback_release = self.release_finder.get_release(deployment_detail, find_via_stage=self.via_stage, rollback=True)
+        try:
+            target_release = self.release_finder.get_release(deployment_detail, find_via_stage=self.via_stage)
+            rollback_release = self.release_finder.get_release(deployment_detail, find_via_stage=self.via_stage, rollback=True)
+            target_release_number = target_release.name.split('-')[1]
+            rollback_release_number = rollback_release.name.split('-')[1]
 
-        if (not needs_deployment(target_release, rollback_release)): #TODO REMOVE THIS
-            deployment_detail = DeploymentDetails(deployment_detail.release_project_name, deployment_detail.release_name, target_release.split('-')[1], rollback_release.split('-')[1])
-            return deployment_detail
+            if (needs_deployment(target_release_number, rollback_release_number)): 
+                deployment_detail = DeploymentDetails(deployment_detail.release_project_name, deployment_detail.release_name, target_release_number, rollback_release_number, deployment_detail.is_crucial)
+                
+                logging.info(f'Latest release found: Project:{deployment_detail.release_project_name}, Release Definition:{deployment_detail.release_name}, Target:{target_release_number}, Rollback:{rollback_release_number}')
+                return deployment_detail
+        except:
+            logging.error(f'Latest release not found: Project:{deployment_detail.release_project_name}, Release Definition:{deployment_detail.release_name}\n - Possible cause: The release does not have either the source or target stage you are looking for')
+            return
     
     def search_and_log_details_only(self, deployment_detail: DeploymentDetails):
         self.release_finder.get_releases(deployment_detail, find_via_stage=self.via_stage)
@@ -156,7 +164,7 @@ if __name__ == '__main__':
                 startup.initialize_excel_configurations()
 
                 for deployment_detail in deployment_details:
-                    if deployment_detail is not None:
+                    if deployment_detail is not None: # The ThreadPoolExecutor may return None for some releases
 
                         row = excel_manager.convert_deplyoment_detail_to_excel_row(deployment_plan_file_headers, deployment_detail)
                         excel_manager.save_or_concat_file(row, deployment_plan_path)
@@ -184,10 +192,12 @@ if __name__ == '__main__':
 
             if crucial_deployment_details: # First, deploy crucial releases if there are any
                 for r in crucial_deployment_details:
-                    print(r.release_name)
+                    if r is not None: # The ThreadPoolExecutor may return None for some releases
+                        print(r.release_name)
                 # with concurrent.futures.ThreadPoolExecutor() as executor:
                 #     crucial_deployment_results = executor.map(startup.start_request, crucial_deployment_details)
             for r in deployment_details:
+                if r is not None: # The ThreadPoolExecutor may return None for some releases
                     print(r.release_name)
             # with concurrent.futures.ThreadPoolExecutor() as executor: # Then, deploy the rest of the releases
             #     results = executor.map(startup.start_request, deployment_details)
