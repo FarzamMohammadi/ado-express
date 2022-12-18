@@ -113,19 +113,18 @@ The use of a deployment plan file is required. The default deployment plan can b
 Finds the last deployed release in target stage and sets it as rollback. **Query** and **via_latest** features use this method for getting rollback releases.
 
 - How does it work?
-    Steps:
-    1. Iterates through release definitions found in the release target retrieval step
-    2. Checks the stage and deployment status of each
-    3. Returns the latest deployed release that matches stage specified by *RELEASE_STAGE_NAME*
+    - Iterates through release definitions found in the release target retrieval step
+    - Checks the stage and deployment status of each
+    - Returns the latest deployed release that matches stage specified by *RELEASE_STAGE_NAME*
         - In other words, the last release in the release definition deployed to *RELEASE_STAGE_NAME*
 
 ---------------------------------
 # Ways to run
-- [**Executable** (No installation required)](#1-executable-simplest-method---no-install-required)
-- [**VS CODE development container** (Docker & VSCode installation required - Python & dependency installation not required)](#2-vscode-development-container-docker--vscode-installation-required)
-- [**Run locally** (python & dependency installation required)](#3-run-locally-python--dependency-installation-required)
+- [**Executable** (No installation required)](#1-executable-simplest-method---no-installation-required)
+- [**Locally in development container** (Docker & VSCode installation required - Python & dependency installation not required)](#2-locally-in-development-container-docker--vscode-installation-required)
+- [**Locally** (python & dependency installation required)](#3-locally-python--dependency-installation-required)
 
-## 1. Executable (Simplest method - No install required)
+## 1. Executable (Simplest method - No installation required)
 Executables for Windows and Linux are available in repository release artifacts. Download and run the executable file with the desired parameters. 
 
     ado-express-{OS}.exe <CRUCIAL_RELEASE_DEFINITIONS> <ORGANIZATION_URL> <PERSONAL_ACCESS_TOKEN> <QUERY> <RELEASE_STAGE_NAME> <RELEASE_NAME_FORMAT> <SEARCH_ONLY> <VIA_STAGE> <VIA_STAGE_SOURCE_NAME> <VIA_STAGE_LATEST_RELEASE>
@@ -133,8 +132,8 @@ Executables for Windows and Linux are available in repository release artifacts.
 ### Environment Variables Configuration
 Pass the environment variables as parameters in command. More about environment variables here: [Environment Variables](#Environment-Variables):
 
-## 2. VSCode Development Container (Docker & VSCode installation required)
-You can run or contribute to this project without installing python or other project dependencies. You can do this by running your local development environment inside a container (https://code.visualstudio.com/docs/devcontainers/containers).
+## 2. Locally in Development Container (Docker & VSCode installation required)
+You can run or contribute to this project without installing python or other project dependencies. You can do this by running your local development environment inside a container. For more info: (https://code.visualstudio.com/docs/devcontainers/containers)
 
 Steps:
 1. Open the project in VS Code
@@ -144,12 +143,6 @@ Steps:
 **IMPORTANT: The start of a development container, will trigger the application to run. To prevent this, don't setup the environment variables. You can always set them after the development container has started.**
 
 ### To run the application within the development container
-### Environment Variables Configuration
-There are two ways to set the environment variables:
-1. Set them in .env file
-2. Pass them as arguments in the run command
-
-Make sure to set them according to your task via either the run command or .env file. For more information about environment variables, see [Environment Variables](#Environment-Variables).
 
 Using environment variables in .env:
     
@@ -158,7 +151,14 @@ Using environment variables in .env:
 Using command line arguments:
     
     python ado_express/main.py <CRUCIAL_RELEASE_DEFINITIONS> <ORGANIZATION_URL> <PERSONAL_ACCESS_TOKEN> <QUERY> <RELEASE_STAGE_NAME> <RELEASE_NAME_FORMAT> <SEARCH_ONLY> <VIA_STAGE> <VIA_STAGE_SOURCE_NAME> <VIA_STAGE_LATEST_RELEASE>
-## 3. Run locally (Python & Dependency Installation Required)
+
+#### Environment Variables Configuration
+There are two ways to set the environment variables:
+1. Set them in .env file
+2. Pass them as arguments in the run command
+
+Make sure to set them according to your task via either the run command or .env file. For more information about environment variables, see [Environment Variables](#Environment-Variables).
+## 3. Locally (Python & Dependency Installation Required)
 
 ### Python & pip installation
 Must have python (https://www.python.org/downloads/) and pip (https://www.activestate.com/resources/quick-reads/how-to-install-pip-on-windows/) installed. Then run the command below to update pip:
