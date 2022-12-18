@@ -234,6 +234,8 @@ While I continue to work on making the use of this tool easier, it could be conf
 
 ## Search
 ### Search via query
+Required: ORGANIZATION_URL, PERSONAL_ACCESS_TOKEN, RELEASE_NAME_FORMAT, RELEASE_STAGE_NAME, SEARCH_ONLY, VIA_STAGE, VIA_STAGE_SOURCE_NAME, QUERY
+
 .env:
 
     ORGANIZATION_URL=https://dev.azure.com/xxxx
@@ -251,6 +253,10 @@ CMD:
 **Set *RELEASE_NAME_FORMAT* in quotations**
 
 ### Search via latest release
+Required: ORGANIZATION_URL, PERSONAL_ACCESS_TOKEN, RELEASE_NAME_FORMAT, RELEASE_STAGE_NAME, SEARCH_ONLY, VIA_STAGE, VIA_STAGE_LATEST_RELEASE, VIA_STAGE_SOURCE_NAME
+
+.env:
+
     ORGANIZATION_URL=https://dev.azure.com/xxxx
     PERSONAL_ACCESS_TOKEN=xxxx
     RELEASE_NAME_FORMAT=Release-$(rev:r) <- '$' will be used to split the release names and numbers
@@ -261,7 +267,9 @@ CMD:
     VIA_STAGE_SOURCE_NAME=QA
 
 ### Search via stage/environment in release defintions
-Required: ORGANIZATION_URL, PERSONAL_ACCESS_TOKEN, RELEASE_STAGE_NAME, RELEASE_NAME_FORMAT, SEARCH_ONLY, VIA_STAGE
+Required: ORGANIZATION_URL, PERSONAL_ACCESS_TOKEN, RELEASE_NAME_FORMAT, RELEASE_STAGE_NAME, SEARCH_ONLY, VIA_STAGE
+
+.env:
 
     ORGANIZATION_URL=https://dev.azure.com/xxxx
     PERSONAL_ACCESS_TOKEN=xxxx
@@ -273,6 +281,8 @@ Required: ORGANIZATION_URL, PERSONAL_ACCESS_TOKEN, RELEASE_STAGE_NAME, RELEASE_N
 ### Search via release number in release defintions
 Required: ORGANIZATION_URL, PERSONAL_ACCESS_TOKEN, RELEASE_NAME_FORMAT, SEARCH_ONLY
 
+.env:
+
     ORGANIZATION_URL=https://dev.azure.com/xxxx
     PERSONAL_ACCESS_TOKEN=xxxx
     RELEASE_NAME_FORMAT=Release-$(rev:r) <- '$' will be used to split the release names and numbers
@@ -281,7 +291,7 @@ Required: ORGANIZATION_URL, PERSONAL_ACCESS_TOKEN, RELEASE_NAME_FORMAT, SEARCH_O
 ## Deploy
 
 ### Deploy via query
-Required: ORGANIZATION_URL, PERSONAL_ACCESS_TOKEN, RELEASE_STAGE_NAME, RELEASE_NAME_FORMAT, VIA_STAGE, VIA_STAGE_SOURCE_NAME, QUERY
+Required: ORGANIZATION_URL, PERSONAL_ACCESS_TOKEN, RELEASE_NAME_FORMAT, RELEASE_STAGE_NAME, VIA_STAGE, VIA_STAGE_SOURCE_NAME, QUERY
 
 .env:
     ORGANIZATION_URL=https://dev.azure.com/xxxx
@@ -297,7 +307,9 @@ CMD:
     ./ado-express-linux.exe None https://dev.azure.com/xxxx tokenxxxx queryID "Release-$(rev:r)" PROD False True QA
 **Set *RELEASE_NAME_FORMAT* in quotations**
 ### Deploy via release number
-Required: ORGANIZATION_URL, PERSONAL_ACCESS_TOKEN, RELEASE_STAGE_NAME, RELEASE_NAME_FORMAT
+Required: ORGANIZATION_URL, PERSONAL_ACCESS_TOKEN, RELEASE_NAME_FORMAT, RELEASE_STAGE_NAME
+
+.env:
 
     CRUCIAL_RELEASE_DEFINITIONS=realeaseX,releaseY,releaseZ
     ORGANIZATION_URL=https://dev.azure.com/xxxx
@@ -311,8 +323,10 @@ CMD:
 
 **Set *RELEASE_NAME_FORMAT* in quotation marks**
 ### Deploy via stage/environment
-Required: ORGANIZATION_URL, PERSONAL_ACCESS_TOKEN, RELEASE_STAGE_NAME, RELEASE_NAME_FORMAT, VIA_STAGE, VIA_STAGE_SOURCE_NAME
-    
+Required: ORGANIZATION_URL, PERSONAL_ACCESS_TOKEN, RELEASE_NAME_FORMAT, RELEASE_STAGE_NAME, VIA_STAGE, VIA_STAGE_SOURCE_NAME
+
+.env:
+
     ORGANIZATION_URL=https://dev.azure.com/xxxx
     PERSONAL_ACCESS_TOKEN=token
     RELEASE_NAME_FORMAT=Release-$(rev:r) <- '$' will be used to split the release names and numbers
