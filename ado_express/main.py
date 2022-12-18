@@ -65,6 +65,18 @@ class Startup:
         self.time_format = '%Y-%m-%d %H:%M:%S'
         self.datetime_now = datetime.now(timezone('US/Eastern'))
 
+    def get_crucial_release_definitions(self):
+        crucial_release_definitions = []
+        # First checks command line args, if not found, then checks the deployment plan
+        if environment_variables.CRUCIAL_RELEASE_DEFINITIONS is not None:
+            crucial_release_definitions = environment_variables.CRUCIAL_RELEASE_DEFINITIONS
+        else:
+            for deployment_detail in deployment_plan_details:
+                if deployment_detail.is_crucial:
+                    crucial_release_definitions.append(deployment_detail.release_name)
+        
+        return crucial_release_definitions
+
     def get_deployment_details_from_query(self):
         work_item_manager = WorkItemManager(self.ms_authentication)
         build_ids = work_item_manager.get_query_build_ids(self.query)
@@ -118,24 +130,25 @@ class Startup:
     
     def deploy(self, deployment_detail: DeploymentDetails):
         try:
-            release_to_update = self.release_finder.get_release(deployment_detail, find_via_stage=self.via_stage)
-            update_manager = UpdateRelease(constants, self.ms_authentication, environment_variables, self.release_finder)
+            if deployment_detail is not None: # The ThreadPoolExecutor may return None for some releases
+                release_to_update = self.release_finder.get_release(deployment_detail, find_via_stage=self.via_stage)
+                update_manager = UpdateRelease(constants, self.ms_authentication, environment_variables, self.release_finder)
 
-            update_attempt = update_manager.update_release(deployment_detail, release_to_update)
-            update_attempt_successful = update_attempt[0]
-            update_comment = update_attempt[1]
+                update_attempt = update_manager.update_release(deployment_detail, release_to_update)
+                update_attempt_successful = update_attempt[0]
+                update_comment = update_attempt[1]
 
-            if update_attempt_successful:
-                # Check the status of release update
-                logging.info(f'Monitoring update Status - Project:{deployment_detail.release_project_name} Release Definition:{deployment_detail.release_name} Release:{release_to_update.name} Environment:{environment_variables.RELEASE_STAGE_NAME}')
-                release_updated_successfully = update_manager.get_release_update_result(deployment_detail, release_to_update)
+                if update_attempt_successful:
+                    # Check the status of release update
+                    logging.info(f'Monitoring update Status - Project:{deployment_detail.release_project_name} Release Definition:{deployment_detail.release_name} Release:{release_to_update.name} Environment:{environment_variables.RELEASE_STAGE_NAME}')
+                    release_updated_successfully = update_manager.get_release_update_result(deployment_detail, release_to_update)
 
-                if not release_updated_successfully:
-                    update_manager.handle_failed_update(deployment_detail, self.via_stage)
+                    if not release_updated_successfully:
+                        update_manager.handle_failed_update(deployment_detail, self.via_stage)
+                    else:
+                        logging.info(f'Release Update Successful - Project:{deployment_detail.release_project_name} Release Definition:{deployment_detail.release_name} Release:{release_to_update.name} Environment:{environment_variables.RELEASE_STAGE_NAME}')
                 else:
-                    logging.info(f'Release Update Successful - Project:{deployment_detail.release_project_name} Release Definition:{deployment_detail.release_name} Release:{release_to_update.name} Environment:{environment_variables.RELEASE_STAGE_NAME}')
-            else:
-                update_manager.handle_failed_update(deployment_detail, self.via_stage, failure_reason=update_comment)
+                    update_manager.handle_failed_update(deployment_detail, self.via_stage, failure_reason=update_comment)
 
         except Exception as e:
             logging.error(f'There was an error. Please check their status and continue manually.\nException:{e}')
@@ -176,7 +189,7 @@ if __name__ == '__main__':
 
     # Run deployment
     else:
-        crucial_release_definitions = environment_variables.CRUCIAL_RELEASE_DEFINITIONS
+        crucial_release_definitions = startup.get_crucial_release_definitions()
         crucial_deployment_details = []
 
         # Set deployment details to deployment plan details if it's not a query/latest release run
@@ -185,23 +198,24 @@ if __name__ == '__main__':
         if deployment_details is None:
             logging.error(f'No deployment details found - please check the configuration')
             exit()
-        else :
+        else:
             if crucial_release_definitions is not None:
                 # Separate crucial & regular deployments based on release defintions that match CRUCIAL_RELEASE_DEFINITIONS env variable list
                 crucial_deployment_details = [x for x in deployment_details if x.release_name in crucial_release_definitions]
                 deployment_details[:] = [x for x in deployment_details if x.release_name not in crucial_release_definitions]
 
             if crucial_deployment_details: # First, deploy crucial releases if there are any
-                for r in crucial_deployment_details:
-                    if r is not None: # The ThreadPoolExecutor may return None for some releases
-                        print(r.release_name)
-                # with concurrent.futures.ThreadPoolExecutor() as executor:
-                #     crucial_deployment_results = executor.map(startup.start_request, crucial_deployment_details)
-            for r in deployment_details:
-                if r is not None: # The ThreadPoolExecutor may return None for some releases
-                    print(r.release_name)
-            # with concurrent.futures.ThreadPoolExecutor() as executor: # Then, deploy the rest of the releases
-            #     results = executor.map(startup.start_request, deployment_details)
+                with concurrent.futures.ThreadPoolExecutor() as executor:
+                    logging.info('Deploying the crucial releases first')
+                    executor.map(startup.deploy, crucial_deployment_details)
+                    executor.shutdown(wait=True)
+
+            with concurrent.futures.ThreadPoolExecutor() as executor: # Then, deploy the rest of the releases
+                if crucial_deployment_details: 
+                    logging.info('Deploing the rest of the releases')
+                else:
+                    logging.info('Deploying releases')
+                executor.map(startup.deploy, deployment_details)
 
     task_end = time.perf_counter()
     logging.info(f'Tasks completed in {task_end-task_start} seconds')
