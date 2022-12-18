@@ -5,8 +5,8 @@ Create release notes, search, and deploy releases - all in the most automated wa
 
 Benefits:
 - Save time managing release deployments
-- Achieve uniformity of releases in the deployments to all environments
-- Prevent inclusion or exclusion of unwanted releases in deployments
+- Achieve release uniformity in all environment deployments
+- Prevent inclusion/exclusion of unwanted releases in deployments
 - Automate your CD from start to end 
 
 Enjoy!
@@ -14,7 +14,7 @@ Enjoy!
 ----------------------------------
 # Search
 There are two types of searches available:
-1. [**Export the results to an excel file** (Can be used later for deployment)](#create-search-release-notes-export-search-results-to-excel-file)
+1. [**Export the results (to an excel file & logs)**](#create-search-release-notes-export-search-results-to-excel-file)
 2. [**Log the results**](#create-search-release-logs)
 
 ## Create Search Release Notes (Export search results to excel file)
@@ -26,9 +26,10 @@ There are two types of searches available:
             2. Goes through each work item to get merged commit builds from pull requests and pushes
             3. Gets all releases created by builds and compares them to find the latest 
             4. The latest deployed release specified by stage (*VIA_STAGE_SOURCE_NAME*) gets returned
+                - Grabbing the latest release already deployed to *VIA_STAGE_SOURCE_NAME* and not yet deployed to *RELEASE_STAGE_NAME*
         - [Setps for rollback release retrieval](#getting-rollback-releases-included-in-both-search-methods-above)
         
-        [EXAMPLE CONFIGURATION](#search-by-query)
+        [EXAMPLE CONFIGURATION](#search-via-query)
 
 2. Using deployment plan excel file:
     - How does it work?
@@ -37,9 +38,10 @@ There are two types of searches available:
             1. Goes through each release definition in the deployment plan 
             2. Finds the latest release based on last successful deployment
             3. The latest deployed release specified by stage (*VIA_STAGE_SOURCE_NAME*) gets returned
+                - Grabbing the latest release already deployed to *VIA_STAGE_SOURCE_NAME* and not yet deployed to *RELEASE_STAGE_NAME*
         - [Setps for rollback release retrieval](#getting-rollback-releases-included-in-both-search-methods-above)
 
-        [EXAMPLE CONFIGURATION](#search-by-latest-release)
+        [EXAMPLE CONFIGURATION](#search-via-latest-release)
 
 ### Getting Rollback Releases (Included in both search methods above)
 Finds the last deployed release in target stage and sets it as rollback.
@@ -47,40 +49,57 @@ Finds the last deployed release in target stage and sets it as rollback.
     1. Iterates through release definitions found in the release target retrieval step
     2. Checks the stage and deployment status of each
     3. Returns the latest deployed release that matches stage specified by *RELEASE_STAGE_NAME*
+        - In other words, the last release in the release definition deployed to *RELEASE_STAGE_NAME*
     
 ## Create Search Release Logs 
-1. Search by stage in release definition:
+1. Search via stage in release definition:
     - How does it work? 
         - Must set release details in the deployment plan excel file
         - Goes through each release definition in deployment plan 
         - Checks the stage and deployment status of each release
-        - Logs releases successfully deployed to stage specified by *RELEASE_STAGE_NAME*
+        - Logs all releases in the release definition, which are successfully deployed to the stage specified by *RELEASE_STAGE_NAME*
     
-    [EXAMPLE CONFIGURATION](#search-by-stageenvironment-in-release-defintions) 
+    [EXAMPLE CONFIGURATION](#search-via-stageenvironment-in-release-defintions) 
 
-2. Search by release definition and release number:
+2. Search via release definition and release number:
     - How does it work? 
         - Must set release details in the deployment plan excel file
         - Goes through each release definition in deployment plan
         - Finds the exact release specified by release number 
-        - Log the name and deployment status of each stages/environment for release
+        - Logs the name and deployment status of each stages/environment for that particular release
 
-    [EXAMPLE CONFIGURATION](#search-by-release-number-in-release-defintions)
+    [EXAMPLE CONFIGURATION](#search-via-release-number-in-release-defintions)
 
 # Deploy
-The use of a deployment plan file is required. The default deployment plan can be found [here](./ado_express/files/deployment). You can use the search results deployment plan (found [here](./ado_express/files/search-results)), by setting *USE_SEARCH_RESULTS* to true. There are two types of deployment available:
-1. [**Deploy via release number**](#deploy-via-release-number)
-2. [**Deploy via stage/environment**](#deploy-via-stageenvironment)
+There are three types of deployment available:
+1. [**Deploy via query**](#deploy-via-query)
+2. [**Deploy via release number**](#deploy-via-release-number)
+3. [**Deploy via stage/environment**](#deploy-via-stageenvironment)
 
-**If deployment is crucial (Same configuration for both deployment methods)**: 
-- Set the "Crucial" value to True in the deployment plan file (or pass as *CRUCIAL_RELEASE_DEFINITIONS*)
+**If deployment of some release definitions are crucial**: 
+- Same process for all three deployment methods
+- Set the "Crucial" value to True in the deployment plan file (or pass as *CRUCIAL_RELEASE_DEFINITIONS* in command line argument or as environment variable). See [List of Variables/Arguments](#list-of-variablesarguments) for more information
+- In cases of deployments where the deployment plan is used, first the deployment plan file is checked for crucial release definitions via the "Crucial" column value, if nothing is found, then the *CRUCIAL_RELEASE_DEFINITIONS* is checked
 - These deployments will run first in parallel
 - After successfully completion, the rest of the deployments run in parallel
 - In case of a crucial deployment error:
     - The application will attempt to rollback (deploy to rollback number) 
     - Then will stop the processes regardless of the status of rollback
 
+## Deploy via query
+- How does it work?
+    - Iterates through work items (regardless of type) in query to find the last release created by builds of merged commits
+    - Steps for target release retrieval: 
+        1. Gets each work item in query
+        2. Goes through each work item to get merged commit builds from pull requests and pushes
+        3. Gets all releases created by builds and compares them to find the latest 
+        4. The latest deployed release specified by stage (*VIA_STAGE_SOURCE_NAME*) gets returned
+            - Grabbing the latest release already deployed to *VIA_STAGE_SOURCE_NAME* and not yet deployed to *RELEASE_STAGE_NAME*
+    - [Setps for rollback release retrieval](#getting-rollback-releases-included-in-both-search-methods-above)
+    
+    [EXAMPLE CONFIGURATION](#deploy-via-query-1)
 ## Deploy via release number
+The use of a deployment plan file is required. The default deployment plan can be found [here](./ado_express/files/deployment). 
 - How does it work? 
     - Goes through each release number in the deployment plan and deploys it to stage specified by *RELEASE_STAGE_NAME*
     - **Target Release**: Set by "Release Number" in the deployment plan (or pass as command line argument) 
@@ -90,6 +109,7 @@ The use of a deployment plan file is required. The default deployment plan can b
     [EXAMPLE CONFIGURATION](#deploy-via-release-number-1)
 
 ## Deploy via stage/environment
+The use of a deployment plan file is required. The default deployment plan can be found [here](./ado_express/files/deployment). 
 - How does it work?
     - Goes through each release definition in the deployment plan. Then finds and deploys latest release based on RELEASE_STAGE_NAME.
     - **Target**: Found by going through all the releases in release definition. Then selecting the last release successfully deployed to stage specified by *VIA_STAGE_SOURCE_NAME*
@@ -106,7 +126,7 @@ The use of a deployment plan file is required. The default deployment plan can b
 ## 1. Executable (Simplest method - No install required)
 Executables for Windows and Linux are available in repository release artifacts. Download and run the executable file with the desired parameters. 
 
-    ado-express-{OS}.exe <ORGANIZATION_URL> <PERSONAL_ACCESS_TOKEN> <QUERY> <RELEASE_STAGE_NAME> <RELEASE_NAME_FORMAT> <SEARCH_ONLY> <VIA_STAGE> <VIA_STAGE_SOURCE_NAME> <VIA_STAGE_LATEST_RELEASE> <CRUCIAL_RELEASE_DEFINITIONS> <USE_SEARCH_RESULTS>
+    ado-express-{OS}.exe <CRUCIAL_RELEASE_DEFINITIONS> <ORGANIZATION_URL> <PERSONAL_ACCESS_TOKEN> <QUERY> <RELEASE_STAGE_NAME> <RELEASE_NAME_FORMAT> <SEARCH_ONLY> <VIA_STAGE> <VIA_STAGE_SOURCE_NAME> <VIA_STAGE_LATEST_RELEASE>
 
 ### Environment Variables Configuration
 Pass the environment variables as parameters in command. More about environment variables here: [Environment Variables](#Environment-Variables):
@@ -135,7 +155,7 @@ Using environment variables in .env:
 
 Using command line arguments:
     
-    python ado_express/main.py <ORGANIZATION_URL> <PERSONAL_ACCESS_TOKEN> <QUERY> <RELEASE_STAGE_NAME> <RELEASE_NAME_FORMAT> <SEARCH_ONLY> <VIA_STAGE> <VIA_STAGE_SOURCE_NAME> <VIA_STAGE_LATEST_RELEASE> <CRUCIAL_RELEASE_DEFINITIONS> <USE_SEARCH_RESULTS>
+    python ado_express/main.py <CRUCIAL_RELEASE_DEFINITIONS> <ORGANIZATION_URL> <PERSONAL_ACCESS_TOKEN> <QUERY> <RELEASE_STAGE_NAME> <RELEASE_NAME_FORMAT> <SEARCH_ONLY> <VIA_STAGE> <VIA_STAGE_SOURCE_NAME> <VIA_STAGE_LATEST_RELEASE>
 ## 3. Run locally (Python & Dependency Installation Required)
 
 ### Python & pip installation
@@ -158,7 +178,7 @@ Using environment variables in .env:
 
 Using command line arguments:
     
-    python ado_express/main.py <ORGANIZATION_URL> <PERSONAL_ACCESS_TOKEN> <QUERY> <RELEASE_STAGE_NAME> <RELEASE_NAME_FORMAT> <SEARCH_ONLY> <VIA_STAGE> <VIA_STAGE_SOURCE_NAME> <VIA_STAGE_LATEST_RELEASE> <CRUCIAL_RELEASE_DEFINITIONS> <USE_SEARCH_RESULTS>
+    python ado_express/main.py <CRUCIAL_RELEASE_DEFINITIONS> <ORGANIZATION_URL> <PERSONAL_ACCESS_TOKEN> <QUERY> <RELEASE_STAGE_NAME> <RELEASE_NAME_FORMAT> <SEARCH_ONLY> <VIA_STAGE> <VIA_STAGE_SOURCE_NAME> <VIA_STAGE_LATEST_RELEASE>
 
 ### Environment Variables Configuration
 There are two ways to set the environment variables:
@@ -179,12 +199,13 @@ All the files and resources can be found under the [files directory](./ado_expre
 - *deployment.log*: Containts deployment logs
 
 ## [/search-results](./ado_express/files/search-results)
-- *deployment-plan.xlsx*: The output of search results. This can also be used for deployment if *USE_SEARCH_RESULTS* is set to true
+- *deployment-plan.xlsx*: The output of search results
 - *search-results.log*: Contains search logs
 # Environment Variables
 ## List of Variables/Arguments
 Note: The default values of these variables are null and false
 
+- **CRUCIAL_RELEASE_DEFINITIONS**=< Array of release definitions that are crucial to the deployment process - Example: releaseone,releasetwo,releasethree >
 - **ORGANIZATION_URL**=< Your organizations ADO URL - Example: https://dev.azure.com/{organization} >
 - **PERSONAL_ACCESS_TOKEN**=< Personal access token (https://learn.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate?view=azure-devops&tabs=Windows) >
 - **QUERY**=< ID of ADO query containing work items to retrieve releases from (ID must be from a saved query and cannot be from a temporary query) >
@@ -194,11 +215,9 @@ Note: The default values of these variables are null and false
 - **VIA_STAGE**=< true/false >
 - **VIA_STAGE_SOURCE_NAME**=< Name of the stage that has releases successfully deployed to it already (Rollback) - Example: QA >
 - **VIA_STAGE_LATEST_RELEASE**=< true/false >
-- **CRUCIAL_RELEASE_DEFINITIONS**=< Array of release definitions that are crucial to the deployment process - Example: releaseone,releasetwo,releasethree >
-- **USE_SEARCH_RESULTS**=< true/false - Will use deploymeny-plan.xlsx in search-results directory instead of default deployment plan in deployment directory >
 
 ### Order of Command Line Arguments
-    <ORGANIZATION_URL> <PERSONAL_ACCESS_TOKEN> <QUERY> <RELEASE_STAGE_NAME> <RELEASE_NAME_FORMAT> <SEARCH_ONLY> <VIA_STAGE> <VIA_STAGE_SOURCE_NAME> <VIA_STAGE_LATEST_RELEASE> <CRUCIAL_RELEASE_DEFINITIONS> <USE_SEARCH_RESULTS>
+    <ORGANIZATION_URL> <PERSONAL_ACCESS_TOKEN> <QUERY> <RELEASE_STAGE_NAME> <RELEASE_NAME_FORMAT> <SEARCH_ONLY> <VIA_STAGE> <VIA_STAGE_SOURCE_NAME> <VIA_STAGE_LATEST_RELEASE> <CRUCIAL_RELEASE_DEFINITIONS>
 
 **Based on your format, you may need to set *RELEASE_NAME_FORMAT* in quotation marks**
 
@@ -206,7 +225,7 @@ Note: The default values of these variables are null and false
 While I continue to work on making the use of this tool easier, it could be confusing at first to know how to set the environment variables. Here are examples of each run setting environment variables to help with the use of this tool:
 
 ## Search
-### Search by query
+### Search via query
 .env:
 
     PERSONAL_ACCESS_TOKEN=tokenxxxx
@@ -216,14 +235,14 @@ While I continue to work on making the use of this tool easier, it could be conf
     SEARCH_ONLY=True
     VIA_STAGE=True
     VIA_STAGE_SOURCE_NAME=QA
-    QUERY=queryID
+    QUERY=queryID/queryURL
 
 CMD:
 
-    ./ado-express-linux.exe https://dev.azure.com/xxxx tokenxxxx queryID PROD "Release-$(rev:r)" True True QA
+    ./ado-express-linux.exe None https://dev.azure.com/xxxx tokenxxxx queryURL PROD "Release-$(rev:r)" True True QA
 **Set *RELEASE_NAME_FORMAT* in quotations**
 
-### Search by latest release
+### Search via latest release
     PERSONAL_ACCESS_TOKEN=xxxx
     ORGANIZATION_URL=https://dev.azure.com/xxxx
     RELEASE_STAGE_NAME=PROD
@@ -233,7 +252,7 @@ CMD:
     VIA_STAGE_SOURCE_NAME=QA
     SEARCH_ONLY=True
 
-### Search by stage/environment in release defintions
+### Search via stage/environment in release defintions
     PERSONAL_ACCESS_TOKEN=xxxx
     ORGANIZATION_URL=https://dev.azure.com/xxxx
     RELEASE_STAGE_NAME=PROD
@@ -241,24 +260,39 @@ CMD:
     VIA_STAGE=True
     SEARCH_ONLY=True
 
-### Search by release number in release defintions
+### Search via release number in release defintions
     PERSONAL_ACCESS_TOKEN=xxxx
     ORGANIZATION_URL=https://dev.azure.com/xxxx
     RELEASE_NAME_FORMAT=Release-$(rev:r) <- '$' will be used to split the release names and numbers
     SEARCH_ONLY=True
 
 ## Deploy
-### Deploy via release number
+
+### Deploy via query
+.env:
+
     PERSONAL_ACCESS_TOKEN=tokenxxxx
     ORGANIZATION_URL=https://dev.azure.com/xxxx
     RELEASE_STAGE_NAME=PROD
     RELEASE_NAME_FORMAT=Release-$(rev:r) <- '$' will be used to split the release names and numbers
-    CRUCIAL_RELEASE_DEFINITIONS=realeaseX,releaseY,releaseZ
-    USE_SEARCH_RESULTS=True
+    VIA_STAGE=True
+    VIA_STAGE_SOURCE_NAME=QA
+    QUERY=queryID/queryURL
 
 CMD:
 
-    ./ado-express-win.exe https://dev.azure.com/xxxx token None PROD "Release-$(rev:r)" False False None False realeaseX,releaseY,releaseZ True
+    ./ado-express-linux.exe None https://dev.azure.com/xxxx tokenxxxx queryID PROD "Release-$(rev:r)" False True QA
+**Set *RELEASE_NAME_FORMAT* in quotations**
+### Deploy via release number
+    CRUCIAL_RELEASE_DEFINITIONS=realeaseX,releaseY,releaseZ
+    PERSONAL_ACCESS_TOKEN=tokenxxxx
+    ORGANIZATION_URL=https://dev.azure.com/xxxx
+    RELEASE_STAGE_NAME=PROD
+    RELEASE_NAME_FORMAT=Release-$(rev:r) <- '$' will be used to split the release names and numbers
+
+CMD:
+
+    ./ado-express-win.exe realeaseX,releaseY,releaseZ https://dev.azure.com/xxxx token None PROD "Release-$(rev:r)" False False None False
 
 **Set *RELEASE_NAME_FORMAT* in quotation marks**
 ### Deploy via stage/environment
