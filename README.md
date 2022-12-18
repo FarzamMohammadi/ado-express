@@ -130,10 +130,14 @@ Executables for Windows and Linux are available in repository release artifacts.
     ado-express-{OS}.exe <CRUCIAL_RELEASE_DEFINITIONS> <ORGANIZATION_URL> <PERSONAL_ACCESS_TOKEN> <QUERY> <RELEASE_STAGE_NAME> <RELEASE_NAME_FORMAT> <SEARCH_ONLY> <VIA_STAGE> <VIA_STAGE_SOURCE_NAME> <VIA_STAGE_LATEST_RELEASE>
 
 #### Environment Variables Configuration
-Pass the environment variables as parameters in command. More about environment variables here: [Environment Variables](#Environment-Variables):
+There are two ways to set the environment variables:
+1. Pass them as arguments in the run command
+2. Set them in the environment
+
+Make sure to set them according to your task. For more information about environment variables, see [Environment Variables](#Environment-Variables).
 
 ## 2. Locally in Development Container (Docker & VSCode installation required)
-You can run or contribute to this project without installing python or other project dependencies. You can do this by running your local development environment inside a container. For more info: (https://code.visualstudio.com/docs/devcontainers/containers)
+You can run or contribute to this project without installing python or other project dependencies. You can do this by running your local development environment inside a container. For more info, see [Developing inside a Container](https://code.visualstudio.com/docs/devcontainers/containers).
 
 Steps:
 1. Open the project in VS Code
@@ -153,15 +157,16 @@ Using command line arguments:
     python ado_express/main.py <CRUCIAL_RELEASE_DEFINITIONS> <ORGANIZATION_URL> <PERSONAL_ACCESS_TOKEN> <QUERY> <RELEASE_STAGE_NAME> <RELEASE_NAME_FORMAT> <SEARCH_ONLY> <VIA_STAGE> <VIA_STAGE_SOURCE_NAME> <VIA_STAGE_LATEST_RELEASE>
 
 #### Environment Variables Configuration
-There are two ways to set the environment variables:
+There are three ways to set the environment variables:
 1. Set them in .env file
 2. Pass them as arguments in the run command
+3. Set them in the environment
 
-Make sure to set them according to your task via either the run command or .env file. For more information about environment variables, see [Environment Variables](#Environment-Variables).
+Make sure to set them according to your task. For more information about environment variables, see [Environment Variables](#Environment-Variables).
 ## 3. Locally (Python & Dependency Installation Required)
 
 ### Python & pip installation
-Must have python (https://www.python.org/downloads/) and pip (https://www.activestate.com/resources/quick-reads/how-to-install-pip-on-windows/) installed. Then run the command below to update pip:
+Must have [Python](https://www.python.org/downloads/) and [pip](https://www.activestate.com/resources/quick-reads/how-to-install-pip-on-windows/) installed. Then run the command below to update pip:
     
     python -m pip install --upgrade pip
 
@@ -183,11 +188,12 @@ Using command line arguments:
     python ado_express/main.py <CRUCIAL_RELEASE_DEFINITIONS> <ORGANIZATION_URL> <PERSONAL_ACCESS_TOKEN> <QUERY> <RELEASE_STAGE_NAME> <RELEASE_NAME_FORMAT> <SEARCH_ONLY> <VIA_STAGE> <VIA_STAGE_SOURCE_NAME> <VIA_STAGE_LATEST_RELEASE>
 
 #### Environment Variables Configuration
-There are two ways to set the environment variables:
+There are three ways to set the environment variables:
 1. Set them in .env file
 2. Pass them as arguments in the run command
+3. Set them in the environment
 
-Make sure to set them according to your task via either the run command or .env file. For more information about environment variables, see [Environment Variables](#Environment-Variables).
+Make sure to set them according to your task. For more information about environment variables, see [Environment Variables](#Environment-Variables).
 
 ---------------------------------
 # Files & Resources
