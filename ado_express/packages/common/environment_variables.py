@@ -7,48 +7,50 @@ from dotenv import load_dotenv
 none_types = ["none", "null", "nill", " ", ""]
 
 def get_validated_string_input(index, key, type=None):
-        if len(sys.argv) > index:
+        if len(sys.argv) > index and sys.argv[index] is not None:
             str_input = sys.argv[index].strip()
-        else:
+        elif os.getenv(key) is not None:
             str_input = os.getenv(key).strip()
+        else: return None
 
         if not isinstance(str_input, str) or (str_input.strip().lower() in none_types):
             return None
-        else: 
-            if type == "url":
-                if not validators.url(str_input):
+        if type == "url":
+            if not validators.url(str_input):
+                raise Exception(f"Invalid {key} provided.")
+        if type == "query":
+            if validators.url(str_input):
+                try:
+                    str_input = re.findall("[0-9A-Fa-f]{8}[-]?[0-9A-Fa-f]{4}[-]?[0-9A-Fa-f]{4}[-]?[0-9A-Fa-f]{4}[-]?[0-9A-Fa-f]{12}", str_input)[0] # If the entire query URL is passed get the ID from it
+                except:
                     raise Exception(f"Invalid {key} provided.")
-            if type == "query":
-                if validators.url(str_input):
-                    try:
-                        str_input = re.findall("[0-9A-Fa-f]{8}[-]?[0-9A-Fa-f]{4}[-]?[0-9A-Fa-f]{4}[-]?[0-9A-Fa-f]{4}[-]?[0-9A-Fa-f]{12}", str_input)[0] # If the entire query URL is passed get the ID from it
-                    except:
-                        raise Exception(f"Invalid {key} provided.")
                 
         return str_input
 
 def get_validated_list_input(index, key):
-        if len(sys.argv) > index:
-            str_input = sys.argv[index].split(',')
-        else:
+        if len(sys.argv) > index and sys.argv[index] is not None:
+            str_input = sys.argv[index].split(',')  
+        elif os.getenv(key) is not None:
             str_input = os.getenv(key).split(',')
+        else: return None
 
         if any(i in str_input for i in none_types) or not isinstance(str_input, list):
             return None
         
         return str_input
 def get_validated_bool_input(index, key):
-        if len(sys.argv) > index:
+        if len(sys.argv) > index and sys.argv[index] is not None:
             str_input = sys.argv[index].strip()
-        else:
+        elif os.getenv(key) is not None:
             str_input = os.getenv(key).strip()
+        else: return False
 
         if str_input.strip().lower() in none_types:
             return False
-        else: 
-            if str_input.lower() in ("true", "1", "t"):
-                return True
-            return False
+
+        if str_input.lower() in ("true", "1", "t"):
+            return True
+            
 class EnvironmentVariables:
 
     load_dotenv()
