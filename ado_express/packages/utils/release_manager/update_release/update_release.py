@@ -85,7 +85,7 @@ class UpdateRelease:
 
             raise Exception('A curcial release update failed. Roll back was attempted. Now, stopping the process.')
         else:
-            logging.info(f'The failed release update was not curcial. Now moving on to the next update... Project:{deployment_detail.release_project_name} Release:{deployment_detail.release_name}')
+            logging.info(f'The failed release update was not curcial. Continuing... Project:{deployment_detail.release_project_name} Release:{deployment_detail.release_name}')
     
     def roll_back_release(self, deployment_detail, release_to_rollback):
         release_stage_name = self.environment_variables.RELEASE_STAGE_NAME

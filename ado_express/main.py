@@ -199,7 +199,7 @@ if __name__ == '__main__':
             logging.error(f'No deployment details found - please check the configuration')
             exit()
         else:
-            if crucial_release_definitions is not None:
+            if crucial_release_definitions:
                 # Separate crucial & regular deployments based on release defintions that match CRUCIAL_RELEASE_DEFINITIONS env variable list
                 crucial_deployment_details = [x for x in deployment_details if x.release_name in crucial_release_definitions]
                 deployment_details[:] = [x for x in deployment_details if x.release_name not in crucial_release_definitions]
