@@ -34,7 +34,7 @@ def get_validated_list_input(index, key):
             str_input = os.getenv(key).split(',')
         else: return None
 
-        if any(i in str_input for i in none_types) or not isinstance(str_input, list):
+        if any(i.lower() in none_types for i in str_input) or not isinstance(str_input, list):
             return None
         
         return str_input
@@ -60,30 +60,30 @@ class EnvironmentVariables:
     PERSONAL_ACCESS_TOKEN = get_validated_string_input(3, "PERSONAL_ACCESS_TOKEN") # cmd arg 3
     QUERY = get_validated_string_input(4, "QUERY", "query") # cmd arg 4
     RELEASE_NAME_FORMAT = get_validated_string_input(5, "RELEASE_NAME_FORMAT") # cmd arg 5
-    RELEASE_STAGE_NAME = get_validated_string_input(6, "RELEASE_STAGE_NAME") # cmd arg 6
+    RELEASE_TARGET_ENV = get_validated_string_input(6, "RELEASE_TARGET_ENV") # cmd arg 6
     SEARCH_ONLY = get_validated_bool_input(7, "SEARCH_ONLY") # cmd arg 7
-    VIA_STAGE = get_validated_bool_input(8, "VIA_STAGE") # cmd arg 8
-    VIA_STAGE_SOURCE_NAME = get_validated_string_input(9, "VIA_STAGE_SOURCE_NAME") # cmd arg 9
-    VIA_STAGE_LATEST_RELEASE = get_validated_bool_input(10, "VIA_STAGE_LATEST_RELEASE") # cmd arg 10
+    VIA_ENV = get_validated_bool_input(8, "VIA_ENV") # cmd arg 8
+    VIA_ENV_LATEST_RELEASE = get_validated_bool_input(9, "VIA_ENV_LATEST_RELEASE") # cmd arg 9
+    VIA_ENV_SOURCE_NAME = get_validated_string_input(10, "VIA_ENV_SOURCE_NAME") # cmd arg 10
 
-    if not SEARCH_ONLY and VIA_STAGE and VIA_STAGE_SOURCE_NAME is None:
-        raise Exception("To deploy via stage you must provide a VIA_STAGE_SOURCE_NAME")
+    if not SEARCH_ONLY and VIA_ENV and VIA_ENV_SOURCE_NAME is None:
+        raise Exception("To deploy via stage you must provide a VIA_ENV_SOURCE_NAME")
 
     if (
         SEARCH_ONLY
-        and VIA_STAGE_LATEST_RELEASE
-        and (VIA_STAGE_SOURCE_NAME is None or RELEASE_STAGE_NAME is None)
+        and VIA_ENV_LATEST_RELEASE
+        and (VIA_ENV_SOURCE_NAME is None or RELEASE_TARGET_ENV is None)
     ):
         raise Exception(
-            "To search via stage latest release VIA_STAGE_SOURCE_NAME & RELEASE_STAGE_NAME must be provided"
+            "To search via stage latest release VIA_ENV_SOURCE_NAME & RELEASE_TARGET_ENV must be provided"
         )
 
     if (
         SEARCH_ONLY
         and QUERY
-        and VIA_STAGE
-        and (VIA_STAGE_SOURCE_NAME is None or RELEASE_STAGE_NAME is None)
+        and VIA_ENV
+        and (VIA_ENV_SOURCE_NAME is None or RELEASE_TARGET_ENV is None)
     ):
         raise Exception(
-            "To search query via stage, VIA_STAGE_SOURCE_NAME & RELEASE_STAGE_NAME must be provided"
+            "To search query via stage, VIA_ENV_SOURCE_NAME & RELEASE_TARGET_ENV must be provided"
         )

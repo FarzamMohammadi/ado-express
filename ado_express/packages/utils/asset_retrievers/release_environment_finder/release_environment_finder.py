@@ -15,7 +15,7 @@ class ReleaseEnvironmentFinder:
 
         for environment in release_to_update_data.environments:
             
-            if str(environment.name).lower() == self.environment_variables.RELEASE_STAGE_NAME.lower():
+            if str(environment.name).lower() == self.environment_variables.RELEASE_TARGET_ENV.lower():
                 return ReleaseEnvironment(environment.name, environment.id, environment.status, environment)
 
     def get_release_environments(self, deployment_detail, release_id):

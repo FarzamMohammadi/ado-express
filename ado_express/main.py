@@ -59,8 +59,7 @@ class Startup:
         self.release_finder = ReleaseFinder(self.ms_authentication, environment_variables)
         self.search_only = environment_variables.SEARCH_ONLY
         self.search_file_path = constants.SEARCH_RESULTS_FILE_PATH
-        self.via_stage = environment_variables.VIA_STAGE
-        self.via_stage_latest_release = environment_variables.VIA_STAGE_LATEST_RELEASE
+        self.via_env = environment_variables.VIA_ENV
         self.query = environment_variables.QUERY
         self.time_format = '%Y-%m-%d %H:%M:%S'
         self.datetime_now = datetime.now(timezone('US/Eastern'))
@@ -88,7 +87,7 @@ class Startup:
 
         # Get rollback
         with concurrent.futures.ThreadPoolExecutor() as executor:
-            rollbacks = executor.map(self.release_finder.get_release, {k for k, v in releases_dict.items()}, repeat(self.via_stage), repeat(True))
+            rollbacks = executor.map(self.release_finder.get_release, {k for k, v in releases_dict.items()}, repeat(self.via_env), repeat(True))
 
             for rollback in rollbacks:
                 if all(rollback.values()): rollback_dict |= rollback # If rollback for target environment is found
@@ -111,8 +110,8 @@ class Startup:
 
     def get_deployment_detail_from_latest_release(self, deployment_detail: DeploymentDetails):
         try:
-            target_release = self.release_finder.get_release(deployment_detail, find_via_stage=self.via_stage)
-            rollback_release = self.release_finder.get_release(deployment_detail, find_via_stage=self.via_stage, rollback=True)
+            target_release = self.release_finder.get_release(deployment_detail, find_via_env=self.via_env)
+            rollback_release = self.release_finder.get_release(deployment_detail, find_via_env=self.via_env, rollback=True)
             target_release_number = target_release.name.split('-')[1]
             rollback_release_number = rollback_release.name.split('-')[1]
 
@@ -126,12 +125,12 @@ class Startup:
             return
     
     def search_and_log_details_only(self, deployment_detail: DeploymentDetails):
-        self.release_finder.get_releases(deployment_detail, find_via_stage=self.via_stage)
+        self.release_finder.get_releases(deployment_detail, find_via_env=self.via_env)
     
     def deploy(self, deployment_detail: DeploymentDetails):
         try:
             if deployment_detail is not None: # The ThreadPoolExecutor may return None for some releases
-                release_to_update = self.release_finder.get_release(deployment_detail, find_via_stage=self.via_stage)
+                release_to_update = self.release_finder.get_release(deployment_detail, find_via_env=self.via_env)
                 update_manager = UpdateRelease(constants, self.ms_authentication, environment_variables, self.release_finder)
 
                 update_attempt = update_manager.update_release(deployment_detail, release_to_update)
@@ -140,15 +139,15 @@ class Startup:
 
                 if update_attempt_successful:
                     # Check the status of release update
-                    logging.info(f'Monitoring update Status - Project:{deployment_detail.release_project_name} Release Definition:{deployment_detail.release_name} Release:{release_to_update.name} Environment:{environment_variables.RELEASE_STAGE_NAME}')
+                    logging.info(f'Monitoring update Status - Project:{deployment_detail.release_project_name} Release Definition:{deployment_detail.release_name} Release:{release_to_update.name} Environment:{environment_variables.RELEASE_TARGET_ENV}')
                     release_updated_successfully = update_manager.get_release_update_result(deployment_detail, release_to_update)
 
                     if not release_updated_successfully:
-                        update_manager.handle_failed_update(deployment_detail, self.via_stage)
+                        update_manager.handle_failed_update(deployment_detail, self.via_env)
                     else:
-                        logging.info(f'Release Update Successful - Project:{deployment_detail.release_project_name} Release Definition:{deployment_detail.release_name} Release:{release_to_update.name} Environment:{environment_variables.RELEASE_STAGE_NAME}')
+                        logging.info(f'Release Update Successful - Project:{deployment_detail.release_project_name} Release Definition:{deployment_detail.release_name} Release:{release_to_update.name} Environment:{environment_variables.RELEASE_TARGET_ENV}')
                 else:
-                    update_manager.handle_failed_update(deployment_detail, self.via_stage, failure_reason=update_comment)
+                    update_manager.handle_failed_update(deployment_detail, self.via_env, failure_reason=update_comment)
 
         except Exception as e:
             logging.error(f'There was an error. Please check their status and continue manually.\nException:{e}')
@@ -165,13 +164,13 @@ if __name__ == '__main__':
         # If not a query run then get deployment details from deployment plan
         deployment_plan_details = deployment_plan.get_data_from_deployment_plan_file()
         # Use deployment plan to get deployment details
-        if environment_variables.VIA_STAGE_LATEST_RELEASE:
+        if environment_variables.VIA_ENV_LATEST_RELEASE:
             with concurrent.futures.ThreadPoolExecutor() as executor:
                     deployment_details = executor.map(startup.get_deployment_detail_from_latest_release, deployment_plan_details)
     # Run search 
     if environment_variables.SEARCH_ONLY:
         # If doing a release notes search then create and export deployment details to excel file
-        if environment_variables.QUERY or environment_variables.VIA_STAGE_LATEST_RELEASE:
+        if environment_variables.QUERY or environment_variables.VIA_ENV_LATEST_RELEASE:
             if deployment_details:
                 logging.info(f'Exporting Release notes to: {constants.SEARCH_RESULTS_DEPLOYMENT_PLAN_FILE_PATH}')
                 startup.initialize_excel_configurations()
