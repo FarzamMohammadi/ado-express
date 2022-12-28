@@ -39,7 +39,7 @@ class ReleaseFinder:
         if not found: logging.info(f"\nNO RESULTS AVAILABLE - Release Definition: {deployment_detail.release_name}\n")
                 
     def find_matching_release_via_source_stage(self, releases, deployment_detail, rollback=False):
-        environment_name_to_find = self.environment_variables.RELEASE_STAGE_NAME if rollback else self.environment_variables.VIA_STAGE_SOURCE_NAME
+        environment_name_to_find = self.environment_variables.RELEASE_TARGET_ENV if rollback else self.environment_variables.VIA_ENV_SOURCE_NAME
         is_query_call = True if isinstance(deployment_detail, str) else False
         # If deployment details are coming from query dict they will be str
         project = deployment_detail.split('/')[0] if is_query_call else deployment_detail.release_project_name 
@@ -57,7 +57,7 @@ class ReleaseFinder:
         return {deployment_detail: None} # If no matching release was found
 
 
-    def find_matching_releases_via_stage(self, releases, deployment_detail: DeploymentDetails):
+    def find_matching_releases_via_env(self, releases, deployment_detail: DeploymentDetails):
         found = False
         
         for release in releases:
@@ -65,13 +65,13 @@ class ReleaseFinder:
 
             for env in release_to_check.environments:
 
-                if str(env.name).lower() == self.environment_variables.RELEASE_STAGE_NAME and env.status in self.environment_statuses.Succeeded:
+                if str(env.name).lower() == self.environment_variables.RELEASE_TARGET_ENV and env.status in self.environment_statuses.Succeeded:
                     logging.info(f"Release Definition: {deployment_detail.release_name}\t Release: {release_to_check.name}\t Stage: {env.name}\t Status: {env.status}\t Modified On: {env.modified_on}\n")          
                     found = True
                     
         if not found: logging.info(f'\nNO RESULTS AVAILABLE - Release Definition: {deployment_detail.release_name}\n')
 
-    def get_release(self, deployment_detail, find_via_stage=False, rollback=False):
+    def get_release(self, deployment_detail, find_via_env=False, rollback=False):
         # If deployment details are coming from query dict they will be str
         project = deployment_detail.split('/')[0] if isinstance(deployment_detail, str) else deployment_detail.release_project_name 
         release_name = deployment_detail.split('/')[1] if isinstance(deployment_detail, str) else deployment_detail.release_name
@@ -86,7 +86,7 @@ class ReleaseFinder:
         # Get release id from release to know which needs to be deployed to new env
         releases = self.release_client.get_releases(project, definition_id=release_definition.id).value
         
-        if find_via_stage:
+        if find_via_env:
             return self.find_matching_release_via_source_stage(releases, deployment_detail, rollback) 
         else:
             if rollback:
@@ -96,7 +96,7 @@ class ReleaseFinder:
 
             return self.find_matching_release_via_name(releases, release_number)
 
-    def get_releases(self, deployment_detail, find_via_stage=False, rollback=False):
+    def get_releases(self, deployment_detail, find_via_env=False, rollback=False):
         # Gets release definitions names 
         release_definitions = self.release_client.get_release_definitions(project=deployment_detail.release_project_name)
         
@@ -108,8 +108,8 @@ class ReleaseFinder:
         # Get release id from release to know which needs to be deployed to new env
         releases = self.release_client.get_releases(project=deployment_detail.release_project_name, definition_id=release_definition.id).value
         
-        if find_via_stage:
-            return self.find_matching_releases_via_stage(releases, deployment_detail) 
+        if find_via_env:
+            return self.find_matching_releases_via_env(releases, deployment_detail) 
         else:
             if not rollback:
                 release_number = deployment_detail.release_number
@@ -119,7 +119,7 @@ class ReleaseFinder:
             self.find_matching_releases_via_name(releases, release_number, deployment_detail)
 
     def get_releases_dict_from_build_releases(self, release, release_name_split_key):
-        environment_name_to_find = self.environment_variables.VIA_STAGE_SOURCE_NAME
+        environment_name_to_find = self.environment_variables.VIA_ENV_SOURCE_NAME
         releases_dict = dict()
         release_project = release.project_reference.name
         release_definition = release.release_definition

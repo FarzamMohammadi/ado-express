@@ -32,13 +32,13 @@ class UpdateRelease:
                 # Update Release
                 comment = 'Deployed automatically via Ado-Express'
                 self.update_release_environment(comment, deployment_detail, release_to_update, matching_release_environment)
-                logging.info(f'Update triggered - Project:{deployment_detail.release_project_name} Release Definition:{deployment_detail.release_name} Release:{release_to_update.name} Environment:{self.environment_variables.RELEASE_STAGE_NAME}')
+                logging.info(f'Update triggered - Project:{deployment_detail.release_project_name} Release Definition:{deployment_detail.release_name} Release:{release_to_update.name} Environment:{self.environment_variables.RELEASE_TARGET_ENV}')
             else: 
-                logging.info(f'Release is already updating - Project:{deployment_detail.release_project_name} Release Definition:{deployment_detail.release_name} Release:{release_to_update.name} Environment:{self.environment_variables.RELEASE_STAGE_NAME}')
+                logging.info(f'Release is already updating - Project:{deployment_detail.release_project_name} Release Definition:{deployment_detail.release_name} Release:{release_to_update.name} Environment:{self.environment_variables.RELEASE_TARGET_ENV}')
             
             return (True, None)
         else: 
-            failure_reason = f'Destination Release Environment "{self.environment_variables.RELEASE_STAGE_NAME}" not found'
+            failure_reason = f'Destination Release Environment "{self.environment_variables.RELEASE_TARGET_ENV}" not found'
             return (False, failure_reason)
 
 
@@ -49,7 +49,7 @@ class UpdateRelease:
         while not update_complete:
             release_to_update_data = self.release_client.get_release(project=deployment_detail.release_project_name, release_id=release_to_update.id)
             for environment in release_to_update_data.environments:
-                if (str(environment.name).lower() == self.environment_variables.RELEASE_STAGE_NAME.lower()):
+                if (str(environment.name).lower() == self.environment_variables.RELEASE_TARGET_ENV.lower()):
                     if environment.status in self.environment_statuses.Succeeded: 
                         updated_successfully = True
                         update_complete = True
@@ -66,7 +66,7 @@ class UpdateRelease:
         return self.release_client_v6.update_release_environment(environment_update_data=update_metadata, project=deployment_detail.release_project_name, release_id=release_to_update.id, environment_id=matching_release_environment.id)
 
 
-    def handle_failed_update(self, deployment_detail, via_stage=False, failure_reason=None):
+    def handle_failed_update(self, deployment_detail, via_env=False, failure_reason=None):
         if failure_reason is not None:
             logging.error(f'Release Update Unsuccessful - Reason: {failure_reason} - Project:{deployment_detail.release_project_name} Release:{deployment_detail.release_name}')
         else:
@@ -76,7 +76,7 @@ class UpdateRelease:
             logging.error(f'Release update was crucial. Now attempting rollback. - Project:{deployment_detail.release_project_name} Release:{deployment_detail.release_name}')
         
             # Search projects to find specified release for roll back
-            release_to_rollback = self.release_finder.get_release(deployment_detail, find_via_stage=via_stage, rollback=True)
+            release_to_rollback = self.release_finder.get_release(deployment_detail, find_via_env=via_env, rollback=True)
 
             if release_to_rollback is None:
                 raise Exception(f'Unable to find matching roll back update. Stopping the process. - Project:{deployment_detail.release_project_name} Release:{deployment_detail.release_name}')
@@ -88,16 +88,16 @@ class UpdateRelease:
             logging.info(f'The failed release update was not curcial. Continuing... Project:{deployment_detail.release_project_name} Release:{deployment_detail.release_name}')
     
     def roll_back_release(self, deployment_detail, release_to_rollback):
-        release_stage_name = self.environment_variables.RELEASE_STAGE_NAME
+        release_target_env = self.environment_variables.RELEASE_TARGET_ENV
         release_name = deployment_detail.release_name
         release_project_name = deployment_detail.release_project_name
-        release_log_details = f'Project:{release_project_name} Release:{release_name} Environment:{release_stage_name}'
+        release_log_details = f'Project:{release_project_name} Release:{release_name} Environment:{release_target_env}'
 
         # Get specified release environments
         release_to_update = self.release_client.get_release(project=release_project_name, release_id=release_to_rollback.id)
         
         for environment in release_to_update.environments:
-            if (str(environment.name).lower() == self.environment_variables.RELEASE_STAGE_NAME.lower()):
+            if (str(environment.name).lower() == self.environment_variables.RELEASE_TARGET_ENV.lower()):
                 matching_release_environment = environment
         
         if matching_release_environment is not None:
