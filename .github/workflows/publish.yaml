@@ -1,21 +1,18 @@
-name: Demo Push
+name: Publish image
 
 on:   
   push:
     # Publish `master` as Docker `latest` image.
     branches:
-      - master
+      - main
       - feat/dockerization
 
     # Publish `v1.2.3` tags as releases.
     tags:
       - v*
 
-  # Run tests for any PRs.
-  pull_request:
-
 env:
-  IMAGE_NAME: ghtoken_product_demo
+  IMAGE_NAME: ado-express
 
 jobs:
   # Push image to GitHub Packages.
