@@ -2,7 +2,6 @@ name: Create executables
 
 # Only trigger, when the release workflow succeeded
 on:
-  push:
   workflow_run:
     workflows: ["Create a new release & tag commit"]
     types:
@@ -10,7 +9,7 @@ on:
 
 jobs:
   linux:
-    name: Create exe - Linux
+    name: Create & include exe - Linux
     runs-on: ubuntu-latest
     if: github.event_name == 'workflow_dispatch'
     
@@ -31,7 +30,7 @@ jobs:
       - name: Install requirements.txt
         run: pip install -r ./requirements.txt
       
-      - name: Build python executable for Windows PyInstaller and upload to GitHub release  
+      - name: Build executable for Linux
         run: pyinstaller --noconfirm --onefile --console --add-data "./ado_express/files:files/" --add-data "./ado_express/packages:packages/" --hidden-import "azure" --hidden-import "azure.devops" --hidden-import "azure.storage" --hidden-import "jinja2" --hidden-import "msrest" --hidden-import "openpyxl" --hidden-import "pandas" --hidden-import "dotenv" --hidden-import "distutils" --hidden-import "validators" --collect-all "azure.devops" --name "ado-express" "./ado_express/main.py"
 
       - name: Gets latest created release info
@@ -51,7 +50,7 @@ jobs:
           asset_content_type: application/octet-stream
 
   windows:
-    name: Create exe - Windows
+    name: Create & include exe - Windows
     runs-on: windows-latest
     if: github.event_name == 'workflow_dispatch'
 
@@ -72,7 +71,7 @@ jobs:
       - name: Install requirements.txt
         run: pip install -r ./requirements.txt
       
-      - name: Build python executable for Windows PyInstaller and upload to GitHub release  
+      - name: Build executable for Windows
         run: pyinstaller --noconfirm --onefile --console --add-data "./ado_express/files;files/" --add-data "./ado_express/packages;packages/" --hidden-import "azure" --hidden-import "azure.devops" --hidden-import "azure.storage" --hidden-import "jinja2" --hidden-import "msrest" --hidden-import "openpyxl" --hidden-import "pandas" --hidden-import "dotenv" --hidden-import "distutils" --hidden-import "validators" --collect-all "azure.devops" --name "ado-express" "./ado_express/main.py"
 
       - name: Gets latest created release info
@@ -92,7 +91,7 @@ jobs:
           asset_content_type: application/octet-stream
 
   macos:
-    name: Create exe - macOS
+    name: Create & include exe - macOS
     runs-on: macos-latest
     
     steps:
@@ -111,7 +110,7 @@ jobs:
       - name: Install requirements.txt
         run: pip install -r ./requirements.txt
       
-      - name: Build python executable for Windows PyInstaller and upload to GitHub release  
+      - name: Build executable for macOS
         run: pyinstaller --noconfirm --onefile --console --add-data "./ado_express/files:files/" --add-data "./ado_express/packages:packages/" --hidden-import "azure" --hidden-import "azure.devops" --hidden-import "azure.storage" --hidden-import "jinja2" --hidden-import "msrest" --hidden-import "openpyxl" --hidden-import "pandas" --hidden-import "dotenv" --hidden-import "distutils" --hidden-import "validators" --collect-all "azure.devops" --name "ado-express" "./ado_express/main.py"
 
       - name: Gets latest created release info
@@ -127,6 +126,6 @@ jobs:
         with:
           upload_url: ${{ steps.latest_release_info.outputs.upload_url }}
           asset_path: /Users/runner/work/ado-express/ado-express/dist/ado-express
-          asset_name: ado-express-linux.exe
+          asset_name: ado-express-macos.exe
           asset_content_type: application/octet-stream
 

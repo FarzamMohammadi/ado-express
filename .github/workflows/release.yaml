@@ -3,6 +3,8 @@ name: Create a new release & tag commit
 on:
   workflow_dispatch:
   push:
+    branches:
+      - main
 
 jobs:
   linux:
@@ -31,6 +33,6 @@ jobs:
       # On push create new minor release
       - name: Create new minor release
         if: github.event_name == 'push'
-        run: .github/scripts/release.py patch
+        run: .github/scripts/release.py minor
         env:
           GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
