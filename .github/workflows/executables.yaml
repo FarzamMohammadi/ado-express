@@ -1,14 +1,21 @@
 name: Create executables
 
+# Only trigger, when the release workflow succeeded
 on:
-  workflow_dispatch:
+  push:
+  workflow_run:
+    workflows: ["Create a new release & tag commit"]
+    types:
+      - completed
 
 jobs:
   linux:
     name: Create exe - Linux
     runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch'
     
     steps:
+    
       - name: Checkout
         uses: actions/checkout@v3
 
@@ -46,6 +53,8 @@ jobs:
   windows:
     name: Create exe - Windows
     runs-on: windows-latest
+    if: github.event_name == 'workflow_dispatch'
+
     
     steps:
       - name: Checkout
@@ -85,7 +94,6 @@ jobs:
   macos:
     name: Create exe - macOS
     runs-on: macos-latest
-    if: github.event_name == 'workflow_dispatch'
     
     steps:
       - name: Checkout
@@ -118,7 +126,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
         with:
           upload_url: ${{ steps.latest_release_info.outputs.upload_url }}
-          asset_path: /home/runner/work/ado-express/ado-express/dist/ado-express
+          asset_path: /Users/runner/work/ado-express/ado-express/dist/ado-express
           asset_name: ado-express-linux.exe
           asset_content_type: application/octet-stream
 

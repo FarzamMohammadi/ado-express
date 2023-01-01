@@ -31,12 +31,6 @@ jobs:
       # On push create new minor release
       - name: Create new minor release
         if: github.event_name == 'push'
-        run: .github/scripts/release.py minor
-        env:
-          GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-
-      # Dispatch executables workflow
-      - name: Create artifacts
-        run: gh workflow run executables.yaml
+        run: .github/scripts/release.py patch
         env:
           GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
