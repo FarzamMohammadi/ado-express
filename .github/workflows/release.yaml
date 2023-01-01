@@ -1,19 +1,15 @@
-name: Create a new release
+name: Create a new release & tag commit
 
 on:
   workflow_dispatch:
   push:
-    branches:
-      - main
-      - macos-exe
 
 jobs:
   linux:
-    name: Create a new release then build and upload executable as release artifact - Linux
+    name: Create a new release & tag commit
     runs-on: ubuntu-latest
     
     steps:
-      
       - name: Checkout
         uses: actions/checkout@v3
 
@@ -39,125 +35,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
-      # On push (minor release) build and upload executable as release artifact
-      - name: Install PyInstaller
-        if: github.event_name == 'push'
-        run: pip install pyinstaller
-
-      - name: Install requirements.txt
-        if: github.event_name == 'push'
-        run: pip install -r ./requirements.txt
-      
-      - name: Build python executable for Windows PyInstaller and upload to GitHub release  
-        if: github.event_name == 'push'
-        run: pyinstaller --noconfirm --onefile --console --add-data "./ado_express/files:files/" --add-data "./ado_express/packages:packages/" --hidden-import "azure" --hidden-import "azure.devops" --hidden-import "azure.storage" --hidden-import "jinja2" --hidden-import "msrest" --hidden-import "openpyxl" --hidden-import "pandas" --hidden-import "dotenv" --hidden-import "distutils" --hidden-import "validators" --collect-all "azure.devops" --name "ado-express" "./ado_express/main.py"
-
-      - name: Gets latest created release info
-        id: latest_release_info
-        uses: jossef/action-latest-release-info@v1.2.1
+      # Dispatch executables workflow
+      - name: Create artifacts
+        run: gh workflow run executables.yaml
         env:
           GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-
-      - name: Include executable in release
-        if: github.event_name == 'push'
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-        with:
-          upload_url: ${{ steps.latest_release_info.outputs.upload_url }}
-          asset_path: /home/runner/work/ado-express/ado-express/dist/ado-express
-          asset_name: ado-express-linux.exe
-          asset_content_type: application/octet-stream
-
-  windows:
-    name: Create a new release then build and upload executable as release artifact - Windows
-    runs-on: windows-latest
-    
-    steps:
-      
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: Set up Python 3.10
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
-
-      # On push (minor release) build and upload executable as release artifact
-      - name: Install PyInstaller
-        if: github.event_name == 'push'
-        run: pip install pyinstaller
-
-      - name: Install requirements.txt
-        if: github.event_name == 'push'
-        run: pip install -r ./requirements.txt
-      
-      - name: Build python executable for Windows PyInstaller and upload to GitHub release  
-        if: github.event_name == 'push'
-        run: pyinstaller --noconfirm --onefile --console --add-data "./ado_express/files;files/" --add-data "./ado_express/packages;packages/" --hidden-import "azure" --hidden-import "azure.devops" --hidden-import "azure.storage" --hidden-import "jinja2" --hidden-import "msrest" --hidden-import "openpyxl" --hidden-import "pandas" --hidden-import "dotenv" --hidden-import "distutils" --hidden-import "validators" --collect-all "azure.devops" --name "ado-express" "./ado_express/main.py"
-
-      - name: Print file names in sepecified directory
-        if: github.event_name == 'push'
-        run: ls D:\a\ado-express\ado-express\dist
-
-      - name: Gets latest created release info
-        id: latest_release_info
-        uses: jossef/action-latest-release-info@v1.2.1
-        env:
-          GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-
-      - name: Include executable in release
-        if: github.event_name == 'push'
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-        with:
-          upload_url: ${{ steps.latest_release_info.outputs.upload_url }}
-          asset_path: D:\a\ado-express\ado-express\dist\ado-express.exe
-          asset_name: ado-express-win.exe
-          asset_content_type: application/octet-stream
-
-  macos:
-    name: Create a new release then build and upload executable as release artifact - macOS
-    runs-on: macos-latest
-    
-    steps:
-      
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: Set up Python 3.10
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
-
-      # On push (minor release) build and upload executable as release artifact
-      - name: Install PyInstaller
-        if: github.event_name == 'push'
-        run: pip install pyinstaller
-
-      - name: Install requirements.txt
-        if: github.event_name == 'push'
-        run: pip install -r ./requirements.txt
-      
-      - name: Build python executable for Windows PyInstaller and upload to GitHub release  
-        if: github.event_name == 'push'
-        run: pyinstaller --noconfirm --onefile --console --add-data "./ado_express/files:files/" --add-data "./ado_express/packages:packages/" --hidden-import "azure" --hidden-import "azure.devops" --hidden-import "azure.storage" --hidden-import "jinja2" --hidden-import "msrest" --hidden-import "openpyxl" --hidden-import "pandas" --hidden-import "dotenv" --hidden-import "distutils" --hidden-import "validators" --collect-all "azure.devops" --name "ado-express" "./ado_express/main.py"
-
-      - name: Gets latest created release info
-        id: latest_release_info
-        uses: jossef/action-latest-release-info@v1.2.1
-        env:
-          GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-
-      - name: Include executable in release
-        if: github.event_name == 'push'
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-        with:
-          upload_url: ${{ steps.latest_release_info.outputs.upload_url }}
-          asset_path: /home/runner/work/ado-express/ado-express/dist/ado-express
-          asset_name: ado-express-linux.exe
-          asset_content_type: application/octet-stream
-
