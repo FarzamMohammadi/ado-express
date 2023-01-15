@@ -120,11 +120,15 @@ Finds the last deployed release in target environment and sets it as rollback. *
 
 ---------------------------------
 # Ways to run
-- [**Executable** (No installation required)](#1-executable-simplest-method---no-installation-required)
-- [**Locally in development container** (Docker & VSCode installation required - Python & dependency installation not required)](#2-locally-in-development-container-docker--vscode-installation-required)
-- [**Locally** (python & dependency installation required)](#3-locally-python--dependency-installation-required)
+- [**Docker**](#1-docker)
+- [**Executable** (No installation required)](#2-executable-simplest-method---no-installation-required)
+- [**Locally in development container** (Docker & VSCode installation required - Python & dependency installation not required)](#3-locally-in-development-container-docker--vscode-installation-required)
+- [**Locally** (python & dependency installation required)](#4-locally-python--dependency-installation-required)
 
-## 1. Executable (Simplest method - No installation required)
+## 1. Docker
+You can pull the latest image directly from the [packeges](https://github.com/FarzamMohammadi/ado-express/pkgs/container/ado-express) section of this repo.
+
+## 2. Executable (Simplest method - No installation required)
 Executables for Windows and Linux are available in repository release artifacts. Download and run the executable file with the desired parameters. 
 
     ado-express-{OS}.exe <CRUCIAL_RELEASE_DEFINITIONS> <ORGANIZATION_URL> <PERSONAL_ACCESS_TOKEN> <QUERY> <RELEASE_NAME_FORMAT> <RELEASE_TARGET_ENV> <SEARCH_ONLY> <VIA_ENV> <VIA_ENV_SOURCE_NAME> <VIA_ENV_LATEST_RELEASE>
@@ -136,7 +140,7 @@ There are two ways to set the environment variables:
 
 Make sure to set them according to your task. For more information about environment variables, see [Environment Variables](#Environment-Variables).
 
-## 2. Locally in Development Container (Docker & VSCode installation required)
+## 3. Locally in Development Container (Docker & VSCode installation required)
 You can run or contribute to this project without installing python or other project dependencies. You can do this by running your local development environment inside a container. For more info, see [Developing inside a Container](https://code.visualstudio.com/docs/devcontainers/containers).
 
 Steps:
@@ -163,7 +167,7 @@ There are three ways to set the environment variables:
 3. Set them in the environment
 
 Make sure to set them according to your task. For more information about environment variables, see [Environment Variables](#Environment-Variables).
-## 3. Locally (Python & Dependency Installation Required)
+## 4. Locally (Python & Dependency Installation Required)
 
 ### Python & pip installation
 Must have [Python](https://www.python.org/downloads/) and [pip](https://www.activestate.com/resources/quick-reads/how-to-install-pip-on-windows/) installed. Then run the command below to update pip:
