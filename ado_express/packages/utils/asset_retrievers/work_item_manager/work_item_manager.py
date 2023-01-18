@@ -17,8 +17,7 @@ class WorkItemManager:
         try:
             build = self.buid_client.get_build(project, build_id)
             
-            if build.trigger_info != {}:
-                return build.id # Only return id if build was found and was actually triggered by commit build
+            return build.id # Only return id if build was found and was actually triggered by commit build
         except:
             return None # No build found (possible error in ADO)
 
