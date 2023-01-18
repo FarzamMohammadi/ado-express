@@ -147,14 +147,33 @@ class ReleaseFinder:
         return releases_dict
     
     def get_releases_from_build_id(self, build_id):
-        return self.release_client.get_releases(artifact_version_id=build_id).value
+        release = self.release_client.get_releases(artifact_version_id=build_id).value
+        project = None
+        description = None
+
+        for release_details in release: 
+            description = release_details.description
+            project = release_details.project_reference.name
+
+        if project and description: 
+            build = self.build_client.get_build(project, build_id)
+            # Ensure build was the trigger of release
+            if build.definition.name in description:
+                return release
+        
+        return None
     
     def get_releases_via_builds(self, build_ids, release_name_split_key='Release-'):
         releases_dict = dict()
 
         with concurrent.futures.ThreadPoolExecutor() as executor:
+            releases = []
             build_releases = executor.map(self.get_releases_from_build_id, build_ids)
-            releases_dicts = executor.map(self.get_releases_dict_from_build_releases, [item for sublist in build_releases for item in sublist], repeat(release_name_split_key))
+            # TODO: Refactor this
+            for release in build_releases:
+                if release is not None:
+                    releases.append(release)
+            releases_dicts = executor.map(self.get_releases_dict_from_build_releases, [item for sublist in releases for item in sublist if build_releases is not None], repeat(release_name_split_key))
             
             for release_dictionary in releases_dicts:
 
