@@ -16,9 +16,11 @@ class WorkItemManager:
 
         try:
             build = self.buid_client.get_build(project, build_id)
-            return build.id # Only return id if build was found
+            
+            if build.trigger_info != {}:
+                return build.id # Only return id if build was found and was actually triggered by commit build
         except:
-            return None # No build found (possbile error in ADO)
+            return None # No build found (possible error in ADO)
 
     def get_build_ids_from_work_item(self, query_work_item):
         build_ids = []
@@ -101,7 +103,7 @@ class WorkItemManager:
         relations = []
 
         if work_item.relations:
-
+            
             for relation in work_item.relations:
                 attributes_name = relation.attributes['name'] or None
 
