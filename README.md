@@ -7,13 +7,13 @@ Benefits:
 - Save time managing release deployments
 - Achieve release uniformity in all environment deployments
 - Prevent inclusion/exclusion of unwanted releases in deployments
-- Automate your CD from start to end 
+- Automate your CD from start to finish 
 
 Enjoy!
 
 ----------------------------------
 # Search
-There are two types of searches available:
+There are two types of search available:
 1. [**Export the results (to an excel file & logs)**](#create-search-release-notes-export-search-results-to-excel-file)
 2. [**Log the results**](#create-search-release-logs)
 
