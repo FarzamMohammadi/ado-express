@@ -80,7 +80,7 @@ class ReleaseFinder:
         
         for definition in release_definitions.value:
             
-            if (str(definition.name).lower() == str(release_name).lower()):
+            if str(definition.name).lower() == str(release_name).lower():
                 release_definition = definition
 
         # Get release id from release to know which needs to be deployed to new env
@@ -102,7 +102,7 @@ class ReleaseFinder:
         
         for definition in release_definitions.value:
             
-            if (str(definition.name).lower() == str(deployment_detail.release_name).lower()):
+            if str(definition.name).lower() == str(deployment_detail.release_name).lower():
                 release_definition = definition
 
         # Get release id from release to know which needs to be deployed to new env
