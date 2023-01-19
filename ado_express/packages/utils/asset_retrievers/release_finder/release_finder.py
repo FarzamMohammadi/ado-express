@@ -71,7 +71,7 @@ class ReleaseFinder:
                     
         if not found: logging.info(f'\nNO RESULTS AVAILABLE - Release Definition: {deployment_detail.release_name}\n')
 
-    def get_release(self, deployment_detail, find_via_env=False, rollback=False):
+    def get_release(self, deployment_detail, find_via_env=False, rollback=False, via_latest=False):
         # If deployment details are coming from query dict they will be str
         project = deployment_detail.split('/')[0] if isinstance(deployment_detail, str) else deployment_detail.release_project_name 
         release_name = deployment_detail.split('/')[1] if isinstance(deployment_detail, str) else deployment_detail.release_name
@@ -86,7 +86,7 @@ class ReleaseFinder:
         # Get release id from release to know which needs to be deployed to new env
         releases = self.release_client.get_releases(project, definition_id=release_definition.id).value
         
-        if find_via_env:
+        if find_via_env and via_latest or rollback:
             return self.find_matching_release_via_source_stage(releases, deployment_detail, rollback) 
         else:
             if rollback:
