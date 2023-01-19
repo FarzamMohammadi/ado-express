@@ -60,6 +60,7 @@ class Startup:
         self.search_only = environment_variables.SEARCH_ONLY
         self.search_file_path = constants.SEARCH_RESULTS_FILE_PATH
         self.via_env = environment_variables.VIA_ENV
+        self.via_latest = environment_variables.VIA_ENV_LATEST_RELEASE
         self.query = environment_variables.QUERY
         self.time_format = '%Y-%m-%d %H:%M:%S'
         self.datetime_now = datetime.now(timezone('US/Eastern'))
@@ -87,7 +88,7 @@ class Startup:
 
         # Get rollback
         with concurrent.futures.ThreadPoolExecutor() as executor:
-            rollbacks = executor.map(self.release_finder.get_release, {k for k, v in releases_dict.items()}, repeat(self.via_env), repeat(True))
+            rollbacks = executor.map(self.release_finder.get_release, {k for k, v in releases_dict.items()}, repeat(self.via_env), repeat(True), repeat(self.via_latest))
 
             for rollback in rollbacks:
                 if all(rollback.values()): rollback_dict |= rollback # If rollback for target environment is found
@@ -100,9 +101,9 @@ class Startup:
             target_release_number = target_release.split('-')[1]
             rollback_release_number = rollback_release.split('-')[1]
 
-            if (needs_deployment(target_release_number, rollback_release_number)):
-                deployment_detail = DeploymentDetails(project, release_name, target_release_number, rollback_release_number)
-                deployment_details.append(deployment_detail)
+            # if needs_deployment(target_release_number, rollback_release_number):
+            deployment_detail = DeploymentDetails(project, release_name, target_release_number, rollback_release_number)
+            deployment_details.append(deployment_detail)
 
             logging.info(f'Release found from query: Project:{project}, Release Definition:{release_name}, Target:{target_release_number}, Rollback:{rollback_release_number}')
         
@@ -110,12 +111,12 @@ class Startup:
 
     def get_deployment_detail_from_latest_release(self, deployment_detail: DeploymentDetails):
         try:
-            target_release = self.release_finder.get_release(deployment_detail, find_via_env=self.via_env)
-            rollback_release = self.release_finder.get_release(deployment_detail, find_via_env=self.via_env, rollback=True)
+            target_release = self.release_finder.get_release(deployment_detail, find_via_env=self.via_env, rollback=False, via_latest=self.via_latest)
+            rollback_release = self.release_finder.get_release(deployment_detail, find_via_env=self.via_env, rollback=True, via_latest=self.via_latest)
             target_release_number = target_release.name.split('-')[1]
             rollback_release_number = rollback_release.name.split('-')[1]
 
-            if (needs_deployment(target_release_number, rollback_release_number)): 
+            if needs_deployment(target_release_number, rollback_release_number):
                 deployment_detail = DeploymentDetails(deployment_detail.release_project_name, deployment_detail.release_name, target_release_number, rollback_release_number, deployment_detail.is_crucial)
                 
                 logging.info(f'Latest release found: Project:{deployment_detail.release_project_name}, Release Definition:{deployment_detail.release_name}, Target:{target_release_number}, Rollback:{rollback_release_number}')
@@ -130,7 +131,7 @@ class Startup:
     def deploy(self, deployment_detail: DeploymentDetails):
         try:
             if deployment_detail is not None: # The ThreadPoolExecutor may return None for some releases
-                release_to_update = self.release_finder.get_release(deployment_detail, find_via_env=self.via_env)
+                release_to_update = self.release_finder.get_release(deployment_detail, self.via_env, False, self.via_latest)
                 update_manager = UpdateRelease(constants, self.ms_authentication, environment_variables, self.release_finder)
 
                 update_attempt = update_manager.update_release(deployment_detail, release_to_update)
@@ -199,7 +200,7 @@ if __name__ == '__main__':
             exit()
         else:
             if crucial_release_definitions:
-                # Separate crucial & regular deployments based on release defintions that match CRUCIAL_RELEASE_DEFINITIONS env variable list
+                # Separate crucial & regular deployments based on release definitions that match CRUCIAL_RELEASE_DEFINITIONS env variable list
                 crucial_deployment_details = [x for x in deployment_details if x.release_name in crucial_release_definitions]
                 deployment_details[:] = [x for x in deployment_details if x.release_name not in crucial_release_definitions]
 
@@ -211,7 +212,7 @@ if __name__ == '__main__':
 
             with concurrent.futures.ThreadPoolExecutor() as executor: # Then, deploy the rest of the releases
                 if crucial_deployment_details: 
-                    logging.info('Deploing the rest of the releases')
+                    logging.info('Deploying the rest of the releases')
                 else:
                     logging.info('Deploying releases')
                 executor.map(startup.deploy, deployment_details)
