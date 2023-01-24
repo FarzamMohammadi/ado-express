@@ -3,6 +3,8 @@ name: Create a new release & tag commit
 on:
   workflow_dispatch:
   push:
+    paths-ignore:
+      - 'ado_express/tests/**'
     branches:
       - main
 

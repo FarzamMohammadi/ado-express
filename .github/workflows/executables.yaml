@@ -2,6 +2,8 @@ name: Create executables
 
 # Only trigger, when the release workflow succeeded
 on:
+  paths-ignore:
+        - 'ado_express/tests/**'
   workflow_run:
     workflows: ["Create a new release & tag commit"]
     types:
