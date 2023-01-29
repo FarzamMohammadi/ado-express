@@ -65,13 +65,13 @@ class Startup:
         self.time_format = '%Y-%m-%d %H:%M:%S'
         self.datetime_now = datetime.now(timezone('US/Eastern'))
 
-    def get_crucial_release_definitions(self):
+    def get_crucial_release_definitions(self, deployment_details):
         crucial_release_definitions = []
-        # First checks command line args, if not found, then checks the deployment plan
+        # First checks command line args, if not found, then checks the deployment plan file
         if environment_variables.CRUCIAL_RELEASE_DEFINITIONS is not None:
             crucial_release_definitions = environment_variables.CRUCIAL_RELEASE_DEFINITIONS
         else:
-            for deployment_detail in deployment_plan_details:
+            for deployment_detail in deployment_details:
                 if deployment_detail.is_crucial:
                     crucial_release_definitions.append(deployment_detail.release_name)
         
@@ -189,11 +189,11 @@ if __name__ == '__main__':
 
     # Run deployment
     else:
-        crucial_release_definitions = startup.get_crucial_release_definitions()
-        crucial_deployment_details = []
-
         # Set deployment details to deployment plan details if it's not a query/latest release run
         deployment_details = deployment_plan_details if deployment_details is None else deployment_details
+
+        crucial_release_definitions = startup.get_crucial_release_definitions(deployment_details)
+        crucial_deployment_details = []
         
         if deployment_details is None:
             logging.error(f'No deployment details found - please check the configuration')
