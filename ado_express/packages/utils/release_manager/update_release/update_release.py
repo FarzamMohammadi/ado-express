@@ -17,7 +17,6 @@ class UpdateRelease:
         self.release_client = ms_authentication.client
         self.release_client_v6 = ms_authentication.client_v6
         self.environment_variables = environment_variables
-        self.environment_statuses = ReleaseEnvironmentStatuses()
         self.release_finder = release_finder
 
         
@@ -28,7 +27,7 @@ class UpdateRelease:
         
         if matching_release_environment is not None:
             
-            if matching_release_environment.status not in self.environment_statuses.InProgress:
+            if matching_release_environment.status not in ReleaseEnvironmentStatuses.InProgress:
                 # Update Release
                 comment = 'Deployed automatically via Ado-Express'
                 self.update_release_environment(comment, deployment_detail, release_to_update, matching_release_environment)
@@ -50,11 +49,11 @@ class UpdateRelease:
             release_to_update_data = self.release_client.get_release(project=deployment_detail.release_project_name, release_id=release_to_update.id)
             for environment in release_to_update_data.environments:
                 if (str(environment.name).lower() == self.environment_variables.RELEASE_TARGET_ENV.lower()):
-                    if environment.status in self.environment_statuses.Succeeded: 
+                    if environment.status in ReleaseEnvironmentStatuses.Succeeded: 
                         updated_successfully = True
                         update_complete = True
                         break
-                    elif environment.status in self.environment_statuses.Failed:
+                    elif environment.status in ReleaseEnvironmentStatuses.Failed:
                         update_complete = True
                         break       
             time.sleep(5)
@@ -101,7 +100,7 @@ class UpdateRelease:
                 matching_release_environment = environment
         
         if matching_release_environment is not None:
-            if matching_release_environment.status not in self.environment_statuses.InProgress:
+            if matching_release_environment.status not in ReleaseEnvironmentStatuses.InProgress:
                 # Rollback Release
                 comment = 'Rolled back automatically due to failed update via Ado-Express'
                 self.update_release_environment(comment, deployment_detail, release_to_update, matching_release_environment)
