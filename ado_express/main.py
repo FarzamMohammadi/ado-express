@@ -67,7 +67,7 @@ class Startup:
 
     def get_crucial_release_definitions(self):
         crucial_release_definitions = []
-        # First checks command line args, if not found, then checks the deployment plan
+        # First checks command line args, if not found, then checks the deployment plan file
         if environment_variables.CRUCIAL_RELEASE_DEFINITIONS is not None:
             crucial_release_definitions = environment_variables.CRUCIAL_RELEASE_DEFINITIONS
         else:
