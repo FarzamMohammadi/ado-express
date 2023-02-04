@@ -65,13 +65,13 @@ class Startup:
         self.time_format = '%Y-%m-%d %H:%M:%S'
         self.datetime_now = datetime.now(timezone('US/Eastern'))
 
-    def get_crucial_release_definitions(self):
+    def get_crucial_release_definitions(self, deployment_details):
         crucial_release_definitions = []
-        # First checks command line args, if not found, then checks the deployment plan
+        # First checks command line args, if not found, then checks the deployment plan file
         if environment_variables.CRUCIAL_RELEASE_DEFINITIONS is not None:
             crucial_release_definitions = environment_variables.CRUCIAL_RELEASE_DEFINITIONS
         else:
-            for deployment_detail in deployment_plan_details:
+            for deployment_detail in deployment_details:
                 if deployment_detail.is_crucial:
                     crucial_release_definitions.append(deployment_detail.release_name)
         
@@ -189,33 +189,36 @@ if __name__ == '__main__':
 
     # Run deployment
     else:
-        crucial_release_definitions = startup.get_crucial_release_definitions()
-        crucial_deployment_details = []
-
         # Set deployment details to deployment plan details if it's not a query/latest release run
         deployment_details = deployment_plan_details if deployment_details is None else deployment_details
-        
+
         if deployment_details is None:
-            logging.error(f'No deployment details found - please check the configuration')
+            logging.error(f'No deployment details found - please check the configurations')
+            logging.error(f'Stopping process')
             exit()
-        else:
-            if crucial_release_definitions:
-                # Separate crucial & regular deployments based on release definitions that match CRUCIAL_RELEASE_DEFINITIONS env variable list
-                crucial_deployment_details = [x for x in deployment_details if x.release_name in crucial_release_definitions]
-                deployment_details[:] = [x for x in deployment_details if x.release_name not in crucial_release_definitions]
 
-            if crucial_deployment_details: # First, deploy crucial releases if there are any
-                with concurrent.futures.ThreadPoolExecutor() as executor:
-                    logging.info('Deploying the crucial releases first')
-                    executor.map(startup.deploy, crucial_deployment_details)
-                    executor.shutdown(wait=True)
+        crucial_release_definitions = startup.get_crucial_release_definitions(deployment_details)
+        crucial_deployment_details = []
 
-            with concurrent.futures.ThreadPoolExecutor() as executor: # Then, deploy the rest of the releases
-                if crucial_deployment_details: 
-                    logging.info('Deploying the rest of the releases')
-                else:
-                    logging.info('Deploying releases')
-                executor.map(startup.deploy, deployment_details)
+        if crucial_release_definitions:
+            # Separate crucial & regular deployments based on release definitions that match CRUCIAL_RELEASE_DEFINITIONS env variable list
+            crucial_deployment_details = [x for x in deployment_details if x.release_name in crucial_release_definitions]
+            deployment_details[:] = [x for x in deployment_details if x.release_name not in crucial_release_definitions]
+
+        if crucial_deployment_details: # First, deploy crucial releases if there are any
+            with concurrent.futures.ThreadPoolExecutor() as executor:
+                logging.info('Deploying the crucial releases first')
+                
+                executor.map(startup.deploy, crucial_deployment_details)
+                executor.shutdown(wait=True)
+
+        with concurrent.futures.ThreadPoolExecutor() as executor: # Then, deploy the rest of the releases
+            if crucial_deployment_details: 
+                logging.info('Deploying the rest of the releases')
+            else:
+                logging.info('Deploying releases')
+            
+            executor.map(startup.deploy, deployment_details)
 
     task_end = time.perf_counter()
     logging.info(f'Tasks completed in {task_end-task_start} seconds')
