@@ -39,13 +39,7 @@ class Startup:
     def initialize_logging(self):
         if self.search_only:
             logging.info('Starting the search...')
-
-            if os.path.isfile(self.search_file_path):
-                with open(self.search_file_path, "a") as file:
-                    file.write(f"\n\nNew Search Results:\nSearched Date & Time:{self.datetime_now.strftime(self.time_format)}\n")
-            else:
-                with open(self.search_file_path, "a") as file:
-                    file.write(f"New Search Results:\nSearched Date & Time:{self.datetime_now.strftime(self.time_format)}\n")
+            logging.info(f"New Search Results:\nSearched Date & Time:{self.datetime_now.strftime(self.time_format)}\n")
         else:
             logging.info('Starting the update...')
         
@@ -58,7 +52,6 @@ class Startup:
         self.ms_authentication = MSAuthentication(environment_variables)
         self.release_finder = ReleaseFinder(self.ms_authentication, environment_variables)
         self.search_only = environment_variables.SEARCH_ONLY
-        self.search_file_path = constants.SEARCH_RESULTS_FILE_PATH
         self.via_env = environment_variables.VIA_ENV
         self.via_latest = environment_variables.VIA_ENV_LATEST_RELEASE
         self.query = environment_variables.QUERY
