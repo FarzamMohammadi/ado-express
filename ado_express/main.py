@@ -39,7 +39,7 @@ class Startup:
     def initialize_logging(self):
         if self.search_only:
             logging.info('Starting the search...')
-            logging.info(f"New Search Results:\nSearched Date & Time:{self.datetime_now.strftime(self.time_format)}\n")
+            logging.info(f"Search Date & Time:{self.datetime_now.strftime(self.time_format)}\nResults:\n")
         else:
             logging.info('Starting the update...')
         
@@ -54,7 +54,7 @@ class Startup:
         self.search_only = environment_variables.SEARCH_ONLY
         self.via_env = environment_variables.VIA_ENV
         self.via_latest = environment_variables.VIA_ENV_LATEST_RELEASE
-        self.query = environment_variables.QUERY
+        self.queries = environment_variables.QUERIES
         self.time_format = '%Y-%m-%d %H:%M:%S'
         self.datetime_now = datetime.now(timezone('US/Eastern'))
 
@@ -72,22 +72,30 @@ class Startup:
 
     def get_deployment_details_from_query(self):
         work_item_manager = WorkItemManager(self.ms_authentication)
-        build_ids = work_item_manager.get_query_build_ids(self.query)
-        releases_dict = self.release_finder.get_releases_via_builds(build_ids)
+        found_releases = dict()
+
+        for query in self.queries:
+            build_ids = work_item_manager.get_query_build_ids(query)
+            search_result_releases = self.release_finder.get_releases_via_builds(build_ids)
+
+            for release_definition in search_result_releases:
+                if release_definition not in found_releases: found_releases[release_definition] = search_result_releases[release_definition]
+                elif found_releases[release_definition] < search_result_releases[release_definition]: found_releases[release_definition] = search_result_releases[release_definition]
+
         rollback_dict = dict()
         deployment_details = []
 
-        if not releases_dict: return deployment_details # If no releases are found
+        if not found_releases: return deployment_details # If no releases are found
 
         # Get rollback
         with concurrent.futures.ThreadPoolExecutor() as executor:
-            rollbacks = executor.map(self.release_finder.get_release, {k for k, v in releases_dict.items()}, repeat(self.via_env), repeat(True), repeat(self.via_latest))
+            rollbacks = executor.map(self.release_finder.get_release, {k for k, v in found_releases.items()}, repeat(self.via_env), repeat(True), repeat(self.via_latest))
 
             for rollback in rollbacks:
                 if all(rollback.values()): rollback_dict |= rollback # If rollback for target environment is found
-                else: releases_dict.pop(next(iter(rollback))) # Remove key & value from releases_dict
+                else: found_releases.pop(next(iter(rollback))) # Remove key & value from found_releases
 
-        for release_location, target_release in releases_dict.items():
+        for release_location, target_release in found_releases.items():
             project = release_location.split('/')[0] 
             release_name = release_location.split('/')[1]
             rollback_release = rollback_dict[release_location]
@@ -152,7 +160,7 @@ if __name__ == '__main__':
     deployment_details = None
 
     # If a query is provided then do query run first (it'll either be deployed later or stop after notes creation)
-    if environment_variables.QUERY:
+    if environment_variables.QUERIES:
         deployment_details = startup.get_deployment_details_from_query()
     else:
         # If not a query run then get deployment details from deployment plan
@@ -164,7 +172,7 @@ if __name__ == '__main__':
     # Run search 
     if environment_variables.SEARCH_ONLY:
         # If doing a release notes search then create and export deployment details to excel file
-        if environment_variables.QUERY or environment_variables.VIA_ENV_LATEST_RELEASE:
+        if environment_variables.QUERIES or environment_variables.VIA_ENV_LATEST_RELEASE:
             if deployment_details:
                 logging.info(f'Exporting Release notes to: {constants.SEARCH_RESULTS_DEPLOYMENT_PLAN_FILE_PATH}')
                 startup.initialize_excel_configurations()
