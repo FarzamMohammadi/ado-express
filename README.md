@@ -18,7 +18,7 @@ There are two types of search available:
 2. [**Log the results**](#create-search-release-logs)
 
 ## Create Search Release Notes (Export search results to excel file)
-1. Using ADO query ID:
+1. Using ADO query:
     - How does it work?
         - Iterates through work items (regardless of type) in query to find the last release created by builds of merged commits
         - Steps for target release retrieval: 
@@ -27,7 +27,8 @@ There are two types of search available:
             3. Gets all releases created by builds and compares them to find the latest 
             4. The latest deployed release specified by environment (*VIA_ENV_SOURCE_NAME*) gets returned
                 - Grabbing the latest release already deployed to *VIA_ENV_SOURCE_NAME* and not yet deployed to *RELEASE_TARGET_ENV*
-        - [Setps for rollback release retrieval](#getting-rollback-releases)
+        - Multiple query runs will combine all releases found and grab the latest from them
+        - [Steps for rollback release retrieval](#getting-rollback-releases)
         
         [EXAMPLE CONFIGURATION](#search-via-query)
 
@@ -39,7 +40,7 @@ There are two types of search available:
             2. Finds the latest release based on last successful deployment
             3. The latest deployed release specified by environment (*VIA_ENV_SOURCE_NAME*) gets returned
                 - Grabbing the latest release already deployed to *VIA_ENV_SOURCE_NAME* and not yet deployed to *RELEASE_TARGET_ENV*
-        - [Setps for rollback release retrieval](#getting-rollback-releases)
+        - [Steps for rollback release retrieval](#getting-rollback-releases)
 
         [EXAMPLE CONFIGURATION](#search-via-latest-release)
     
@@ -78,7 +79,7 @@ There are three types of deployment available:
     - The application will attempt to rollback (deploy to rollback number) 
     - Then will stop the processes regardless of the status of rollback
 
-## Deploy via query
+## Deploy via ADO query
 - How does it work?
     - Iterates through work items (regardless of type) in query to find the last release created by builds of merged commits
     - Steps for target release retrieval: 
@@ -87,7 +88,8 @@ There are three types of deployment available:
         3. Gets all releases created by builds and compares them to find the latest 
         4. The latest deployed release specified by environment (*VIA_ENV_SOURCE_NAME*) gets returned
             - Grabbing the latest release already deployed to *VIA_ENV_SOURCE_NAME* and not yet deployed to *RELEASE_TARGET_ENV*
-    - [Setps for rollback release retrieval](#getting-rollback-releases)
+    - Multiple query runs will combine all releases found and grab the latest from them
+    - [Steps for rollback release retrieval](#getting-rollback-releases)
     
     [EXAMPLE CONFIGURATION](#deploy-via-query-1)
 ## Deploy via release number
@@ -110,7 +112,7 @@ The use of a deployment plan file is required. The default deployment plan can b
     [EXAMPLE CONFIGURATION](#deploy-via-environment-1)
 
 # Getting Rollback Releases
-Finds the last deployed release in target environment and sets it as rollback. **Query** and **via_latest** features use this method for getting rollback releases.
+Finds the last deployed release in target environment and sets it as rollback. **QUERIES** and **VIA_LATEST** features use this method for getting rollback releases.
 
 - How does it work?
     - Iterates through release definitions found in the release target retrieval step
@@ -126,12 +128,12 @@ Finds the last deployed release in target environment and sets it as rollback. *
 - [**Locally** (python & dependency installation required)](#4-locally-python--dependency-installation-required)
 
 ## 1. Docker
-You can pull the latest image directly from the [packeges](https://github.com/FarzamMohammadi/ado-express/pkgs/container/ado-express) section of this repo.
+You can pull the latest image directly from the [packages](https://github.com/FarzamMohammadi/ado-express/pkgs/container/ado-express) section of this repo.
 
 ## 2. Executable (Simplest method - No installation required)
 Executables for Windows and Linux are available in repository release artifacts. Download and run the executable file with the desired parameters. 
 
-    ado-express-{OS}.exe <CRUCIAL_RELEASE_DEFINITIONS> <ORGANIZATION_URL> <PERSONAL_ACCESS_TOKEN> <QUERY> <RELEASE_NAME_FORMAT> <RELEASE_TARGET_ENV> <SEARCH_ONLY> <VIA_ENV> <VIA_ENV_SOURCE_NAME> <VIA_ENV_LATEST_RELEASE>
+    ado-express-{OS}.exe <CRUCIAL_RELEASE_DEFINITIONS> <ORGANIZATION_URL> <PERSONAL_ACCESS_TOKEN> <QUERIES> <RELEASE_NAME_FORMAT> <RELEASE_TARGET_ENV> <SEARCH_ONLY> <VIA_ENV> <VIA_ENV_SOURCE_NAME> <VIA_ENV_LATEST_RELEASE>
 
 #### Environment Variables Configuration
 There are two ways to set the environment variables:
@@ -158,7 +160,7 @@ Using environment variables in .env:
 
 Using command line arguments:
     
-    python ado_express/main.py <CRUCIAL_RELEASE_DEFINITIONS> <ORGANIZATION_URL> <PERSONAL_ACCESS_TOKEN> <QUERY> <RELEASE_NAME_FORMAT> <RELEASE_TARGET_ENV> <SEARCH_ONLY> <VIA_ENV> <VIA_ENV_SOURCE_NAME> <VIA_ENV_LATEST_RELEASE>
+    python ado_express/main.py <CRUCIAL_RELEASE_DEFINITIONS> <ORGANIZATION_URL> <PERSONAL_ACCESS_TOKEN> <QUERIES> <RELEASE_NAME_FORMAT> <RELEASE_TARGET_ENV> <SEARCH_ONLY> <VIA_ENV> <VIA_ENV_SOURCE_NAME> <VIA_ENV_LATEST_RELEASE>
 
 #### Environment Variables Configuration
 There are three ways to set the environment variables:
@@ -189,7 +191,7 @@ Using environment variables in .env:
 
 Using command line arguments:
     
-    python ado_express/main.py <CRUCIAL_RELEASE_DEFINITIONS> <ORGANIZATION_URL> <PERSONAL_ACCESS_TOKEN> <QUERY> <RELEASE_NAME_FORMAT> <RELEASE_TARGET_ENV> <SEARCH_ONLY> <VIA_ENV> <VIA_ENV_SOURCE_NAME> <VIA_ENV_LATEST_RELEASE>
+    python ado_express/main.py <CRUCIAL_RELEASE_DEFINITIONS> <ORGANIZATION_URL> <PERSONAL_ACCESS_TOKEN> <QUERIES> <RELEASE_NAME_FORMAT> <RELEASE_TARGET_ENV> <SEARCH_ONLY> <VIA_ENV> <VIA_ENV_SOURCE_NAME> <VIA_ENV_LATEST_RELEASE>
 
 #### Environment Variables Configuration
 There are three ways to set the environment variables:
@@ -220,7 +222,7 @@ Note: The default values of these variables are none/null and false
 - **CRUCIAL_RELEASE_DEFINITIONS**=< Array of release definitions that are crucial to the deployment process - Example: releaseone,releasetwo,releasethree >
 - **ORGANIZATION_URL**=< Your organizations ADO URL - Example: https://dev.azure.com/{organization} >
 - **PERSONAL_ACCESS_TOKEN**=< Personal access token (https://learn.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate?view=azure-devops&tabs=Windows) >
-- **QUERY**=< ID of ADO query containing work items to retrieve releases from (ID must be from a saved query and cannot be from a temporary query) >
+- **QUERIES**=< List of Ids or URL paths to ADO queries separated via commas >
 - **RELEASE_NAME_FORMAT**=< Release name format - Example: Release-$(rev:r) >
 - **RELEASE_TARGET_ENV**=< Name of the environment you wish to deploy your releases to (Target)- Example: PROD >
 - **SEARCH_ONLY**=< true/false >
@@ -229,7 +231,7 @@ Note: The default values of these variables are none/null and false
 - **VIA_ENV_LATEST_RELEASE**=< true/false >
 
 ### Order of Command Line Arguments
-    <CRUCIAL_RELEASE_DEFINITIONS> <ORGANIZATION_URL> <PERSONAL_ACCESS_TOKEN> <QUERY> <RELEASE_NAME_FORMAT> <RELEASE_TARGET_ENV> <SEARCH_ONLY> <VIA_ENV> <VIA_ENV_SOURCE_NAME> <VIA_ENV_LATEST_RELEASE>
+    <CRUCIAL_RELEASE_DEFINITIONS> <ORGANIZATION_URL> <PERSONAL_ACCESS_TOKEN> <QUERIES> <RELEASE_NAME_FORMAT> <RELEASE_TARGET_ENV> <SEARCH_ONLY> <VIA_ENV> <VIA_ENV_SOURCE_NAME> <VIA_ENV_LATEST_RELEASE>
 
 **Based on your format, you may need to set *RELEASE_NAME_FORMAT* in quotation marks**
 
@@ -238,7 +240,7 @@ While I continue to work on making the use of this tool easier, it could be conf
 
 ## Search
 ### Search via query
-Required: ORGANIZATION_URL, PERSONAL_ACCESS_TOKEN, RELEASE_NAME_FORMAT, RELEASE_TARGET_ENV, SEARCH_ONLY, VIA_ENV, VIA_ENV_SOURCE_NAME, QUERY
+Required: ORGANIZATION_URL, PERSONAL_ACCESS_TOKEN, RELEASE_NAME_FORMAT, RELEASE_TARGET_ENV, SEARCH_ONLY, VIA_ENV, VIA_ENV_SOURCE_NAME, QUERIES
 
 .env:
 
@@ -249,11 +251,11 @@ Required: ORGANIZATION_URL, PERSONAL_ACCESS_TOKEN, RELEASE_NAME_FORMAT, RELEASE_
     SEARCH_ONLY=True
     VIA_ENV=True
     VIA_ENV_SOURCE_NAME=QA
-    QUERY=queryID/queryURL
+    QUERIES=queryID,queryID,queryID
 
 CMD:
 
-    ./ado-express-linux.exe None https://dev.azure.com/xxxx tokenxxxx queryURL "Release-$(rev:r)" PROD True True QA
+    ./ado-express-linux.exe None https://dev.azure.com/xxxx tokenxxxx queryID,queryID,queryID "Release-$(rev:r)" PROD True True QA
 **Set *RELEASE_NAME_FORMAT* in quotations**
 
 ### Search via latest release
@@ -295,7 +297,7 @@ Required: ORGANIZATION_URL, PERSONAL_ACCESS_TOKEN, RELEASE_NAME_FORMAT, SEARCH_O
 ## Deploy
 
 ### Deploy via query
-Required: ORGANIZATION_URL, PERSONAL_ACCESS_TOKEN, RELEASE_NAME_FORMAT, RELEASE_TARGET_ENV, VIA_ENV, VIA_ENV_SOURCE_NAME, QUERY
+Required: ORGANIZATION_URL, PERSONAL_ACCESS_TOKEN, RELEASE_NAME_FORMAT, RELEASE_TARGET_ENV, VIA_ENV, VIA_ENV_SOURCE_NAME, QUERIES
 
 .env:
     ORGANIZATION_URL=https://dev.azure.com/xxxx
@@ -304,11 +306,11 @@ Required: ORGANIZATION_URL, PERSONAL_ACCESS_TOKEN, RELEASE_NAME_FORMAT, RELEASE_
     RELEASE_TARGET_ENV=PROD
     VIA_ENV=True
     VIA_ENV_SOURCE_NAME=QA
-    QUERY=queryID/queryURL
+    QUERIES=queryURL
 
 CMD:
 
-    ./ado-express-linux.exe None https://dev.azure.com/xxxx tokenxxxx queryID "Release-$(rev:r)" PROD False True QA
+    ./ado-express-linux.exe None https://dev.azure.com/xxxx tokenxxxx queryURL "Release-$(rev:r)" PROD False True QA
 **Set *RELEASE_NAME_FORMAT* in quotations**
 ### Deploy via release number
 Required: ORGANIZATION_URL, PERSONAL_ACCESS_TOKEN, RELEASE_NAME_FORMAT, RELEASE_TARGET_ENV

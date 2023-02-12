@@ -45,7 +45,6 @@ def get_validated_list_input(index, key):
             query_list_input = []
             
             for query in list_input:
-                print(query)
                 query_list_input.append(get_validated_string_input(None, None, "query", query))
             
             list_input = query_list_input

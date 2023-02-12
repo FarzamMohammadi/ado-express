@@ -5,6 +5,7 @@ on:
   workflow_run:
     paths-ignore:
       - 'ado_express/tests/**'
+      - '**/README.md'
     workflows: ["Create a new release & tag commit"]
     types:
       - completed

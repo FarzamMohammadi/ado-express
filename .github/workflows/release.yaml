@@ -5,6 +5,7 @@ on:
   push:
     paths-ignore:
       - 'ado_express/tests/**'
+      - '**/README.md'
     branches:
       - main
 
