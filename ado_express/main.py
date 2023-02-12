@@ -1,7 +1,6 @@
 import concurrent.futures
 from itertools import repeat
 import logging
-import os
 import sys
 import time
 from datetime import datetime

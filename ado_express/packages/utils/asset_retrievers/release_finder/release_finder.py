@@ -155,10 +155,14 @@ class ReleaseFinder:
             project = release_details.project_reference.name
 
         if project and description: 
-            build = self.build_client.get_build(project, build_id)
-            # Ensure build was the trigger of release
-            if build.definition.name in description:
-                return release
+            try:
+                build = self.build_client.get_build(project, build_id)
+                # Ensure build was the trigger of release
+                if build.definition.name in description:
+                    return release
+            except:
+                #Builds was deleted/no longer exists
+                logging.error(f"The requested build {build_id} could not be found.")
         
         return None
     
