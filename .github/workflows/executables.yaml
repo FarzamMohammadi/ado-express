@@ -11,8 +11,24 @@ on:
       - completed
 
 jobs:
+
+  latest_release:
+    name: Get latest repo release info
+    runs-on: ubuntu-latest
+
+    outputs:
+      release_upload_url: ${{ steps.latest_release_info.outputs.upload_url }}
+
+    steps:
+      - name: Get latest created release info
+        id: latest_release_info
+        uses: jossef/action-latest-release-info@v1.2.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
   linux:
     name: Create & include exe - Linux
+    needs: latest_release
     runs-on: ubuntu-latest
     
     steps:
@@ -34,24 +50,19 @@ jobs:
       - name: Build executable for Linux
         run: pyinstaller --noconfirm --onefile --console --add-data "./ado_express/files:files/" --add-data "./ado_express/packages:packages/" --hidden-import "azure" --hidden-import "azure.devops" --hidden-import "azure.storage" --hidden-import "jinja2" --hidden-import "msrest" --hidden-import "openpyxl" --hidden-import "pandas" --hidden-import "dotenv" --hidden-import "distutils" --hidden-import "validators" --collect-all "azure.devops" --name "ado-express" "./ado_express/main.py"
 
-      - name: Gets latest created release info
-        id: latest_release_info
-        uses: jossef/action-latest-release-info@v1.2.1
-        env:
-          GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-
       - name: Include executable in release
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
         with:
-          upload_url: ${{ steps.latest_release_info.outputs.upload_url }}
+          upload_url: ${{ needs.latest_release.outputs.release_upload_url }}
           asset_path: /home/runner/work/ado-express/ado-express/dist/ado-express
           asset_name: ado-express-linux.exe
           asset_content_type: application/octet-stream
 
   windows:
     name: Create & include exe - Windows
+    needs: latest_release
     runs-on: windows-latest
    
     steps:
@@ -73,24 +84,19 @@ jobs:
       - name: Build executable for Windows
         run: pyinstaller --noconfirm --onefile --console --add-data "./ado_express/files;files/" --add-data "./ado_express/packages;packages/" --hidden-import "azure" --hidden-import "azure.devops" --hidden-import "azure.storage" --hidden-import "jinja2" --hidden-import "msrest" --hidden-import "openpyxl" --hidden-import "pandas" --hidden-import "dotenv" --hidden-import "distutils" --hidden-import "validators" --collect-all "azure.devops" --name "ado-express" "./ado_express/main.py"
 
-      - name: Gets latest created release info
-        id: latest_release_info
-        uses: jossef/action-latest-release-info@v1.2.1
-        env:
-          GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-
       - name: Include executable in release
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
         with:
-          upload_url: ${{ steps.latest_release_info.outputs.upload_url }}
+          upload_url: ${{ needs.latest_release.outputs.release_upload_url }}
           asset_path: D:\a\ado-express\ado-express\dist\ado-express.exe
           asset_name: ado-express-win.exe
           asset_content_type: application/octet-stream
 
   macos:
     name: Create & include exe - macOS
+    needs: latest_release
     runs-on: macos-latest
     
     steps:
@@ -112,18 +118,12 @@ jobs:
       - name: Build executable for macOS
         run: pyinstaller --noconfirm --onefile --console --add-data "./ado_express/files:files/" --add-data "./ado_express/packages:packages/" --hidden-import "azure" --hidden-import "azure.devops" --hidden-import "azure.storage" --hidden-import "jinja2" --hidden-import "msrest" --hidden-import "openpyxl" --hidden-import "pandas" --hidden-import "dotenv" --hidden-import "distutils" --hidden-import "validators" --collect-all "azure.devops" --name "ado-express" "./ado_express/main.py"
 
-      - name: Gets latest created release info
-        id: latest_release_info
-        uses: jossef/action-latest-release-info@v1.2.1
-        env:
-          GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-
       - name: Include executable in release
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
         with:
-          upload_url: ${{ steps.latest_release_info.outputs.upload_url }}
+          upload_url: ${{ needs.latest_release.outputs.release_upload_url }}
           asset_path: /Users/runner/work/ado-express/ado-express/dist/ado-express
           asset_name: ado-express-macos.exe
           asset_content_type: application/octet-stream
