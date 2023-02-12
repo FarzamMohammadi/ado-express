@@ -1,7 +1,16 @@
 from django.urls import path
-from . import views
+from . import search_views
+
+'''
+/run/query
+/run/via_latest
+/run/via_numbers
+
+/search/query
+/search/via_latest
+/search/via_numbers
+'''
 
 urlpatterns = [
-    path('', views.getData),
-    path('add/', views.addItem)
+    path('search/query', search_views.search_via_query)
 ]
