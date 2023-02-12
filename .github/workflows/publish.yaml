@@ -4,6 +4,7 @@ on:
   push:
     paths-ignore:
       - 'ado_express/tests/**'
+      - '**/README.md'
     # Publish `main` as Docker `latest` image.
     branches:
       - main
