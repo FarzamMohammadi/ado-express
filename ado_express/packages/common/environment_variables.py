@@ -53,6 +53,7 @@ def get_validated_list_input(index, key):
             list_input = query_list_input
 
         return list_input
+
 def get_validated_bool_input(index, key):
         if len(sys.argv) > index and sys.argv[index] is not None:
             str_input = sys.argv[index].strip()
@@ -71,9 +72,14 @@ def get_validated_object(index, key):
         str_input = sys.argv[index].strip()
     elif os.getenv(key) is not None:
         str_input = os.getenv(key).strip()
-    else: return None
+    
+    if str_input.strip().lower() in none_types:
+        return None
 
-    return ast.literal_eval(str_input)           
+    try: 
+        return ast.literal_eval(str_input)
+    except:
+        raise Exception(f"Was unable to parse string to object for key:{key}")          
 
 class EnvironmentVariables:
 
