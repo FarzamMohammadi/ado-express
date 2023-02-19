@@ -11,9 +11,10 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
 from pathlib import Path
+import importlib
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 
 # Quick-start development settings - unsuitable for production
@@ -26,9 +27,9 @@ SECRET_KEY = 'django-insecure--=#%i=#br2xi(23v3=ch3=+!7-i5js@(684u^9c5e$adl57wdy
 DEBUG = True
 
 ALLOWED_HOSTS = []
-
-
+print(BASE_DIR)
 # Application definition
+# ado_express = importlib.import_module('/ado_express', package=None)
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -40,6 +41,7 @@ INSTALLED_APPS = [
     
     'rest_framework',
     'base',
+    'ado_express',
 ]
 
 MIDDLEWARE = [

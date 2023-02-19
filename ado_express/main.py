@@ -32,7 +32,8 @@ excel_manager = ExcelManager()
 
 class Startup:
 
-    def __init__(self):
+    def __init__(self, environment_variables):
+        self.environment_variables = environment_variables
         self.load_dependencies()
         self.initialize_logging()
     
@@ -67,12 +68,12 @@ class Startup:
         return new_deployment_details
 
     def load_dependencies(self):
-        self.ms_authentication = MSAuthentication(environment_variables)
-        self.release_finder = ReleaseFinder(self.ms_authentication, environment_variables)
-        self.search_only = environment_variables.SEARCH_ONLY
-        self.via_env = environment_variables.VIA_ENV
-        self.via_latest = environment_variables.VIA_ENV_LATEST_RELEASE
-        self.queries = environment_variables.QUERIES
+        self.ms_authentication = MSAuthentication(self.environment_variables)
+        self.release_finder = ReleaseFinder(self.ms_authentication, self.environment_variables)
+        self.search_only = self.environment_variables.SEARCH_ONLY
+        self.via_env = self.environment_variables.VIA_ENV
+        self.via_latest = self.environment_variables.VIA_ENV_LATEST_RELEASE
+        self.queries = self.environment_variables.QUERIES
         self.time_format = '%Y-%m-%d %H:%M:%S'
         self.datetime_now = datetime.now(timezone('US/Eastern'))
 
@@ -173,7 +174,7 @@ class Startup:
             logging.error(f'There was an error. Please check their status and continue manually.\nException:{e}')
 
 if __name__ == '__main__':
-    startup = Startup()
+    startup = Startup(environment_variables)
     task_start = time.perf_counter() 
     deployment_details = None
 
