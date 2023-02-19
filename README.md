@@ -219,15 +219,16 @@ All the files and resources can be found under the [files directory](./ado_expre
 ## List of Variables/Arguments
 Note: The default values of these variables are none/null and false
 
-- **CRUCIAL_RELEASE_DEFINITIONS**=< Array of release definitions that are crucial to the deployment process - Example: releaseone,releasetwo,releasethree >
-- **ORGANIZATION_URL**=< Your organizations ADO URL - Example: https://dev.azure.com/{organization} >
+- **EXPLICIT_RELEASE_VALUES**=< dict with key matching the type explicit release values (either 'include' or 'exclude') and an array of release definitions as the dict value. E.g. {'include': ['releaseone','releasetwo','releasethree']} >
+- **CRUCIAL_RELEASE_DEFINITIONS**=< Array of release definitions that are crucial to the deployment process - E.g. releaseone,releasetwo,releasethree >
+- **ORGANIZATION_URL**=< Your organizations ADO URL - E.g. https://dev.azure.com/{organization} >
 - **PERSONAL_ACCESS_TOKEN**=< Personal access token (https://learn.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate?view=azure-devops&tabs=Windows) >
 - **QUERIES**=< List of Ids or URL paths to ADO queries separated via commas >
-- **RELEASE_NAME_FORMAT**=< Release name format - Example: Release-$(rev:r) >
-- **RELEASE_TARGET_ENV**=< Name of the environment you wish to deploy your releases to (Target)- Example: PROD >
+- **RELEASE_NAME_FORMAT**=< Release name format - E.g. Release-$(rev:r) >
+- **RELEASE_TARGET_ENV**=< Name of the environment you wish to deploy your releases to (Target)- E.g. PROD >
 - **SEARCH_ONLY**=< true/false >
 - **VIA_ENV**=< true/false >
-- **VIA_ENV_SOURCE_NAME**=< Name of the environment that has releases successfully deployed to it already (Rollback) - Example: QA >
+- **VIA_ENV_SOURCE_NAME**=< Name of the environment that has releases successfully deployed to it already (Rollback) - E.g. QA >
 - **VIA_ENV_LATEST_RELEASE**=< true/false >
 
 ### Order of Command Line Arguments
