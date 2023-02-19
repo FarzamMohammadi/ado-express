@@ -2,11 +2,11 @@ import concurrent.futures
 from itertools import repeat
 import logging
 
-from packages.authentication import MSAuthentication
-from packages.common.constants import Constants
-from packages.common.enums import ReleaseEnvironmentStatuses
-from packages.common.environment_variables import EnvironmentVariables
-from packages.common.models import DeploymentDetails
+from ado_express.packages.authentication import MSAuthentication
+from ado_express.packages.common.constants import Constants
+from ado_express.packages.common.enums import ReleaseEnvironmentStatuses
+from ado_express.packages.common.environment_variables import EnvironmentVariables
+from ado_express.packages.common.models import DeploymentDetails
 
 class ReleaseFinder:
 

@@ -1,7 +1,8 @@
+import json
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 
-from base.models import RunConfigurations
+from base.models.RunConfigurations import RunConfigurations
 from .serializers import RunConfigurationsSerializer
 import status
 from ado_express.main import Startup
@@ -34,9 +35,10 @@ def search_via_query(request):
                                                serializer.validated_data['via_env'], 
                                                serializer.validated_data['via_env_latest_release'],
                                                serializer.validated_data['via_env_source_name'])
+        
         startup_runners = Startup(run_configurations)
         deployment_details = startup_runners.get_deployment_details_from_query()
 
-        return deployment_details
+        return Response(status=status.HTTP_200_OK, data={'releases': json.dumps([ob.__dict__ for ob in deployment_details])})
     else:
-        return Response(status=status.HTTP_400_BAD_REQUEST, data="Fields are invalid")
+        return Response(status=status.HTTP_400_BAD_REQUEST, data=f"Fields are invalid{serializer.error_messages}")

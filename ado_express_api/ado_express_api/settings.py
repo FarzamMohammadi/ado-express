@@ -11,10 +11,18 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
 from pathlib import Path
-import importlib
+import sys
+
+from django import urls
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent.parent
+p = Path(__file__).resolve().parent.parent.parent
+sys.path.append(str(p))
+sys.path.append(str(p)+'\\main')
+sys.path.append(str(p)+'\\packages')
+
+
+BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 # Quick-start development settings - unsuitable for production
@@ -27,9 +35,7 @@ SECRET_KEY = 'django-insecure--=#%i=#br2xi(23v3=ch3=+!7-i5js@(684u^9c5e$adl57wdy
 DEBUG = True
 
 ALLOWED_HOSTS = []
-print(BASE_DIR)
 # Application definition
-# ado_express = importlib.import_module('/ado_express', package=None)
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -41,7 +47,9 @@ INSTALLED_APPS = [
     
     'rest_framework',
     'base',
+
     'ado_express',
+    'ado_express.packages'
 ]
 
 MIDDLEWARE = [
@@ -126,3 +134,4 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+

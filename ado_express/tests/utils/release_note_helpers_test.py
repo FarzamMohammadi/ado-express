@@ -1,4 +1,4 @@
-from packages.utils.release_note_helpers import needs_deployment
+from ado_express.packages.utils.release_note_helpers import needs_deployment
 
 
 def test_needs_deployment():

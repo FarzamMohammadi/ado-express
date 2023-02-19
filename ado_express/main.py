@@ -5,17 +5,16 @@ import sys
 import time
 from datetime import datetime
 
-from packages.authentication import MSAuthentication
-from packages.common.constants import Constants
-from packages.common.enums.explicit_release_types import ExplicitReleaseTypes
-from packages.common.environment_variables import EnvironmentVariables
-from packages.common.models import DeploymentDetails
-from packages.utils import DeploymentPlan
-from packages.utils.asset_retrievers.release_finder import ReleaseFinder
-from packages.utils.asset_retrievers.work_item_manager.work_item_manager import WorkItemManager
-from packages.utils.excel_manager import ExcelManager
-from packages.utils.release_manager.update_release import UpdateRelease
-from packages.utils.release_note_helpers import needs_deployment
+from ado_express.packages.authentication import MSAuthentication
+from ado_express.packages.common.constants import Constants
+from ado_express.packages.common.environment_variables import EnvironmentVariables
+from ado_express.packages.common.models import DeploymentDetails
+from ado_express.packages.utils import DeploymentPlan
+from ado_express.packages.utils.asset_retrievers.release_finder import ReleaseFinder
+from ado_express.packages.utils.asset_retrievers.work_item_manager.work_item_manager import WorkItemManager
+from ado_express.packages.utils.excel_manager import ExcelManager
+from ado_express.packages.utils.release_manager.update_release import UpdateRelease
+from ado_express.packages.utils.release_note_helpers import needs_deployment
 from pytz import timezone
 
 logging.basicConfig(filename=Constants.LOG_FILE_PATH, encoding='utf-8', level=logging.INFO,

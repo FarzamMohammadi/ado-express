@@ -1,7 +1,7 @@
 import logging
-from packages.common.enums import ReleaseEnvironmentStatuses
-from packages.common.models.deployment_details import DeploymentDetails
-from packages.utils.release_manager.update_release import UpdateRelease
+from ado_express.packages.common.enums import ReleaseEnvironmentStatuses
+from ado_express.packages.common.models.deployment_details import DeploymentDetails
+from ado_express.packages.utils.release_manager.update_release import UpdateRelease
 from faker import Faker
 from mock import patch
 import unittest
@@ -10,8 +10,8 @@ class Empty:
     pass
 
 class UpdateReleaseTests(unittest.TestCase):
-    @patch('packages.utils.release_manager.update_release.UpdateRelease.release_client.get_release', return_value=None)
-    @patch('packages.utils.release_manager.update_release.UpdateRelease', return_value=None)
+    @patch('ado_express.packages.utils.release_manager.update_release.UpdateRelease.release_client.get_release', return_value=None)
+    @patch('ado_express.packages.utils.release_manager.update_release.UpdateRelease', return_value=None)
     def test_get_release_update_result(self, mock_update_release, mock_release_client):
         # Arrange
         fake = Faker()
@@ -40,7 +40,7 @@ class UpdateReleaseTests(unittest.TestCase):
         # Assert
         self.assertTrue(actual_result)
 
-    @patch('packages.utils.release_manager.update_release.UpdateRelease', return_value=None)
+    @patch('ado_express.packages.utils.release_manager.update_release.UpdateRelease', return_value=None)
     def test_handle_failed_update_crucial(self, mock_update_release):
         # Arrange
         fake = Faker()
@@ -55,7 +55,7 @@ class UpdateReleaseTests(unittest.TestCase):
         # Assert
         self.assertTrue(exception_message in str(context.exception))
 
-    @patch('packages.utils.release_manager.update_release.UpdateRelease', return_value=None)
+    @patch('ado_express.packages.utils.release_manager.update_release.UpdateRelease', return_value=None)
     def test_handle_failed_update_noncrucial(self, mock_update_release):
         # Arrange
         fake = Faker()
@@ -70,7 +70,7 @@ class UpdateReleaseTests(unittest.TestCase):
         # Assert
         self.assertEqual(cm.output, noncrucial_message)
 
-    @patch('packages.utils.release_manager.update_release.UpdateRelease', return_value=None)
+    @patch('ado_express.packages.utils.release_manager.update_release.UpdateRelease', return_value=None)
     def test_update_release_env_notfound_should_fail(self, mock_update_release):
         # Arrange
         fake = Faker()
@@ -90,8 +90,8 @@ class UpdateReleaseTests(unittest.TestCase):
         # Assert
         self.assertEqual(actual_result, (False, failure_reason)) 
 
-    @patch('packages.utils.asset_retrievers.release_environment_finder.release_environment_finder.ReleaseEnvironmentFinder.get_release_environment', return_value=None)
-    @patch('packages.utils.release_manager.update_release.UpdateRelease', return_value=None)
+    @patch('ado_express.packages.utils.asset_retrievers.release_environment_finder.release_environment_finder.ReleaseEnvironmentFinder.get_release_environment', return_value=None)
+    @patch('ado_express.packages.utils.release_manager.update_release.UpdateRelease', return_value=None)
     def test_update_release_already_updating_should_pass(self, mock_update_release, mock_get_release_environment):
         # Arrange
         fake = Faker()
@@ -119,8 +119,8 @@ class UpdateReleaseTests(unittest.TestCase):
         self.assertEqual(actual_result, (True, None))
         self.assertEqual(cm.output, already_triggerd_log)
 
-    @patch('packages.utils.asset_retrievers.release_environment_finder.release_environment_finder.ReleaseEnvironmentFinder.get_release_environment', return_value=None)
-    @patch('packages.utils.release_manager.update_release.UpdateRelease', return_value=None)
+    @patch('ado_express.packages.utils.asset_retrievers.release_environment_finder.release_environment_finder.ReleaseEnvironmentFinder.get_release_environment', return_value=None)
+    @patch('ado_express.packages.utils.release_manager.update_release.UpdateRelease', return_value=None)
     def test_update_release_triggered_should_pass(self, mock_update_release, mock_get_release_environment):
         # Arrange
         fake = Faker()

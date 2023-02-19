@@ -3,7 +3,7 @@ import pandas as pd
 
 from typing import List
 
-from packages.common.models import DeploymentDetails
+from ado_express.packages.common.models import DeploymentDetails
 
 class ExcelManager:
 

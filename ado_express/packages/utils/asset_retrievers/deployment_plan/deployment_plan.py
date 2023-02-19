@@ -1,9 +1,9 @@
 import numpy as np
 import pandas as pd
 
-from packages.common.constants import Constants
-from packages.common.environment_variables import EnvironmentVariables
-from packages.common.models import DeploymentDetails
+from ado_express.packages.common.constants import Constants
+from ado_express.packages.common.environment_variables import EnvironmentVariables
+from ado_express.packages.common.models import DeploymentDetails
 
 class DeploymentPlan():
 

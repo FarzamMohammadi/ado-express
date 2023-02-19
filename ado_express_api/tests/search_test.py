@@ -1,40 +1,48 @@
-# from base.models import DeploymentDetails
-# from rest_framework import status
-# from rest_framework.test import APITestCase
-from base.models import RunConfigurations
+import json
+
+import pytest
+from base.models.RunConfigurations import RunConfigurations
 import unittest
 from faker import Faker
 from mock import patch
+from django.test.client import RequestFactory
+from django.urls import reverse
 from api.search_views import search_via_query
+from django.contrib.auth.models import AnonymousUser
+
 class Empty:
     pass
 
 class SearchTests(unittest.TestCase):
-    
-    @patch('packages.authentication.MSAuthentication', return_value=None)  
-    @patch('packages.utils.asset_retrievers.work_item_manager.work_item_manager.WorkItemManager', return_value=None)  
-    @patch('packages.utils.asset_retrievers.release_finder.ReleaseFinder', return_value=None)
-    @patch('main.Startup', return_value=None)  
-    def test_query_run(self, ms_authentication, work_item_manager, release_finder, startup):
+     
+    def setUp(self):
+        self.fake = Faker()
+        self.factory = RequestFactory()
         
-            '''
-            pass runConfigs
-
-            run query search
-
-            return deploymentdetails
-            '''
+    @patch('ado_express.main.Startup.get_deployment_details_from_query')
+    @patch('ado_express.main.Startup.load_dependencies', return_value=None)
+    @patch('ado_express.main.Startup.initialize_logging', return_value=None)
+    def test_query_run(self, initialize_logging_mock, load_dependencies_mock, get_deployment_details_from_query_mock):
             # Arrange
-            fake = Faker()
-            run_configurations = RunConfigurations(None,None,fake.name(),fake.name(),fake.name(),fake.name(),fake.name(),True,True,fake.name(),None)
-            target_releases = {'r1':'1', 'r2':'2'}
-            rollback_releases = {'r0':'0', 'r01':'01'}
+            run_configurations = RunConfigurations({},[],self.fake.name(),self.fake.name(),[self.fake.name()],self.fake.name(),self.fake.name(),True,True,False,self.fake.name())
+            run_configs_lowercase =  {k.lower(): v for k, v in run_configurations.__dict__.items()}
 
-            work_item_manager.get_query_build_ids().return_value=fake.name()
-            release_finder.get_releases_via_builds().return_value=target_releases
-            release_finder.get_releases_via_builds().return_value=rollback_releases
-            
-            
+            deployment = Empty()
+            deployment.release_project_name = self.fake.name()
+            deployment.release_name = self.fake.name()
+            deployment.release_number = self.fake.random_int()
+            deployment.release_rollback = self.fake.random_int()
+            deployment.is_crucial = False
+
+            deployment_details = [deployment, deployment, deployment]
+            get_deployment_details_from_query_mock.return_value = deployment_details
+
+            request = self.factory.post('/search/query', json.dumps(run_configs_lowercase), content_type='application/json')
+            request.user = AnonymousUser()
 
             # Act
-            search_via_query(request)
+            response = search_via_query(request)
+
+            # Assert
+            self.assertEqual(response.data, {'releases': json.dumps([ob.__dict__ for ob in deployment_details])})
+            self.assertEqual(response.status_code, 200)
