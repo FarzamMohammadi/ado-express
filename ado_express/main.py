@@ -7,6 +7,7 @@ from datetime import datetime
 
 from packages.authentication import MSAuthentication
 from packages.common.constants import Constants
+from packages.common.enums.explicit_release_types import ExplicitReleaseTypes
 from packages.common.environment_variables import EnvironmentVariables
 from packages.common.models import DeploymentDetails
 from packages.utils import DeploymentPlan
@@ -35,6 +36,7 @@ class Startup:
         self.load_dependencies()
         self.initialize_logging()
     
+    #TODO: Create logger class & include this
     def initialize_logging(self):
         if self.search_only:
             logging.info('Starting the search...')
@@ -46,7 +48,24 @@ class Startup:
             # Create new deployment excel file
             new_df = excel_manager.create_dataframe(deployment_plan_file_headers)
             excel_manager.save_or_concat_file(new_df, deployment_plan_path, True) 
-        
+
+
+    def updated_deployment_details_based_on_explicit_inclusion_and_exclusion(self, deployment_details):
+        new_deployment_details = []
+        explicit_deployment_values = environment_variables.EXPLICIT_RELEASE_VALUES
+
+        if explicit_deployment_values is None: return deployment_details
+
+        releases_to_deploy = explicit_deployment_values.get(ExplicitReleaseTypes.INCLUDE)
+        releases_not_to_deploy = explicit_deployment_values.get(ExplicitReleaseTypes.EXCLUDE)
+
+        if releases_to_deploy: [new_deployment_details.append(deployment_detail) if deployment_detail.release_name in releases_to_deploy else 99999 for deployment_detail in deployment_details]
+        elif releases_not_to_deploy: [new_deployment_details.append(deployment_detail) if deployment_detail.release_name not in releases_not_to_deploy else 99999 for deployment_detail in deployment_details]
+
+        if new_deployment_details == []: logging.error('Found no releases based on the explicit release values provided.')
+
+        return new_deployment_details
+
     def load_dependencies(self):
         self.ms_authentication = MSAuthentication(environment_variables)
         self.release_finder = ReleaseFinder(self.ms_authentication, environment_variables)
@@ -179,7 +198,7 @@ if __name__ == '__main__':
                 for deployment_detail in deployment_details:
                     if deployment_detail is not None: # The ThreadPoolExecutor may return None for some releases
 
-                        row = excel_manager.convert_deplyoment_detail_to_excel_row(deployment_plan_file_headers, deployment_detail)
+                        row = excel_manager.convert_deployment_detail_to_excel_row(deployment_plan_file_headers, deployment_detail)
                         excel_manager.save_or_concat_file(row, deployment_plan_path)
             else: logging.info(f'No results found - please check the configuration')
         else:    
@@ -192,9 +211,12 @@ if __name__ == '__main__':
         # Set deployment details to deployment plan details if it's not a query/latest release run
         deployment_details = deployment_plan_details if deployment_details is None else deployment_details
 
+        deployment_details = startup.updated_deployment_details_based_on_explicit_inclusion_and_exclusion(deployment_details)
+        
+        #TODO: Create logger class & include this
         if deployment_details is None:
             logging.error(f'No deployment details found - please check the configurations')
-            logging.error(f'Stopping process')
+            logging.error(f'Stopping process :(')
             exit()
 
         crucial_release_definitions = startup.get_crucial_release_definitions(deployment_details)

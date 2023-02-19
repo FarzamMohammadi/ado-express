@@ -46,7 +46,7 @@ class UpdateReleaseTests(unittest.TestCase):
         fake = Faker()
         failure_reason = fake.name()
         deployment_detail = DeploymentDetails(fake.name(), fake.name(), 123, 321, True)
-        exception_message = 'A curcial release update failed. Roll back was attempted. Now, stopping the process.'
+        exception_message = 'A crucial release update failed. Roll back was attempted. Now, stopping the process.'
         
         # Act
         with self.assertRaises(Exception) as context:
@@ -62,7 +62,7 @@ class UpdateReleaseTests(unittest.TestCase):
         deployment_detail = DeploymentDetails(fake.name(), fake.name(), 123, 321, False)
 
         noncrucial_message = [f'ERROR:root:Release Update Unsuccessful - Reason: Please check logs - Project:{deployment_detail.release_project_name} Release:{deployment_detail.release_name}', 
-                              f'INFO:root:The failed release update was not curcial. Continuing... Project:{deployment_detail.release_project_name} Release:{deployment_detail.release_name}']
+                              f'INFO:root:The failed release update was not crucial. Continuing... Project:{deployment_detail.release_project_name} Release:{deployment_detail.release_name}']
         
         # Act
         with self.assertLogs(level=logging.INFO) as cm:

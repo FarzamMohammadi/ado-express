@@ -22,7 +22,7 @@ class ExcelManager:
 
         return df
 
-    def convert_deplyoment_detail_to_excel_row(self, file_headers: List[str], deployment_details: DeploymentDetails):
+    def convert_deployment_detail_to_excel_row(self, file_headers: List[str], deployment_details: DeploymentDetails):
         return self.pd.DataFrame({
                 file_headers[0]: deployment_details.release_project_name, 
                 file_headers[1]: deployment_details.release_name, 
