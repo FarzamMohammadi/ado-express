@@ -210,11 +210,11 @@ All the files and resources can be found under the [files directory](./ado_expre
 
 ## [/logs](./ado_express/files/logs)
 - *deployment-stale.log*: Used by development container postCreateCommand to copy contents of deployment.log
-- *deployment.log*: Containts deployment logs
+- *deployment.log*: Contains all logs
 
 ## [/search-results](./ado_express/files/search-results)
 - *deployment-plan.xlsx*: The output of search results
-- *search-results.log*: Contains search logs
+  
 # Environment Variables
 ## List of Variables/Arguments
 Note: The default values of these variables are none/null and false

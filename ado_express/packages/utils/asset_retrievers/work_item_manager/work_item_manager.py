@@ -1,7 +1,7 @@
 import concurrent.futures
 
-from packages.authentication.ms_authentication.ms_authentication import MSAuthentication
-from packages.common.enums import RelationTypes
+from ado_express.packages.authentication.ms_authentication.ms_authentication import MSAuthentication
+from ado_express.packages.common.enums import RelationTypes
 
 class WorkItemManager:
 

@@ -1,7 +1,7 @@
 from azure.devops.connection import Connection
 from msrest.authentication import BasicAuthentication
 
-from packages.common import EnvironmentVariables
+from ado_express.packages.common import EnvironmentVariables
 
 class MSAuthentication:
 

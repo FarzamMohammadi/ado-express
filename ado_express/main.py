@@ -1,3 +1,9 @@
+import os
+import sys
+
+# Needed to enable segregation of projects
+sys.path.append(os.path.abspath("."))
+
 import concurrent.futures
 from itertools import repeat
 import logging
@@ -5,17 +11,17 @@ import sys
 import time
 from datetime import datetime
 
-from packages.authentication import MSAuthentication
-from packages.common.constants import Constants
-from packages.common.enums.explicit_release_types import ExplicitReleaseTypes
-from packages.common.environment_variables import EnvironmentVariables
-from packages.common.models import DeploymentDetails
-from packages.utils import DeploymentPlan
-from packages.utils.asset_retrievers.release_finder import ReleaseFinder
-from packages.utils.asset_retrievers.work_item_manager.work_item_manager import WorkItemManager
-from packages.utils.excel_manager import ExcelManager
-from packages.utils.release_manager.update_release import UpdateRelease
-from packages.utils.release_note_helpers import needs_deployment
+from ado_express.packages.authentication import MSAuthentication
+from ado_express.packages.common.constants import Constants
+from ado_express.packages.common.enums.explicit_release_types import ExplicitReleaseTypes
+from ado_express.packages.common.environment_variables import EnvironmentVariables
+from ado_express.packages.common.models import DeploymentDetails
+from ado_express.packages.utils import DeploymentPlan
+from ado_express.packages.utils.asset_retrievers.release_finder import ReleaseFinder
+from ado_express.packages.utils.asset_retrievers.work_item_manager.work_item_manager import WorkItemManager
+from ado_express.packages.utils.excel_manager import ExcelManager
+from ado_express.packages.utils.release_manager.update_release import UpdateRelease
+from ado_express.packages.utils.release_note_helpers import needs_deployment
 from pytz import timezone
 
 logging.basicConfig(filename=Constants.LOG_FILE_PATH, encoding='utf-8', level=logging.INFO,
@@ -26,13 +32,12 @@ logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
 constants = Constants()
 deployment_plan_file_headers = constants.DEPLOYMENT_PLAN_HEADERS
 deployment_plan_path = constants.SEARCH_RESULTS_DEPLOYMENT_PLAN_FILE_PATH
-environment_variables = EnvironmentVariables()
-deployment_plan = DeploymentPlan(constants, environment_variables)
 excel_manager = ExcelManager()
 
 class Startup:
 
-    def __init__(self):
+    def __init__(self, environment_variables):
+        self.environment_variables = environment_variables
         self.load_dependencies()
         self.initialize_logging()
     
@@ -67,12 +72,12 @@ class Startup:
         return new_deployment_details
 
     def load_dependencies(self):
-        self.ms_authentication = MSAuthentication(environment_variables)
-        self.release_finder = ReleaseFinder(self.ms_authentication, environment_variables)
-        self.search_only = environment_variables.SEARCH_ONLY
-        self.via_env = environment_variables.VIA_ENV
-        self.via_latest = environment_variables.VIA_ENV_LATEST_RELEASE
-        self.queries = environment_variables.QUERIES
+        self.ms_authentication = MSAuthentication(self.environment_variables)
+        self.release_finder = ReleaseFinder(self.ms_authentication, self.environment_variables)
+        self.search_only = self.environment_variables.SEARCH_ONLY
+        self.via_env = self.environment_variables.VIA_ENV
+        self.via_latest = self.environment_variables.VIA_ENV_LATEST_RELEASE
+        self.queries = self.environment_variables.QUERIES
         self.time_format = '%Y-%m-%d %H:%M:%S'
         self.datetime_now = datetime.now(timezone('US/Eastern'))
 
@@ -120,11 +125,11 @@ class Startup:
             target_release_number = target_release.split('-')[1]
             rollback_release_number = rollback_release.split('-')[1]
 
-            if needs_deployment(target_release_number, rollback_release_number):
-                deployment_detail = DeploymentDetails(project, release_name, target_release_number, rollback_release_number)
-                deployment_details.append(deployment_detail)
+            # if needs_deployment(target_release_number, rollback_release_number):
+            deployment_detail = DeploymentDetails(project, release_name, target_release_number, rollback_release_number)
+            deployment_details.append(deployment_detail)
 
-                logging.info(f'Release found from query: Project:{project}, Release Definition:{release_name}, Target:{target_release_number}, Rollback:{rollback_release_number}')
+            logging.info(f'Release found from query: Project:{project}, Release Definition:{release_name}, Target:{target_release_number}, Rollback:{rollback_release_number}')
         
         return deployment_details
 
@@ -173,7 +178,9 @@ class Startup:
             logging.error(f'There was an error. Please check their status and continue manually.\nException:{e}')
 
 if __name__ == '__main__':
-    startup = Startup()
+    environment_variables = EnvironmentVariables()
+    deployment_plan = DeploymentPlan(constants, environment_variables)
+    startup = Startup(environment_variables)
     task_start = time.perf_counter() 
     deployment_details = None
 

@@ -1,6 +1,6 @@
-from packages.authentication import MSAuthentication
-from packages.common.environment_variables import EnvironmentVariables
-from packages.common.models import ReleaseEnvironment
+from ado_express.packages.authentication import MSAuthentication
+from ado_express.packages.common.environment_variables import EnvironmentVariables
+from ado_express.packages.common.models import ReleaseEnvironment
 
 class ReleaseEnvironmentFinder:
 

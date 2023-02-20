@@ -2,12 +2,12 @@ import logging
 import time
 from azure.devops.v5_1.release.models import ReleaseEnvironmentUpdateMetadata
 
-from packages.authentication import MSAuthentication
-from packages.common.constants import Constants
-from packages.common.enums import ReleaseEnvironmentStatuses
-from packages.common.environment_variables import EnvironmentVariables
-from packages.utils.asset_retrievers import ReleaseFinder
-from packages.utils.asset_retrievers.release_environment_finder import ReleaseEnvironmentFinder
+from ado_express.packages.authentication import MSAuthentication
+from ado_express.packages.common.constants import Constants
+from ado_express.packages.common.enums import ReleaseEnvironmentStatuses
+from ado_express.packages.common.environment_variables import EnvironmentVariables
+from ado_express.packages.utils.asset_retrievers import ReleaseFinder
+from ado_express.packages.utils.asset_retrievers.release_environment_finder import ReleaseEnvironmentFinder
 
 class UpdateRelease:
     

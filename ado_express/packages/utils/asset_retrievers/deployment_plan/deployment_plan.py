@@ -1,9 +1,9 @@
 import numpy as np
 import pandas as pd
 
-from packages.common.constants import Constants
-from packages.common.environment_variables import EnvironmentVariables
-from packages.common.models import DeploymentDetails
+from ado_express.packages.common.constants import Constants
+from ado_express.packages.common.environment_variables import EnvironmentVariables
+from ado_express.packages.common.models import DeploymentDetails
 
 class DeploymentPlan():
 
@@ -13,7 +13,6 @@ class DeploymentPlan():
 
 
     def get_data_from_deployment_plan_file(self):
-        true_types = ["true", "1", "t", "yes", "y"]
         file_path = self.constants.DEPLOYMENT_PLAN_FILE_PATH
         
         release_dataframe = pd.read_excel(file_path).replace(np.nan, None, regex=True).apply(lambda x: x.str.strip() if x.dtype == "object" else x)
