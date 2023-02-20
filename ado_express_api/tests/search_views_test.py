@@ -1,12 +1,10 @@
 import json
 
-import pytest
 from base.models.RunConfigurations import RunConfigurations
 import unittest
 from faker import Faker
 from mock import patch
 from django.test.client import RequestFactory
-from django.urls import reverse
 from api.search_views import search_via_query
 from django.contrib.auth.models import AnonymousUser
 
@@ -25,7 +23,7 @@ class SearchTests(unittest.TestCase):
     def test_query_run(self, initialize_logging_mock, load_dependencies_mock, get_deployment_details_from_query_mock):
             # Arrange
             run_configurations = RunConfigurations({},[],self.fake.name(),self.fake.name(),[self.fake.name()],self.fake.name(),self.fake.name(),True,True,False,self.fake.name())
-            run_configs_lowercase =  {k.lower(): v for k, v in run_configurations.__dict__.items()}
+            # Conversion needed to enable 
 
             deployment = Empty()
             deployment.release_project_name = self.fake.name()
@@ -37,7 +35,7 @@ class SearchTests(unittest.TestCase):
             deployment_details = [deployment, deployment, deployment]
             get_deployment_details_from_query_mock.return_value = deployment_details
 
-            request = self.factory.post('/search/query', json.dumps(run_configs_lowercase), content_type='application/json')
+            request = self.factory.post('/search/query', json.dumps(run_configurations.to_dict_with_lowercase_keys()), content_type='application/json')
             request.user = AnonymousUser()
 
             # Act

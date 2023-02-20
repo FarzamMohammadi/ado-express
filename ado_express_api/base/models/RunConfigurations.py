@@ -35,3 +35,6 @@ class RunConfigurations:
     self.VIA_ENV = via_env
     self.VIA_ENV_LATEST_RELEASE = via_env_latest_release
     self.VIA_ENV_SOURCE_NAME = via_env_source_name
+
+   def to_dict_with_lowercase_keys(self):
+     return {k.lower(): v for k, v in self.__dict__.items()} 
