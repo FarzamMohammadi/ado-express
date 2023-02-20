@@ -13,7 +13,6 @@ class DeploymentPlan():
 
 
     def get_data_from_deployment_plan_file(self):
-        true_types = ["true", "1", "t", "yes", "y"]
         file_path = self.constants.DEPLOYMENT_PLAN_FILE_PATH
         
         release_dataframe = pd.read_excel(file_path).replace(np.nan, None, regex=True).apply(lambda x: x.str.strip() if x.dtype == "object" else x)

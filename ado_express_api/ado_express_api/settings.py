@@ -13,9 +13,9 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 from pathlib import Path
 import sys
 
-from django import urls
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
+
+# Adding these to enable project segregation
 p = Path(__file__).resolve().parent.parent.parent
 sys.path.append(str(p))
 sys.path.append(str(p)+'\\main')

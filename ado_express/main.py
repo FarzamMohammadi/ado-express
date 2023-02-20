@@ -2,7 +2,7 @@ import os
 import sys
 
 # Needed to enable segregation of projects
-sys.path.append(os.path.abspath("./"))
+sys.path.append(os.path.abspath("."))
 
 import concurrent.futures
 from itertools import repeat
@@ -13,6 +13,7 @@ from datetime import datetime
 
 from ado_express.packages.authentication import MSAuthentication
 from ado_express.packages.common.constants import Constants
+from ado_express.packages.common.enums.explicit_release_types import ExplicitReleaseTypes
 from ado_express.packages.common.environment_variables import EnvironmentVariables
 from ado_express.packages.common.models import DeploymentDetails
 from ado_express.packages.utils import DeploymentPlan
@@ -31,8 +32,6 @@ logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
 constants = Constants()
 deployment_plan_file_headers = constants.DEPLOYMENT_PLAN_HEADERS
 deployment_plan_path = constants.SEARCH_RESULTS_DEPLOYMENT_PLAN_FILE_PATH
-environment_variables = EnvironmentVariables()
-deployment_plan = DeploymentPlan(constants, environment_variables)
 excel_manager = ExcelManager()
 
 class Startup:
@@ -179,6 +178,8 @@ class Startup:
             logging.error(f'There was an error. Please check their status and continue manually.\nException:{e}')
 
 if __name__ == '__main__':
+    environment_variables = EnvironmentVariables()
+    deployment_plan = DeploymentPlan(constants, environment_variables)
     startup = Startup(environment_variables)
     task_start = time.perf_counter() 
     deployment_details = None
