@@ -4,7 +4,7 @@ class ReleaseDetails(serializers.Serializer):
     project_name = serializers.CharField(max_length=200, required=True)
     release_name = serializers.CharField(max_length=200, required=True)
     target_number = serializers.IntegerField(min_value=0, required=True)
-    rollback_number = serializers.IntegerField(min_value=0, max_value=2, required=True)
+    rollback_number = serializers.IntegerField(min_value=0, required=True)
     
     def set_required_fields_for_via_latest(self):
         self.fields['target_number'].required = False

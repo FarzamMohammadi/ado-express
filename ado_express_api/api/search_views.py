@@ -63,7 +63,8 @@ def search_via_query(request):
                                                serializer.validated_data['search_only'], 
                                                serializer.validated_data['via_env'], 
                                                serializer.validated_data['via_env_latest_release'],
-                                               serializer.validated_data['via_env_source_name'])
+                                               serializer.validated_data['via_env_source_name'],
+                                               serializer.validated_data['release_details'])
         
         startup_runners = Startup(run_configurations)
         deployment_details = startup_runners.get_deployment_details_from_query()
