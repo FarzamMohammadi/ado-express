@@ -1,4 +1,4 @@
-from api.serializers import ReleaseDetails
+from .ReleaseDetails import ReleaseDetails
 
 
 class RunConfigurations:
@@ -25,6 +25,8 @@ class RunConfigurations:
   :type VIA_ENV_LATEST_RELEASE: bool
   :param via_env_source_name:
   :type VIA_ENV_SOURCE_NAME: str
+  :param release_details:
+  :type release_details: list[ReleaseDetails]
   """
   def __init__(self, explicit_release_values: dict, crucial_release_definitions: list[str], organization_url: str, personal_access_token: str, queries: list[str], release_name_format: str, release_target_env: str, search_only: bool, via_env: bool, via_env_latest_release: bool, via_env_source_name: str, release_details: list[ReleaseDetails]):
     self.EXPLICIT_RELEASE_VALUES = explicit_release_values

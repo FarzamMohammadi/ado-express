@@ -3,13 +3,14 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 
 from base.models.RunConfigurations import RunConfigurations
-from .serializers import RunConfigurationsSerializer, ReleaseDetails
+from base.models.ReleaseDetails import ReleaseDetails
+from .serializers import RunConfigurationsSerializer, ReleaseDetailsSerializer
 import status
 from ado_express.main import Startup
 
 @api_view(['POST'])
 def search_via_latest_release(request):
-    release_details = ReleaseDetails()
+    release_details = ReleaseDetailsSerializer()
     # Fields not required for via latest run
     release_details.set_required_fields_for_via_latest()
 
@@ -28,17 +29,28 @@ def search_via_latest_release(request):
                                                serializer.validated_data['personal_access_token'], 
                                                serializer.validated_data['queries'], 
                                                serializer.validated_data['release_name_format'], 
-                                               True, # via_env
+                                               serializer.validated_data['release_target_env'],
                                                serializer.validated_data['search_only'], 
-                                               serializer.validated_data['via_env'], 
+                                               True, # via_env
                                                True, # via_env_latest_release
                                                serializer.validated_data['via_env_source_name'],
                                                serializer.validated_data['release_details'])
         
-        # startup_runners = Startup(run_configurations)
-        # deployment_details = startup_runners.get_deployment_details_from_query()
+        startup_runners = Startup(run_configurations)
+        deployment_details = []
 
-        return Response(status=status.HTTP_200_OK, data={'releases': json.dumps(run_configurations.__dict__)})
+        #TODO Make async
+        for release_details in run_configurations.release_details:
+            converted_release_details = ReleaseDetails(release_details['release_project_name'], release_details['release_name'], None, None, release_details['is_crucial'])
+            
+            release = startup_runners.get_deployment_detail_from_latest_release(converted_release_details)
+            
+            if release: deployment_details.append(release)
+
+        if deployment_details:
+            return Response(status=status.HTTP_200_OK, data={'releases': json.dumps([ob.__dict__ for ob in deployment_details])})
+        else:
+            return Response(status=status.HTTP_200_OK, data={'releases': []})
     else:
         return Response(status=status.HTTP_400_BAD_REQUEST, data=f"Fields are invalid.\n{serializer.error_messages}")
 
