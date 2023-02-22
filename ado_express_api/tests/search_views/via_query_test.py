@@ -1,15 +1,17 @@
 import json
-
-from base.models.RunConfigurations import RunConfigurations
 import unittest
 from faker import Faker
 from mock import patch
 from django.test.client import RequestFactory
-from api.search_views import search_via_query
 from django.contrib.auth.models import AnonymousUser
+
+from api.search_views import search_via_query
+from base.models.RunConfigurations import RunConfigurations
+
 
 class Empty:
     pass
+
 
 class SearchViaQuery(unittest.TestCase):
      

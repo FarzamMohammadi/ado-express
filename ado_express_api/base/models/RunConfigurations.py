@@ -42,5 +42,17 @@ class RunConfigurations:
     self.VIA_ENV_SOURCE_NAME = via_env_source_name
     self.release_details = release_details
 
+  # Used mainly for testing to reverse map values for an api call
   def to_dict_with_lowercase_keys(self):
-    return {k.lower(): v for k, v in self.__dict__.items()} 
+    release_details_dicts = []
+
+    if self.release_details: 
+      for release in self.release_details:
+        release_details_dicts.append(release.__dict__)
+
+    lowered_dict_values = {k.lower(): v for k, v in self.__dict__.items()} 
+    lowered_dict_values['release_details'] = release_details_dicts
+    
+    return lowered_dict_values
+
+  

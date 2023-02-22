@@ -21,7 +21,7 @@ def search_via_latest_release(request):
     serializer.fields['release_details'].required = True
     serializer.fields['release_target_env'].required = True
     serializer.fields['via_env_source_name'].required = True
-
+    print(serializer.initial_data)
     if serializer.is_valid():
         run_configurations = RunConfigurations(serializer.validated_data['explicit_release_values'], 
                                                serializer.validated_data['crucial_release_definitions'], 
@@ -30,7 +30,7 @@ def search_via_latest_release(request):
                                                serializer.validated_data['queries'], 
                                                serializer.validated_data['release_name_format'], 
                                                serializer.validated_data['release_target_env'],
-                                               serializer.validated_data['search_only'], 
+                                               True, # search_only
                                                True, # via_env
                                                True, # via_env_latest_release
                                                serializer.validated_data['via_env_source_name'],
@@ -62,7 +62,6 @@ def search_via_query(request):
     serializer.fields['queries'].required = True
     serializer.fields['release_target_env'].required = True
     serializer.fields['via_env'].required = True
-    serializer.fields['via_env_source_name'].required = True
 
     if serializer.is_valid():
         run_configurations = RunConfigurations(serializer.validated_data['explicit_release_values'], 
@@ -72,7 +71,7 @@ def search_via_query(request):
                                                serializer.validated_data['queries'], 
                                                serializer.validated_data['release_name_format'], 
                                                serializer.validated_data['release_target_env'], 
-                                               serializer.validated_data['search_only'], 
+                                               True, # search_only
                                                serializer.validated_data['via_env'], 
                                                serializer.validated_data['via_env_latest_release'],
                                                serializer.validated_data['via_env_source_name'],
