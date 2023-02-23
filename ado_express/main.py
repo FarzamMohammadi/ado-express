@@ -125,11 +125,11 @@ class Startup:
             target_release_number = target_release.split('-')[1]
             rollback_release_number = rollback_release.split('-')[1]
 
-            # if needs_deployment(target_release_number, rollback_release_number):
-            deployment_detail = DeploymentDetails(project, release_name, target_release_number, rollback_release_number)
-            deployment_details.append(deployment_detail)
+            if needs_deployment(target_release_number, rollback_release_number):
+                deployment_detail = DeploymentDetails(project, release_name, target_release_number, rollback_release_number)
+                deployment_details.append(deployment_detail)
 
-            logging.info(f'Release found from query: Project:{project}, Release Definition:{release_name}, Target:{target_release_number}, Rollback:{rollback_release_number}')
+                logging.info(f'Release found from query: Project:{project}, Release Definition:{release_name}, Target:{target_release_number}, Rollback:{rollback_release_number}')
         
         return deployment_details
 
