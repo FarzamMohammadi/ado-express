@@ -12,5 +12,6 @@ from . import search_views
 '''
 
 urlpatterns = [
-    path('search/query', search_views.search_via_query)
+    path('search/query', search_views.search_via_query),
+    path('search/via-latest', search_views.search_via_latest_release)
 ]
