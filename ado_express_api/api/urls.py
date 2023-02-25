@@ -2,7 +2,7 @@ from django.urls import path
 from . import search_views
 
 '''
-/run/query
+/run/via-query
 /run/via_latest
 /run/via_numbers
 
@@ -12,6 +12,6 @@ from . import search_views
 '''
 
 urlpatterns = [
-    path('search/query', search_views.search_via_query),
+    path('search/via-query', search_views.search_via_query),
     path('search/via-latest', search_views.search_via_latest_release)
 ]

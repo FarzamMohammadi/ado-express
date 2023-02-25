@@ -36,7 +36,7 @@ class SearchViaQuery(unittest.TestCase):
             deployment_details = [deployment, deployment, deployment]
             get_deployment_details_from_query_mock.return_value = deployment_details
 
-            request = self.factory.post('/search/query', json.dumps(run_configurations.to_dict_with_lowercase_keys()), content_type='application/json')
+            request = self.factory.post('/search/via-query', json.dumps(run_configurations.to_dict_with_lowercase_keys()), content_type='application/json')
             request.user = AnonymousUser()
 
             # Act
@@ -50,7 +50,7 @@ class SearchViaQuery(unittest.TestCase):
         # Arrange
         run_configurations = RunConfigurations({},[],self.fake.name(),self.fake.name(),[self.fake.name()],self.fake.name(),"",True,True,False,"", [])
 
-        request = self.factory.post('/search/query', json.dumps(run_configurations.to_dict_with_lowercase_keys()), content_type='application/json')
+        request = self.factory.post('/search/via-query', json.dumps(run_configurations.to_dict_with_lowercase_keys()), content_type='application/json')
         request.user = AnonymousUser()
 
         # Act

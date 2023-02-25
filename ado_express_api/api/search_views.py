@@ -11,7 +11,6 @@ from ado_express.main import Startup
 @api_view(['POST'])
 def search_via_latest_release(request):
     release_details = ReleaseDetailsSerializer()
-    # Fields not required for via latest run
     release_details.set_required_fields_for_via_latest()
 
     serializer = RunConfigurationsSerializer(data=request.data)
@@ -21,7 +20,11 @@ def search_via_latest_release(request):
     serializer.fields['release_details'].required = True
     serializer.fields['release_target_env'].required = True
     serializer.fields['via_env_source_name'].required = True
-    print(serializer.initial_data)
+    # Fields not required for via latest run
+    serializer.fields['search_only'].required = False
+    serializer.fields['via_env'].required = False
+    serializer.fields['via_env_latest_release'].required = False
+
     if serializer.is_valid():
         run_configurations = RunConfigurations(serializer.validated_data['explicit_release_values'], 
                                                serializer.validated_data['crucial_release_definitions'], 
@@ -58,10 +61,13 @@ def search_via_latest_release(request):
 @api_view(['POST'])
 def search_via_query(request):
     serializer = RunConfigurationsSerializer(data=request.data)
+
     # Fields required for query run
     serializer.fields['queries'].required = True
     serializer.fields['release_target_env'].required = True
     serializer.fields['via_env'].required = True
+    # Fields not required for query run
+    serializer.fields['search_only'].required = False
 
     if serializer.is_valid():
         run_configurations = RunConfigurations(serializer.validated_data['explicit_release_values'], 
