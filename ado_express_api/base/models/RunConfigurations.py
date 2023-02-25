@@ -1,4 +1,4 @@
-from .ReleaseDetails import ReleaseDetails
+from .DeploymentDetails import DeploymentDetails
 
 
 class RunConfigurations:
@@ -25,10 +25,10 @@ class RunConfigurations:
   :type VIA_ENV_LATEST_RELEASE: bool
   :param via_env_source_name:
   :type VIA_ENV_SOURCE_NAME: str
-  :param release_details:
-  :type release_details: list[ReleaseDetails]
+  :param deployment_details:
+  :type deployment_details: list[DeploymentDetails]
   """
-  def __init__(self, explicit_release_values: dict, crucial_release_definitions: list[str], organization_url: str, personal_access_token: str, queries: list[str], release_name_format: str, release_target_env: str, search_only: bool, via_env: bool, via_env_latest_release: bool, via_env_source_name: str, release_details: list[ReleaseDetails]):
+  def __init__(self, explicit_release_values: dict, crucial_release_definitions: list[str], organization_url: str, personal_access_token: str, queries: list[str], release_name_format: str, release_target_env: str, search_only: bool, via_env: bool, via_env_latest_release: bool, via_env_source_name: str, deployment_details: list[DeploymentDetails]):
     self.EXPLICIT_RELEASE_VALUES = explicit_release_values
     self.CRUCIAL_RELEASE_DEFINITIONS = crucial_release_definitions
     self.ORGANIZATION_URL = organization_url
@@ -40,18 +40,18 @@ class RunConfigurations:
     self.VIA_ENV = via_env
     self.VIA_ENV_LATEST_RELEASE = via_env_latest_release
     self.VIA_ENV_SOURCE_NAME = via_env_source_name
-    self.release_details = release_details
+    self.deployment_details = deployment_details
 
   # Used mainly for testing to reverse map values for an api call
   def to_dict_with_lowercase_keys(self):
-    release_details_dicts = []
+    deployment_details_dicts = []
 
-    if self.release_details: 
-      for release in self.release_details:
-        release_details_dicts.append(release.__dict__)
+    if self.deployment_details: 
+      for deployment in self.deployment_details:
+        deployment_details_dicts.append(deployment.__dict__)
 
     lowered_dict_values = {k.lower(): v for k, v in self.__dict__.items()} 
-    lowered_dict_values['release_details'] = release_details_dicts
+    lowered_dict_values['deployment_details'] = deployment_details_dicts
     
     return lowered_dict_values
 

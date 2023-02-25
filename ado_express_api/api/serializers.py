@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-class ReleaseDetailsSerializer(serializers.Serializer):
+class DeploymentDetailsSerializer(serializers.Serializer):
     release_project_name = serializers.CharField(max_length=200, required=True)
     release_name = serializers.CharField(max_length=200, required=True)
     release_number = serializers.IntegerField(min_value=0, required=True)
@@ -27,4 +27,4 @@ class RunConfigurationsSerializer(serializers.Serializer):
     via_env_source_name = serializers.CharField(max_length=200)
     via_env_latest_release = serializers.BooleanField()
     
-    release_details = serializers.ListSerializer(child=ReleaseDetailsSerializer())
+    deployment_details = serializers.ListSerializer(child=DeploymentDetailsSerializer())

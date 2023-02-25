@@ -3,21 +3,21 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 
 from base.models.RunConfigurations import RunConfigurations
-from base.models.ReleaseDetails import ReleaseDetails
-from .serializers import RunConfigurationsSerializer, ReleaseDetailsSerializer
+from base.models.DeploymentDetails import DeploymentDetails
+from .serializers import RunConfigurationsSerializer, DeploymentDetailsSerializer
 import status
 from ado_express.main import Startup
 
 @api_view(['POST'])
 def search_via_latest_release(request):
-    release_details = ReleaseDetailsSerializer()
-    release_details.set_required_fields_for_via_latest()
+    deployment_details = DeploymentDetailsSerializer()
+    deployment_details.set_required_fields_for_via_latest()
 
     serializer = RunConfigurationsSerializer(data=request.data)
-    serializer.fields['release_details'].child = release_details
+    serializer.fields['deployment_details'].child = deployment_details
 
     # Fields required for via latest run
-    serializer.fields['release_details'].required = True
+    serializer.fields['deployment_details'].required = True
     serializer.fields['release_target_env'].required = True
     serializer.fields['via_env_source_name'].required = True
     # Fields not required for via latest run
@@ -37,16 +37,16 @@ def search_via_latest_release(request):
                                                True, # via_env
                                                True, # via_env_latest_release
                                                serializer.validated_data['via_env_source_name'],
-                                               serializer.validated_data['release_details'])
+                                               serializer.validated_data['deployment_details'])
         
         startup_runners = Startup(run_configurations)
         deployment_details = []
 
         #TODO Make concurrent
-        for release_details in run_configurations.release_details:
-            converted_release_details = ReleaseDetails(release_details['release_project_name'], release_details['release_name'], None, None, release_details['is_crucial'])
+        for deployment in run_configurations.deployment_details:
+            converted_deployment_details = DeploymentDetails(deployment['release_project_name'], deployment['release_name'], None, None, deployment['is_crucial'])
             
-            release = startup_runners.get_deployment_detail_from_latest_release(converted_release_details)
+            release = startup_runners.get_deployment_detail_from_latest_release(converted_deployment_details)
             
             if release: deployment_details.append(release)
 
@@ -60,7 +60,7 @@ def search_via_latest_release(request):
 @api_view(['POST'])
 def search_via_release_number(request):
     pass
-    
+                    
 @api_view(['POST'])
 def search_via_query(request):
     serializer = RunConfigurationsSerializer(data=request.data)
@@ -84,7 +84,7 @@ def search_via_query(request):
                                                serializer.validated_data['via_env'], 
                                                serializer.validated_data['via_env_latest_release'],
                                                serializer.validated_data['via_env_source_name'],
-                                               serializer.validated_data['release_details'])
+                                               serializer.validated_data['deployment_details'])
         
         startup_runners = Startup(run_configurations)
         deployment_details = startup_runners.get_deployment_details_from_query()

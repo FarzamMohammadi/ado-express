@@ -6,7 +6,7 @@ from django.test.client import RequestFactory
 from django.contrib.auth.models import AnonymousUser
 
 from api.search_views import search_via_latest_release
-from base.models.ReleaseDetails import ReleaseDetails
+from base.models.DeploymentDetails import DeploymentDetails
 from base.models.RunConfigurations import RunConfigurations
 
 
@@ -25,7 +25,7 @@ class SearchViaLatestRelease(unittest.TestCase):
     @patch('ado_express.main.Startup.initialize_logging', return_value=None)
     def test_api_call(self, initialize_logging_mock, load_dependencies_mock, get_deployment_detail_from_latest_release_mock):
             # Arrange
-            release_details = ReleaseDetails(self.fake.name(), self.fake.name(), 123, 132, False)
+            release_details = DeploymentDetails(self.fake.name(), self.fake.name(), 123, 132, False)
             run_configurations = RunConfigurations({},[],self.fake.name(),self.fake.name(),[self.fake.name()],self.fake.name(),self.fake.name(),True,True,True,self.fake.name(), [release_details, release_details, release_details])
             # Conversion needed to enable 
 
@@ -50,7 +50,7 @@ class SearchViaLatestRelease(unittest.TestCase):
 
     def test_api_call_with_missing_field(self):
             # Arrange
-            release_details = ReleaseDetails(self.fake.name(), None, None, None, False) # Missing release_name
+            release_details = DeploymentDetails(self.fake.name(), None, None, None, False) # Missing release_name
             run_configurations = RunConfigurations({},[],self.fake.name(),self.fake.name(),[self.fake.name()],self.fake.name(),self.fake.name(),True,True,False,self.fake.name(), [release_details])
 
             request = self.factory.post('/search/via-latest', json.dumps(run_configurations.to_dict_with_lowercase_keys()), content_type='application/json')
