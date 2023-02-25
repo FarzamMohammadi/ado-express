@@ -42,7 +42,7 @@ def search_via_latest_release(request):
         startup_runners = Startup(run_configurations)
         deployment_details = []
 
-        #TODO Make async
+        #TODO Make concurrent
         for release_details in run_configurations.release_details:
             converted_release_details = ReleaseDetails(release_details['release_project_name'], release_details['release_name'], None, None, release_details['is_crucial'])
             
@@ -56,8 +56,11 @@ def search_via_latest_release(request):
             return Response(status=status.HTTP_200_OK, data={'releases': []})
     else:
         return Response(status=status.HTTP_400_BAD_REQUEST, data=f"Fields are invalid.\n{serializer.error_messages}")
-
-
+    
+@api_view(['POST'])
+def search_via_release_number(request):
+    pass
+    
 @api_view(['POST'])
 def search_via_query(request):
     serializer = RunConfigurationsSerializer(data=request.data)
