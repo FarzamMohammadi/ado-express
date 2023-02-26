@@ -14,6 +14,10 @@ class DeploymentDetailsSerializer(serializers.Serializer):
     def set_required_fields_for_via_number(self):
         self.fields['release_rollback'].required = False
 
+    def set_required_fields_for_via_environment(self):
+        self.fields['release_number'].required = False
+        self.fields['release_rollback'].required = False
+
 class RunConfigurationsSerializer(serializers.Serializer):
     explicit_release_values = serializers.DictField()
     crucial_release_definitions = serializers.ListField(child = serializers.CharField(max_length=200))
