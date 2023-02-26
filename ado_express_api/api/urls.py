@@ -12,7 +12,8 @@ from . import search_views
 '''
 
 urlpatterns = [
+    path('search/via-environment', search_views.search_via_release_environment),
     path('search/via-latest', search_views.search_via_latest_release),
     path('search/via-number', search_views.search_via_release_number),
-    path('search/via-query', search_views.search_via_query)
+    path('search/via-query', search_views.search_via_query),
 ]

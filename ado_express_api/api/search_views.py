@@ -10,6 +10,10 @@ import status
 from ado_express.main import Startup
 
 @api_view(['POST'])
+def search_via_release_environment(request):
+    pass
+
+@api_view(['POST'])
 def search_via_latest_release(request):
     deployment_details = DeploymentDetailsSerializer()
     deployment_details.set_required_fields_for_via_latest()
