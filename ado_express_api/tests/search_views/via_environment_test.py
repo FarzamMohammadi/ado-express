@@ -39,8 +39,8 @@ class SearchViaLatestRelease(unittest.TestCase):
             request = self.factory.post('/search/via-number', json.dumps(run_configurations.to_dict_with_lowercase_keys()), content_type='application/json')
             request.user = AnonymousUser()
 
-            returned_results = [dict({'release_definition': release_details.release_name, 'release_name': release_details.release_number, 'results': [release.__dict__ for release in returned_releases]}), 
-                                dict({'release_definition': release_details.release_name, 'release_name': release_details.release_number, 'results': [release.__dict__ for release in returned_releases]})]
+            returned_results = [dict({'release_definition': release_details.release_name, 'results': [release.__dict__ for release in returned_releases]}), 
+                                dict({'release_definition': release_details.release_name, 'results': [release.__dict__ for release in returned_releases]})]
 
             # Act
             response = search_via_release_environment(request)
