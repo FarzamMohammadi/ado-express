@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-class ReleaseDetailsSerializer(serializers.Serializer):
+class DeploymentDetailsSerializer(serializers.Serializer):
     release_project_name = serializers.CharField(max_length=200, required=True)
     release_name = serializers.CharField(max_length=200, required=True)
     release_number = serializers.IntegerField(min_value=0, required=True)
@@ -11,6 +11,9 @@ class ReleaseDetailsSerializer(serializers.Serializer):
         self.fields['release_number'].required = False
         self.fields['release_rollback'].required = False
 
+    def set_required_fields_for_via_number(self):
+        self.fields['release_rollback'].required = False
+
 class RunConfigurationsSerializer(serializers.Serializer):
     explicit_release_values = serializers.DictField()
     crucial_release_definitions = serializers.ListField(child = serializers.CharField(max_length=200))
@@ -19,9 +22,9 @@ class RunConfigurationsSerializer(serializers.Serializer):
     queries = serializers.ListField(child = serializers.CharField(max_length=200))
     release_name_format = serializers.CharField(max_length=200, required=True)
     release_target_env = serializers.CharField(max_length=200)
-    search_only = serializers.BooleanField(required=True)
+    search_only = serializers.BooleanField()
     via_env = serializers.BooleanField()
     via_env_source_name = serializers.CharField(max_length=200)
     via_env_latest_release = serializers.BooleanField()
     
-    release_details = serializers.ListSerializer(child=ReleaseDetailsSerializer())
+    deployment_details = serializers.ListSerializer(child=DeploymentDetailsSerializer())

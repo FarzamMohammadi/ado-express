@@ -24,7 +24,7 @@ class SearchViaQuery(unittest.TestCase):
     @patch('ado_express.main.Startup.initialize_logging', return_value=None)
     def test_api_call(self, initialize_logging_mock, load_dependencies_mock, get_deployment_details_from_query_mock):
             # Arrange
-            run_configurations = RunConfigurations({},[],self.fake.name(),self.fake.name(),[self.fake.name()],self.fake.name(),self.fake.name(),True,True,False,self.fake.name(), [])
+            run_configurations = RunConfigurations({},[],self.fake.name(),self.fake.name(),[self.fake.name()],self.fake.name(),self.fake.name(),True,True,False,self.fake.name(),[])
 
             deployment = Empty()
             deployment.release_project_name = self.fake.name()
@@ -36,7 +36,7 @@ class SearchViaQuery(unittest.TestCase):
             deployment_details = [deployment, deployment, deployment]
             get_deployment_details_from_query_mock.return_value = deployment_details
 
-            request = self.factory.post('/search/query', json.dumps(run_configurations.to_dict_with_lowercase_keys()), content_type='application/json')
+            request = self.factory.post('/search/via-query', json.dumps(run_configurations.to_dict_with_lowercase_keys()), content_type='application/json')
             request.user = AnonymousUser()
 
             # Act
@@ -48,9 +48,9 @@ class SearchViaQuery(unittest.TestCase):
     
     def test_api_call_with_missing_fields(self):
         # Arrange
-        run_configurations = RunConfigurations({},[],self.fake.name(),self.fake.name(),[self.fake.name()],self.fake.name(),"",True,True,False,"", [])
+        run_configurations = RunConfigurations({},[],self.fake.name(),self.fake.name(),[self.fake.name()],self.fake.name(),"",True,True,False,"",[])
 
-        request = self.factory.post('/search/query', json.dumps(run_configurations.to_dict_with_lowercase_keys()), content_type='application/json')
+        request = self.factory.post('/search/via-query', json.dumps(run_configurations.to_dict_with_lowercase_keys()), content_type='application/json')
         request.user = AnonymousUser()
 
         # Act

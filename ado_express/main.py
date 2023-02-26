@@ -151,7 +151,7 @@ class Startup:
             return None
     
     def search_and_log_details_only(self, deployment_detail: DeploymentDetails):
-        self.release_finder.get_releases(deployment_detail, find_via_env=self.via_env)
+        return self.release_finder.get_releases(deployment_detail, find_via_env=self.via_env)
     
     def deploy(self, deployment_detail: DeploymentDetails):
         try:

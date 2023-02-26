@@ -7,6 +7,7 @@ from ado_express.packages.common.constants import Constants
 from ado_express.packages.common.enums import ReleaseEnvironmentStatuses
 from ado_express.packages.common.environment_variables import EnvironmentVariables
 from ado_express.packages.common.models import DeploymentDetails
+from ado_express.packages.common.models.release_details import ReleaseDetails
 
 class ReleaseFinder:
 
@@ -25,6 +26,7 @@ class ReleaseFinder:
 
     def find_matching_releases_via_name(self, releases, release_number, deployment_detail: DeploymentDetails):
         found = False
+        found_releases = []
 
         for release in releases:
             
@@ -34,8 +36,12 @@ class ReleaseFinder:
                 for env in release_to_check.environments:
                     logging.info(f"Release Definition: {deployment_detail.release_name}\t Release: {release_to_check.name}\t Stage: {env.name}\t Status: {env.status}\t Modified On: {env.modified_on}\n")            
                     found = True
-                
+                    
+                    found_releases.append(ReleaseDetails(deployment_detail.release_project_name, deployment_detail.release_name, release_to_check.name, env.name, env.status in ReleaseEnvironmentStatuses.Succeeded, env.modified_on))
+
         if not found: logging.info(f"\nNO RESULTS AVAILABLE - Release Definition: {deployment_detail.release_name}\n")
+
+        return found_releases
                 
     def find_matching_release_via_source_stage(self, releases, deployment_detail, rollback=False):
         environment_name_to_find = self.environment_variables.RELEASE_TARGET_ENV if rollback else self.environment_variables.VIA_ENV_SOURCE_NAME
@@ -115,7 +121,7 @@ class ReleaseFinder:
             else: 
                 release_number = deployment_detail.release_rollback
                 
-            self.find_matching_releases_via_name(releases, release_number, deployment_detail)
+            return self.find_matching_releases_via_name(releases, release_number, deployment_detail)
 
     def get_releases_dict_from_build_releases(self, release, release_name_split_key):
         environment_name_to_find = self.environment_variables.VIA_ENV_SOURCE_NAME
