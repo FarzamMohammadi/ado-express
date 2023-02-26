@@ -64,7 +64,8 @@ class ReleaseFinder:
 
     def find_matching_releases_via_env(self, releases, deployment_detail: DeploymentDetails):
         found = False
-        
+        found_releases = []
+
         for release in releases:
             release_to_check = self.release_client.get_release(project=deployment_detail.release_project_name, release_id=release.id)
 
@@ -73,8 +74,12 @@ class ReleaseFinder:
                 if str(env.name).lower() == self.environment_variables.RELEASE_TARGET_ENV and env.status in ReleaseEnvironmentStatuses.Succeeded:
                     logging.info(f"Release Definition: {deployment_detail.release_name}\t Release: {release_to_check.name}\t Stage: {env.name}\t Status: {env.status}\t Modified On: {env.modified_on}\n")          
                     found = True
-                    
+
+                    found_releases.append(ReleaseDetails(deployment_detail.release_project_name, deployment_detail.release_name, release_to_check.name, env.name, env.status in ReleaseEnvironmentStatuses.Succeeded, env.modified_on))
+               
         if not found: logging.info(f'\nNO RESULTS AVAILABLE - Release Definition: {deployment_detail.release_name}\n')
+
+        return found_releases
 
     def get_release(self, deployment_detail, find_via_env=False, rollback=False, via_latest=False):
         # If deployment details are coming from query dict they will be str
