@@ -29,8 +29,6 @@ class SearchViaLatestRelease(unittest.TestCase):
             # Arrange
             release_details = DeploymentDetails(self.fake.name(), self.fake.name(), 123, 132, False)
             run_configurations = RunConfigurations({},[],self.fake.name(),self.fake.name(),[self.fake.name()],self.fake.name(),self.fake.name(),True,True,True,self.fake.name(), [release_details, release_details])
-            # Conversion needed to enable 
-
             release = ReleaseDetails(release_details.release_project_name, release_details.release_name, self.fake.name(), self.fake.name(), True, datetime.datetime.now())
 
             returned_releases = [release, release, release]

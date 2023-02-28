@@ -1,12 +1,15 @@
 import json
+import status
+
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 
+from base.models.ReleaseDetails import ReleaseDetails
 from base.models.RunConfigurations import RunConfigurations
 from base.models.DeploymentDetails import DeploymentDetails
-from base.models.ReleaseDetails import ReleaseDetails
+
 from .serializers import RunConfigurationsSerializer, DeploymentDetailsSerializer
-import status
+
 from ado_express.main import Startup
 
 @api_view(['POST'])
@@ -17,9 +20,9 @@ def search_via_release_environment(request):
     serializer = RunConfigurationsSerializer(data=request.data)
     serializer.fields['deployment_details'].child = deployment_details
 
-    # Fields required for via latest run
-    serializer.fields['deployment_details'].required = True
-    # Fields not required for via latest run
+    # Fields required for via environment run
+    serializer.fields['deployment_details'].allow_empty = True
+    # Fields not required for via environment run
     serializer.fields['search_only'].required = False
     serializer.fields['via_env'].required = False
     serializer.fields['via_env_latest_release'].required = False
@@ -65,7 +68,7 @@ def search_via_latest_release(request):
     serializer.fields['deployment_details'].child = deployment_details
 
     # Fields required for via latest run
-    serializer.fields['deployment_details'].required = True
+    serializer.fields['deployment_details'].allow_empty = True
     serializer.fields['release_target_env'].required = True
     serializer.fields['via_env_source_name'].required = True
     # Fields not required for via latest run
@@ -113,9 +116,9 @@ def search_via_release_number(request):
     serializer = RunConfigurationsSerializer(data=request.data)
     serializer.fields['deployment_details'].child = deployment_details
 
-    # Fields required for via latest run
-    serializer.fields['deployment_details'].required = True
-    # Fields not required for via latest run
+    # Fields required for via number run
+    serializer.fields['deployment_details'].allow_empty = True
+    # Fields not required for via number run
     serializer.fields['search_only'].required = False
     serializer.fields['via_env'].required = False
     serializer.fields['via_env_latest_release'].required = False

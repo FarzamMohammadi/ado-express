@@ -1,6 +1,5 @@
 import os
 import sys
-
 # Needed to enable segregation of projects
 sys.path.append(os.path.abspath("."))
 
@@ -9,20 +8,20 @@ from itertools import repeat
 import logging
 import sys
 import time
+from pytz import timezone
 from datetime import datetime
 
 from ado_express.packages.authentication import MSAuthentication
 from ado_express.packages.common.constants import Constants
 from ado_express.packages.common.enums.explicit_release_types import ExplicitReleaseTypes
 from ado_express.packages.common.environment_variables import EnvironmentVariables
-from ado_express.packages.common.models import DeploymentDetails
+from ado_express.packages.common.models import DeploymentDetails, ReleaseDetails
 from ado_express.packages.utils import DeploymentPlan
 from ado_express.packages.utils.asset_retrievers.release_finder import ReleaseFinder
 from ado_express.packages.utils.asset_retrievers.work_item_manager.work_item_manager import WorkItemManager
 from ado_express.packages.utils.excel_manager import ExcelManager
 from ado_express.packages.utils.release_manager.update_release import UpdateRelease
 from ado_express.packages.utils.release_note_helpers import needs_deployment
-from pytz import timezone
 
 logging.basicConfig(filename=Constants.LOG_FILE_PATH, encoding='utf-8', level=logging.INFO,
                     format='%(levelname)s:%(asctime)s \t%(pathname)s:line:%(lineno)d \t%(message)s')
@@ -57,7 +56,7 @@ class Startup:
 
     def updated_deployment_details_based_on_explicit_inclusion_and_exclusion(self, deployment_details):
         new_deployment_details = []
-        explicit_deployment_values = environment_variables.EXPLICIT_RELEASE_VALUES
+        explicit_deployment_values = self.environment_variables.EXPLICIT_RELEASE_VALUES
 
         if explicit_deployment_values is None: return deployment_details
 
@@ -84,8 +83,8 @@ class Startup:
     def get_crucial_release_definitions(self, deployment_details):
         crucial_release_definitions = []
         # First checks command line args, if not found, then checks the deployment plan file
-        if environment_variables.CRUCIAL_RELEASE_DEFINITIONS is not None:
-            crucial_release_definitions = environment_variables.CRUCIAL_RELEASE_DEFINITIONS
+        if self.environment_variables.CRUCIAL_RELEASE_DEFINITIONS is not None:
+            crucial_release_definitions = self.environment_variables.CRUCIAL_RELEASE_DEFINITIONS
         else:
             for deployment_detail in deployment_details:
                 if deployment_detail.is_crucial:
@@ -152,12 +151,12 @@ class Startup:
     
     def search_and_log_details_only(self, deployment_detail: DeploymentDetails):
         return self.release_finder.get_releases(deployment_detail, find_via_env=self.via_env)
-    
+        
     def deploy(self, deployment_detail: DeploymentDetails):
         try:
             if deployment_detail is not None: # The ThreadPoolExecutor may return None for some releases
                 release_to_update = self.release_finder.get_release(deployment_detail, self.via_env, False, self.via_latest)
-                update_manager = UpdateRelease(constants, self.ms_authentication, environment_variables, self.release_finder)
+                update_manager = UpdateRelease(constants, self.ms_authentication, self.environment_variables, self.release_finder)
 
                 update_attempt = update_manager.update_release(deployment_detail, release_to_update)
                 update_attempt_successful = update_attempt[0]
@@ -165,18 +164,43 @@ class Startup:
 
                 if update_attempt_successful:
                     # Check the status of release update
-                    logging.info(f'Monitoring update Status - Project:{deployment_detail.release_project_name} Release Definition:{deployment_detail.release_name} Release:{release_to_update.name} Environment:{environment_variables.RELEASE_TARGET_ENV}')
+                    logging.info(f'Monitoring update Status - Project:{deployment_detail.release_project_name} Release Definition:{deployment_detail.release_name} Release:{release_to_update.name} Environment:{self.environment_variables.RELEASE_TARGET_ENV}')
                     release_updated_successfully = update_manager.get_release_update_result(deployment_detail, release_to_update)
 
                     if not release_updated_successfully:
                         update_manager.handle_failed_update(deployment_detail, self.via_env)
                     else:
-                        logging.info(f'Release Update Successful - Project:{deployment_detail.release_project_name} Release Definition:{deployment_detail.release_name} Release:{release_to_update.name} Environment:{environment_variables.RELEASE_TARGET_ENV}')
+                        logging.info(f'Release Update Successful - Project:{deployment_detail.release_project_name} Release Definition:{deployment_detail.release_name} Release:{release_to_update.name} Environment:{self.environment_variables.RELEASE_TARGET_ENV}')
+
+                        return ReleaseDetails(deployment_detail.release_project_name, deployment_detail.release_name, release_to_update.name, self.environment_variables.RELEASE_TARGET_ENV, True, datetime.now())
                 else:
                     update_manager.handle_failed_update(deployment_detail, self.via_env, failure_reason=update_comment)
 
+                return ReleaseDetails(deployment_detail.release_project_name, deployment_detail.release_name, release_to_update.name, self.environment_variables.RELEASE_TARGET_ENV, False, datetime.now())
+
         except Exception as e:
             logging.error(f'There was an error. Please check their status and continue manually.\nException:{e}')
+         
+    def run_release_deployments(self, deployment_details, is_deploying_crucial_releases, had_crucial_releases=False):
+        releases = []
+        
+        if is_deploying_crucial_releases: logging.info('Deploying the crucial releases first')
+        
+        with concurrent.futures.ThreadPoolExecutor() as executor: # Then, deploy the rest of the releases
+            if not is_deploying_crucial_releases and had_crucial_releases: 
+                logging.info('Deploying the rest of the releases')
+            elif not is_deploying_crucial_releases and had_crucial_releases:
+                logging.info('Deploying releases')
+            
+            releases = executor.map(self.deploy, deployment_details)
+        
+        return releases
+    
+    def get_crucial_deployment_from_deployment_details(self, deployment_details, crucial_release_definitions):
+        return [x for x in deployment_details if x.release_name in crucial_release_definitions]
+    
+    def remove_crucial_deployments_from_deployment_details(self, deployment_details, crucial_release_definitions):
+        return [x for x in deployment_details if x.release_name not in crucial_release_definitions]
 
 if __name__ == '__main__':
     environment_variables = EnvironmentVariables()
@@ -232,8 +256,8 @@ if __name__ == '__main__':
 
         if crucial_release_definitions:
             # Separate crucial & regular deployments based on release definitions that match CRUCIAL_RELEASE_DEFINITIONS env variable list
-            crucial_deployment_details = [x for x in deployment_details if x.release_name in crucial_release_definitions]
-            deployment_details[:] = [x for x in deployment_details if x.release_name not in crucial_release_definitions]
+            crucial_deployment_details = startup.get_crucial_deployment_from_deployment_details(deployment_details, crucial_release_definitions)
+            deployment_details[:] = startup.remove_crucial_deployments_from_deployment_details(deployment_details, crucial_release_definitions)
 
         if crucial_deployment_details: # First, deploy crucial releases if there are any
             with concurrent.futures.ThreadPoolExecutor() as executor:
