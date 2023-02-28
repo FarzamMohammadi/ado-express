@@ -14,7 +14,7 @@ class ReleaseDetails:
     :param is_deployed:
     :type is_deployed: bool
     :param modified_on:
-    :type modified_on: str
+    :type modified_on: datetime
     """
     def __init__(self, release_project_name: str, release_definition: str, release_name: str, release_env: str, is_deployed: bool, modified_on: datetime):
         self.release_project_name = release_project_name

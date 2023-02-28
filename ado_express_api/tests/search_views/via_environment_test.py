@@ -36,7 +36,7 @@ class SearchViaLatestRelease(unittest.TestCase):
             returned_releases = [release, release, release]
             search_and_log_details_only_mock.return_value = returned_releases
 
-            request = self.factory.post('/search/via-number', json.dumps(run_configurations.to_dict_with_lowercase_keys()), content_type='application/json')
+            request = self.factory.post('/search/via-environment', json.dumps(run_configurations.to_dict_with_lowercase_keys()), content_type='application/json')
             request.user = AnonymousUser()
 
             returned_results = [dict({'release_definition': release_details.release_name, 'results': [release.__dict__ for release in returned_releases]}), 
@@ -54,7 +54,7 @@ class SearchViaLatestRelease(unittest.TestCase):
             release_details = DeploymentDetails(self.fake.name(), None, None, None, False) # Missing release_name
             run_configurations = RunConfigurations({},[],self.fake.name(),self.fake.name(),[self.fake.name()],self.fake.name(),self.fake.name(),True,True,False,self.fake.name(), [release_details])
 
-            request = self.factory.post('/search/via-number', json.dumps(run_configurations.to_dict_with_lowercase_keys()), content_type='application/json')
+            request = self.factory.post('/search/via-environment', json.dumps(run_configurations.to_dict_with_lowercase_keys()), content_type='application/json')
             request.user = AnonymousUser()
 
             # Act
