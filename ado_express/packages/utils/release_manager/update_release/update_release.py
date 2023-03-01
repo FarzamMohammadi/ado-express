@@ -29,7 +29,7 @@ class UpdateRelease:
             
             if matching_release_environment.status not in ReleaseEnvironmentStatuses.InProgress:
                 # Update Release
-                comment = 'Deployed automatically via Ado-Express'
+                comment = 'Deployed automatically via ADO-Express (https://github.com/FarzamMohammadi/ado-express)'
                 self.update_release_environment(comment, deployment_detail, release_to_update, matching_release_environment)
                 logging.info(f'Update triggered - Project:{deployment_detail.release_project_name} Release Definition:{deployment_detail.release_name} Release:{release_to_update.name} Environment:{self.environment_variables.RELEASE_TARGET_ENV}')
             else: 

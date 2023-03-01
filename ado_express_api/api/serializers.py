@@ -20,7 +20,7 @@ class DeploymentDetailsSerializer(serializers.Serializer):
 
 class RunConfigurationsSerializer(serializers.Serializer):
     explicit_release_values = serializers.DictField()
-    crucial_release_definitions = serializers.ListField(child = serializers.CharField(max_length=200))
+    crucial_release_definitions = serializers.ListField(child = serializers.CharField(max_length=200), allow_empty=True)
     organization_url = serializers.CharField(max_length=200, required=True)
     personal_access_token = serializers.CharField(max_length=200, required=True)
     queries = serializers.ListField(child = serializers.CharField(max_length=200))
