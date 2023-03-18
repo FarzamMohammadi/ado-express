@@ -2,9 +2,7 @@ from django.urls import path
 from . import deploy_views, search_views
 
 '''
-/run/via-query
-/run/via_latest
-/run/via_numbers
+/deploy
 
 /search/query
 /search/via_latest

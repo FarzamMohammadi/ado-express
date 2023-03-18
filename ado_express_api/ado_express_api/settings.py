@@ -21,20 +21,23 @@ sys.path.append(str(p))
 sys.path.append(str(p)+'\\main')
 sys.path.append(str(p)+'\\packages')
 
+#TODO: Fix for prod
+CORS_ORIGIN_ALLOW_ALL=True
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
+#TODO: Fix for prod
 SECRET_KEY = 'django-insecure--=#%i=#br2xi(23v3=ch3=+!7-i5js@(684u^9c5e$adl57wdy'
 
 # SECURITY WARNING: don't run with debug turned on in production!
+#TODO: Fix for prod
 DEBUG = True
-
-ALLOWED_HOSTS = []
+#TODO: Fix for prod
+ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
@@ -47,9 +50,10 @@ INSTALLED_APPS = [
     
     'rest_framework',
     'base',
+    'corsheaders',
 
     'ado_express',
-    'ado_express.packages'
+    'ado_express.packages',
 ]
 
 MIDDLEWARE = [
@@ -60,6 +64,9 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
 ]
 
 ROOT_URLCONF = 'ado_express_api.urls'
