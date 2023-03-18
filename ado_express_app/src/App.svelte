@@ -1,6 +1,6 @@
 <script lang="ts">
-	import RunConfigurationForm from './lib/shared/RunConfigurationForm.svelte'
-	import Navbar from './lib/shared/Navbar.svelte'
+	import RunConfigurationForm from './lib/shared/components/RunConfigurationForm.svelte'
+	import Navbar from './lib/shared/components/Navbar.svelte'
 </script>
 
 
