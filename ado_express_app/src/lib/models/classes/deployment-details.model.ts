@@ -1,19 +1,40 @@
-import type { IDeserializable } from "../interfaces/ideserializable.interface";
+import { camelCaseToSnakeCase } from "../../utils/camel-to-snakecase";
 import type { IDeploymentDetails } from "../interfaces/ideployment-details.interface";
+import type { IDeserializable } from "../interfaces/ideserializable.interface";
+import type { IToSnakeCase } from "../interfaces/ito-snake-case.interface";
 
-export class DeploymentDetails implements IDeserializable<IDeploymentDetails>, IDeploymentDetails {
-	public release_project_name!: string;
+export class DeploymentDetails implements IDeserializable<IDeploymentDetails>, IToSnakeCase, IDeploymentDetails {
 
-	public release_name!: string;
+	public releaseProjectName!: string;
 
-	public release_number: number;
+	public releaseName!: string;
 
-    public release_rollback: number;
+	public releaseNumber: number;
 
-    public is_crucial: boolean;
+	public releaseRollback: number;
+
+	public isCrucial: boolean;
+
+	constructor (
+		releaseProjectName: string,
+		releaseName: string,
+		releaseNumber: number,
+		releaseRollback: number,
+		isCrucial: boolean,
+	) {
+		this.releaseProjectName = releaseProjectName;
+		this.releaseName = releaseName;
+		this.releaseNumber = releaseNumber;
+		this.releaseRollback = releaseRollback;
+		this.isCrucial = isCrucial;
+	}
 
 	deserialize(input: IDeploymentDetails): this {
 		Object.assign(this, input);
 		return this;
+	}
+
+	toSnakeCase(str: string): string {
+		return camelCaseToSnakeCase(str);
 	}
 }

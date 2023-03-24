@@ -1,34 +1,70 @@
+import { camelCaseToSnakeCase } from "../../utils/camel-to-snakecase";
 import type { IDeploymentDetails } from "../interfaces/ideployment-details.interface";
 import type { IDeserializable } from "../interfaces/ideserializable.interface";
+import type { IExplicitExclusion } from "../interfaces/iexplicit-exclusion.interface";
+import type { IExplicitInclusion } from "../interfaces/iexplicit-inclusion.interface";
 import type { IRunConfigurations } from "../interfaces/irun-configurations.interface";
+import type { IToSnakeCase } from "../interfaces/ito-snake-case.interface";
 
-export class RunConfigurations implements IDeserializable<IRunConfigurations>, IRunConfigurations {
-	public explicit_release_values: string;
+export class RunConfigurations implements IDeserializable<IRunConfigurations>, IToSnakeCase, IRunConfigurations {
+	public explicitReleaseValues: IExplicitExclusion | IExplicitInclusion;
 
-	public crucial_release_definitions: [string];
+	public crucialReleaseDefinitions: string[];
 
-	public organization_url!: string;
+	public organizationUrl!: string;
 
-    public personal_access_token!: string;
+	public personalAccessToken!: string;
 
-    public queries: [string];
+	public queries: string[];
 
-    public release_name_format!: string;
+	public releaseNameFormat!: string;
 
-	public release_target_env: string;
+	public releaseTargetEnv: string;
 
-	public search_only: boolean;
+	public searchOnly: boolean;
 
-	public via_env: boolean;
+	public viaEnv: boolean;
 
-    public via_env_latest_release: boolean;
+	public viaEnvLatestRelease: boolean;
 
-    public via_env_source_name: string;
+	public viaEnvSourceName: string;
 
-    public deployment_details: [IDeploymentDetails];
+	public deploymentDetails: IDeploymentDetails[];
+
+	constructor (
+		explicitReleaseValues: IExplicitExclusion | IExplicitInclusion,
+		crucialReleaseDefinitions: string[],
+		organizationUrl: string,
+		personalAccessToken: string,
+		queries: string[],
+		releaseNameFormat: string,
+		releaseTargetEnv: string,
+		searchOnly: boolean,
+		viaEnv: boolean,
+		viaEnvLatestRelease: boolean,
+		viaEnvSourceName: string,
+		deploymentDetails: IDeploymentDetails[]
+	) {
+		this.explicitReleaseValues = explicitReleaseValues;
+		this.crucialReleaseDefinitions = crucialReleaseDefinitions;
+		this.personalAccessToken = personalAccessToken;
+		this.organizationUrl = organizationUrl;
+		this.queries = queries;
+		this.releaseNameFormat = releaseNameFormat;
+		this.releaseTargetEnv = releaseTargetEnv;
+		this.searchOnly = searchOnly;
+		this.viaEnv = viaEnv;
+		this.viaEnvLatestRelease = viaEnvLatestRelease;
+		this.viaEnvSourceName = viaEnvSourceName;
+		this.deploymentDetails = deploymentDetails;
+	}
 
 	deserialize(input: IRunConfigurations): this {
 		Object.assign(this, input);
 		return this;
+	}
+
+	toSnakeCase(str: string): string {
+		return camelCaseToSnakeCase(str);
 	}
 }
