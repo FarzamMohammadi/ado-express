@@ -1,0 +1,10 @@
+{
+  "typescript.format.semicolons": "insert",
+  "editor.wordWrapColumn": 100,
+  "editor.codeActionsOnSave": {
+    "source.fixAll": true,
+    "source.organizeImports": true,
+    "source.sortMembers": true
+  }
+  
+}

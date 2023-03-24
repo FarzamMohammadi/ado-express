@@ -6,6 +6,9 @@ on:
     paths-ignore:
       - 'ado_express/tests/**'
       - '**/README.md'
+      - '.vscode/**'
+      - 'ado_express_api/**' # Not needed while developing app & api
+      - 'ado_express_app/**' # Not needed while developing app & api
     branches:
       - main
 
