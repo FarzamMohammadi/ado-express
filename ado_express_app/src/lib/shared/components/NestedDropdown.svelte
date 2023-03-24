@@ -1,16 +1,21 @@
 <script>
-  import { onMount } from "svelte";
-  import { createPopper } from "@popperjs/core";
-  import { clickOutside } from "../../utils/click-outside";
+  import { onMount } from 'svelte';
+  import { createPopper } from '@popperjs/core';
+  import { clickOutside } from '../../utils/click-outside';
 
   let categories = [
     {
-      name: "Search",
-      tasks: ["Via Environment", "Via Latest in Environment", "Via Number", "Via Query"],
+      name: 'Search',
+      tasks: [
+        'Via Environment',
+        'Via Latest in Environment',
+        'Via Number',
+        'Via Query',
+      ],
     },
     {
-      name: "Deploy",
-      tasks: ["Via Number", "Via Latest in Environment"],
+      name: 'Deploy',
+      tasks: ['Via Number', 'Via Latest in Environment'],
     },
   ];
 
@@ -39,10 +44,10 @@
     dropdownOpen = !dropdownOpen;
     if (dropdownOpen) {
       dropdownPopover = createPopper(dropdownButton, dropdownList, {
-        placement: "bottom-start",
+        placement: 'bottom-start',
         modifiers: [
           {
-            name: "offset",
+            name: 'offset',
             options: {
               offset: [0, 10],
             },
@@ -81,7 +86,7 @@
     class="w-full px-4 py-2 text-left text-gray-800 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
     on:click={toggleDropdown}
     aria-haspopup="true"
-    aria-expanded={dropdownOpen ? "true" : "false"}
+    aria-expanded={dropdownOpen ? 'true' : 'false'}
     bind:this={dropdownButton}
   >
     {#if selectedCategory}

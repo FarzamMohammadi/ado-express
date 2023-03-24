@@ -1,3 +1,3 @@
 export interface IDeserializable<T> {
-	deserialize(input: T): this;
+  deserialize(input: T): this;
 }
