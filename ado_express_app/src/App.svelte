@@ -1,6 +1,8 @@
 <script lang="ts">
-  import RunConfigurationForm from "./lib/shared/components/RunConfigurationForm.svelte";
-  import Navbar from "./lib/shared/components/Navbar.svelte";
+	import RunConfigurationsForm from './lib/shared/components/RunConfigurationsForm.svelte'
+	import Navbar from './lib/shared/components/Navbar.svelte'
+    import NestedDropdown from './lib/shared/components/NestedDropdown.svelte';
+  
 </script>
 
 <main class="container mx-auto px-4">
@@ -15,8 +17,12 @@
         ADO EXPRESS
       </h1>
 
+      <div class="pt-10">
+        <NestedDropdown />
+      </div>
+
       <div class="py-10">
-        <RunConfigurationForm />
+        <RunConfigurationsForm />
       </div>
       
     </div>

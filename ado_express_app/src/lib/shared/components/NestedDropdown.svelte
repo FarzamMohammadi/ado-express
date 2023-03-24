@@ -6,20 +6,12 @@
   let categories = [
     {
       name: "Search",
-      tasks: [
-        "Task 1",
-        "Task 2",
-        "Task 3"
-      ]
+      tasks: ["Via Environment", "Via Latest in Environment", "Via Number", "Via Query"],
     },
     {
       name: "Deploy",
-      tasks: [
-        "Task 4",
-        "Task 5",
-        "Task 6"
-      ]
-    }
+      tasks: ["Via Number", "Via Latest in Environment"],
+    },
   ];
 
   let dropdownButton;
@@ -35,10 +27,10 @@
     dropdownOpen = false;
     dropdownPopover.destroy();
     dropdownPopover = null;
-  }
+  };
 
   const handleClickOutside = () => {
-    if (dropdownOpen){
+    if (dropdownOpen) {
       closeDropdown();
     }
   };
@@ -46,21 +38,17 @@
   const toggleDropdown = () => {
     dropdownOpen = !dropdownOpen;
     if (dropdownOpen) {
-      dropdownPopover = createPopper(
-        dropdownButton,
-        dropdownList,
-        {
-          placement: "bottom-start",
-          modifiers: [
-            {
-              name: "offset",
-              options: {
-                offset: [0, 10]
-              }
-            }
-          ]
-        }
-      );
+      dropdownPopover = createPopper(dropdownButton, dropdownList, {
+        placement: "bottom-start",
+        modifiers: [
+          {
+            name: "offset",
+            options: {
+              offset: [0, 10],
+            },
+          },
+        ],
+      });
     } else {
       dropdownPopover.destroy();
       dropdownPopover = null;
@@ -97,7 +85,8 @@
     bind:this={dropdownButton}
   >
     {#if selectedCategory}
-      {selectedCategory.name} {#if selectedTask} &raquo; {selectedTask} {/if}
+      {selectedCategory.name}
+      {#if selectedTask} &raquo; {selectedTask} {/if}
     {:else}
       Select a category
     {/if}
@@ -115,7 +104,7 @@
           class="flex items-center justify-between w-full px-4 py-2 text-gray-200 rounded hover:bg-gray-800"
           on:click={() => selectCategory(category)}
         >
-          <span class="text-lg">{category.name}</span>
+          <span class="text-lg font-semibold">{category.name}</span>
         </button>
         {#if selectedCategory === category}
           {#each category.tasks as task}
@@ -123,7 +112,7 @@
               class="flex items-center justify-between w-full px-4 py-2 text-gray-200 rounded hover:bg-gray-800"
               on:click={() => selectTask(task)}
             >
-              <span class="ml-3 font-thin italic">{task}</span>
+              <small class="ml-3 italic">{task}</small>
             </button>
           {/each}
         {/if}

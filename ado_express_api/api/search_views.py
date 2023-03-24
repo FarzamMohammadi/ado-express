@@ -124,6 +124,8 @@ def search_via_release_number(request):
     serializer.fields['via_env_latest_release'].required = False
     serializer.fields['release_target_env'].allow_blank = True
     serializer.fields['via_env_source_name'].allow_blank = True
+    print(serializer.initial_data)
+    if not serializer.is_valid(): print(serializer.errors)
 
     if serializer.is_valid():
         run_configurations = RunConfigurations(None, # explicit_release_values
