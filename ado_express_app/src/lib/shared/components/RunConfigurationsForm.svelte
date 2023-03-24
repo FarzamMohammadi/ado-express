@@ -1,37 +1,37 @@
 <script lang="ts">
-  import { RunConfigurations } from "../../models/classes/run-configurations.model";
-  import type { IDeploymentDetails } from "../../models/interfaces/ideployment-details.interface";
-  import type { IExplicitExclusion } from "../../models/interfaces/iexplicit-exclusion.interface";
-  import type { IExplicitInclusion } from "../../models/interfaces/iexplicit-inclusion.interface";
+  import { RunConfigurations } from '../../models/classes/run-configurations.model';
+  import type { IDeploymentDetails } from '../../models/interfaces/ideployment-details.interface';
+  import type { IExplicitExclusion } from '../../models/interfaces/iexplicit-exclusion.interface';
+  import type { IExplicitInclusion } from '../../models/interfaces/iexplicit-inclusion.interface';
 
   let hasExplicitReleaseValues = false;
-  let explicitReleaseValuesType = "";
-  let explicitReleaseValuesReleases = "";
-  let crucialReleaseDefinitions: string[] = [];
-  let organization_url = "";
-  let personal_access_token = "";
+  let explicitReleaseValuesType = '';
+  let explicitReleaseValuesReleases = '';
+  let crucialReleaseDefinitions: '';
+  let organization_url = '';
+  let personal_access_token = '';
   let queries: string[] = [];
-  let release_name_format = "";
-  let release_target_env = "";
+  let release_name_format = '';
+  let release_target_env = '';
   let search_only = false;
   let via_env = false;
   let via_env_latest_release = false;
-  let via_env_source_name = "";
+  let via_env_source_name = '';
   let deployment_details: IDeploymentDetails[] = [];
 
   function getExplicitReleaseValues() {
     if (!hasExplicitReleaseValues) return null;
 
-    const selectedRelease: string[] = explicitReleaseValuesReleases.split(",");
+    const selectedRelease: string[] = explicitReleaseValuesReleases.split(',');
     if (selectedRelease.length === 0) return null;
 
     let explicitReleaseValues: any = null;
 
-    if (explicitReleaseValuesType === "include") {
+    if (explicitReleaseValuesType === 'include') {
       explicitReleaseValues = {
         inclusion: selectedRelease,
       } as IExplicitInclusion;
-    } else if (explicitReleaseValuesType === "exclude") {
+    } else if (explicitReleaseValuesType === 'exclude') {
       explicitReleaseValues = {
         exclusion: selectedRelease,
       } as IExplicitExclusion;
