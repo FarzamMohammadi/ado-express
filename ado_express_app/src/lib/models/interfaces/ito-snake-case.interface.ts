@@ -1,3 +1,3 @@
 export interface IToSnakeCase {
-  toSnakeCase(str: string): string;
+  toSnakeCase(obj: any): Object;
 }
