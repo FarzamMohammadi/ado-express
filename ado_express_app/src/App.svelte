@@ -17,10 +17,6 @@
         ADO EXPRESS
       </h1>
 
-      <div class="pt-10">
-        <NestedDropdown />
-      </div>
-
       <div class="py-10">
         <RunConfigurationsForm />
       </div>

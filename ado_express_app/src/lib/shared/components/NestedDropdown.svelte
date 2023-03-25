@@ -19,11 +19,12 @@
     },
   ];
 
+  let selectedCategory = null;
+  export let selectedCategoryName = null;
+  export let selectedTask = null;
+
   let dropdownButton;
   let dropdownList;
-
-  let selectedCategory = null;
-  let selectedTask = null;
 
   let dropdownOpen = false;
   let dropdownPopover = null;
@@ -42,6 +43,7 @@
 
   const toggleDropdown = () => {
     dropdownOpen = !dropdownOpen;
+    
     if (dropdownOpen) {
       dropdownPopover = createPopper(dropdownButton, dropdownList, {
         placement: 'bottom-start',
@@ -66,6 +68,7 @@
   };
 
   const selectTask = (task) => {
+    selectedCategoryName = selectedCategory.name;
     selectedTask = task;
     closeDropdown();
   };
