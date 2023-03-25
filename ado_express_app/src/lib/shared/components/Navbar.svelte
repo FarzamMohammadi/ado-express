@@ -10,8 +10,8 @@
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex items-center justify-between h-16">
       <div class="flex items-center">
-        <a href="#" class="flex-shrink-0">
-          <img class="h-8 w-8" src="logo.svg" alt="Logo" />
+        <a target="_blank" href="https://github.com/FarzamMohammadi/ado-express">
+          <img class="h-10 w-24 rounded-lg shadow-lg hover:shadow-xl transition duration-500 ease-in-out transform hover:-translate-y-0.5" src="./src/assets/adoe-logo.png" alt="Logo" />
         </a>
         <div class="hidden md:block">
           <div class="ml-10 flex items-baseline">
