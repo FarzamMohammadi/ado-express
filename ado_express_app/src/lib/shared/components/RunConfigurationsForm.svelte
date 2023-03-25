@@ -7,7 +7,7 @@
   import CustomPasswordInput from './custom-form-components/CustomPasswordInput.svelte';
   import CustomTextInput from './custom-form-components/CustomTextInput.svelte';
   import CustomUrlInput from './custom-form-components/CustomUrlInput.svelte';
-  import NestedDropdown from './NestedDropdown.svelte';
+  import RunSpecifierDropdown from './RunSpecifierDropdown.svelte';
 
   let runType = null;
   let runMethod = null;
@@ -76,7 +76,7 @@
 </script>
 
 <div class="mb-4 relative z-10">
-  <NestedDropdown
+  <RunSpecifierDropdown
     bind:selectedCategoryName={runType}
     bind:selectedTask={runMethod}
   />

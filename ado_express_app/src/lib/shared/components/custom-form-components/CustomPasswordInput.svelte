@@ -8,12 +8,12 @@
 
 <div class="password-input mb-4">
   <label for={id} class="block font-bold mb-2">{label}</label>
-  <div class="relative divide-x-0 divide-gray-50 hover:divide-x-2 divide-y-0">
+  <div class="relative divide-x-0 divide-gray-200 hover:divide-x-2 divide-y-0">
     {#if showPAT}
       <input
         type="text"
         {id}
-        class="shadow appearance-none border rounded w-full py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
+        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
         autocomplete="off"
         bind:value={bindValue}
       />
@@ -21,7 +21,7 @@
       <input
         type="password"
         {id}
-        class="shadow appearance-none border rounded w-full py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
+        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
         autocomplete="off"
         bind:value={bindValue}
       />
