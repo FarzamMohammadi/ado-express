@@ -1,3 +1,3 @@
 export interface IExplicitInclusion {
-	inclusion: string[];
+  inclusion: string[];
 }
