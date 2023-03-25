@@ -8,7 +8,7 @@
 
 <div class="password-input mb-4">
   <label for={id} class="block font-bold mb-2">{label}</label>
-  <div class="relative">
+  <div class="relative divide-x-0 divide-gray-50 hover:divide-x-2 divide-y-0">
     {#if showPAT}
       <input
         type="text"
@@ -27,7 +27,8 @@
       />
     {/if}
     <button
-      class="absolute inset-y-0 right-0 flex items-center px-2 text-gray-700"
+      type="button"
+      class="absolute inset-y-0 right-0 items-center px-2"
       on:click={() => (showPAT = !showPAT)}
     >
       {#if showPAT}
