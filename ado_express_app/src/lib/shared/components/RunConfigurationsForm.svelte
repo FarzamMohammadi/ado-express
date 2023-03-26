@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { ADOExpressApi } from '../../core/services/api';
   import { RunConfigurations } from '../../models/classes/run-configurations.model';
   import { RunType, ToastType } from '../../models/enums/enums';
   import type { IDeploymentDetails } from '../../models/interfaces/ideployment-details.interface';
@@ -9,7 +10,7 @@
   import CustomRunSpecifierDropdown from './custom-form-components/CustomRunSpecifierDropdown.svelte';
   import CustomTextInput from './custom-form-components/CustomTextInput.svelte';
   import CustomUrlInput from './custom-form-components/CustomUrlInput.svelte';
-  import Toast from './Toast.svelte';
+  import Toast from './utils/Toast.svelte';
 
   let runType = null;
   let runMethod = null;
@@ -54,8 +55,24 @@
     return explicitReleaseValues;
   }
 
+  function isNullOrUndefined(variable: any): Boolean {
+    if (variable === null || variable === undefined) {
+      return true;
+    }
+    return false;
+  }
+
   function handleSubmit() {
-    console.log(this.form);
+    if (isNullOrUndefined(runType) || isNullOrUndefined(runMethod)) {
+      new Toast({
+        target: document.body,
+        props: {
+          type: ToastType.Warning,
+          message: 'Please complete the run type selection at the top'
+        },
+      });
+      return;
+    }
 
     const runConfigurations = new RunConfigurations(
       getExplicitReleaseValues(),
@@ -72,7 +89,8 @@
       deployment_details
     );
 
-    console.log(runConfigurations);
+    const adoExpressApi = new ADOExpressApi();
+    console.log(adoExpressApi.runADOExpress(runConfigurations));
   }
 
   function isSearchOnly() {
@@ -81,17 +99,6 @@
     } else if (runType && runType === 'Deploy') {
       return false;
     }
-  }
-
-  function validateForm(): void {
-    new Toast({
-      target: document.body,
-      props: {
-        message: 'Invalid Form',
-        type: ToastType.Error,
-        duration: 1000,
-      },
-    });
   }
 
   function onRunTypeSelection(runType) {
@@ -105,7 +112,14 @@
   $: onRunTypeSelection(runType);
 </script>
 
-<div class="mb-4 relative z-10">
+<svelte:head>
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/mono-icons@1.0.5/iconfont/icons.css"
+  />
+</svelte:head>
+
+<div class="mb-16 relative z-10">
   <CustomRunSpecifierDropdown
     bind:selectedCategoryName={runType}
     bind:selectedTask={runMethod}
@@ -191,7 +205,7 @@
               value="include"
               bind:group={explicitReleaseValuesType}
             />
-            Explicitly Include
+            Include
           </label>
 
           <label>
@@ -201,7 +215,7 @@
               value="exclude"
               bind:group={explicitReleaseValuesType}
             />
-            Explicitly Exclude
+            Exclude
           </label>
         </div>
         <div class="w-full flex justify-center items-center">

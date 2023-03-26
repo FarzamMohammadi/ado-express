@@ -1,10 +1,10 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { ToastType } from '../../models/enums/enums';
+  import { ToastType } from '../../../models/enums/enums';
 
   export let type: ToastType;
   export let message = '';
-  export let duration = 2500; // ms
+  export let duration = 4000; // ms
 
   const clearToast = () => {
     type = null;

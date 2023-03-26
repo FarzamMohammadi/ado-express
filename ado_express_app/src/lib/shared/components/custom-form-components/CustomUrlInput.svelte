@@ -1,4 +1,6 @@
 <script>
+  import Tooltip from '../utils/Tooltip.svelte';
+
   export let label;
   export let id;
   export let bindValue;
@@ -6,7 +8,12 @@
 </script>
 
 <div class="input-field mb-4">
-  <label for={id} class="font-bold mb-2">{label}</label>
+  <div class="flex items-center justify-between">
+    <label for={id} class="font-bold mb-2">{label} </label>
+    <Tooltip text="Top tooltip" position="right">
+      <i class="mi mi-circle-information"><span class="sr-only">Circle information</span></i>
+    </Tooltip>
+  </div>
   <input
     type="url"
     {id}
