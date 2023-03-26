@@ -1,5 +1,6 @@
 from rest_framework import serializers
 
+
 class DeploymentDetailsSerializer(serializers.Serializer):
     release_project_name = serializers.CharField(max_length=200, required=True)
     release_name = serializers.CharField(max_length=200, required=True)
@@ -19,11 +20,11 @@ class DeploymentDetailsSerializer(serializers.Serializer):
         self.fields['release_rollback'].required = False
 
 class RunConfigurationsSerializer(serializers.Serializer):
-    explicit_release_values = serializers.DictField()
-    crucial_release_definitions = serializers.ListField(child = serializers.CharField(max_length=200), allow_empty=True)
+    explicit_release_values = serializers.DictField(allow_empty=True, allow_null=True)
+    crucial_release_definitions = serializers.ListField(child = serializers.CharField(max_length=200), allow_empty=True, allow_null=True)
     organization_url = serializers.CharField(max_length=200, required=True)
     personal_access_token = serializers.CharField(max_length=200, required=True)
-    queries = serializers.ListField(child = serializers.CharField(max_length=200))
+    queries = serializers.ListField(child = serializers.CharField(max_length=200), allow_empty=True, allow_null=True)
     release_name_format = serializers.CharField(max_length=200, required=True)
     release_target_env = serializers.CharField(max_length=200)
     search_only = serializers.BooleanField()
