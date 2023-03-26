@@ -26,10 +26,14 @@
   let viaEnvSourceName = '';
   let deployment_details: IDeploymentDetails[] = [];
 
+
+  //trim string arrays
+
   function getExplicitReleaseValues() {
     if (!hasExplicitReleaseValues) return null;
 
-    const selectedRelease: string[] = explicitReleaseValuesReleases.split(',');
+    const selectedRelease: string[] = explicitReleaseValuesReleases.split(',').map(s => s.trim());
+
     if (selectedRelease.length === 0) return null;
 
     let explicitReleaseValues: any = null;
@@ -50,16 +54,16 @@
   function handleSubmit() {
     const runConfigurations = new RunConfigurations(
       getExplicitReleaseValues(),
-      crucialReleaseDefinitions?.split(',') ?? null,
-      organizationUrl,
-      personalAccessToken,
-      queries?.split(',') ?? null,
-      releaseNameFormat,
-      releaseTargetEnv,
+      crucialReleaseDefinitions?.split(',').map(s => s.trim()) ?? null,
+      organizationUrl.trim(),
+      personalAccessToken.trim(),
+      queries?.split(',').map(s => s.trim()) ?? null,
+      releaseNameFormat.trim(),
+      releaseTargetEnv.trim(),
       isSearchOnly(),
       viaEnv,
       viaEnvLatestRelease,
-      viaEnvSourceName,
+      viaEnvSourceName.trim(),
       deployment_details
     );
 
