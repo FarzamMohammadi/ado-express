@@ -1,5 +1,6 @@
 <script lang="ts">
   import { RunConfigurations } from '../../models/classes/run-configurations.model';
+  import { ToastType } from '../../models/enums/enums';
   import type { IDeploymentDetails } from '../../models/interfaces/ideployment-details.interface';
   import type { IExplicitExclusion } from '../../models/interfaces/iexplicit-exclusion.interface';
   import type { IExplicitInclusion } from '../../models/interfaces/iexplicit-inclusion.interface';
@@ -8,6 +9,7 @@
   import CustomTextInput from './custom-form-components/CustomTextInput.svelte';
   import CustomUrlInput from './custom-form-components/CustomUrlInput.svelte';
   import RunSpecifierDropdown from './RunSpecifierDropdown.svelte';
+  import Toast from './Toast.svelte';
 
   let runType = null;
   let runMethod = null;
@@ -26,13 +28,12 @@
   let viaEnvSourceName = '';
   let deployment_details: IDeploymentDetails[] = [];
 
-
-  //trim string arrays
-
   function getExplicitReleaseValues() {
     if (!hasExplicitReleaseValues) return null;
 
-    const selectedRelease: string[] = explicitReleaseValuesReleases.split(',').map(s => s.trim());
+    const selectedRelease: string[] = explicitReleaseValuesReleases
+      .split(',')
+      .map((s) => s.trim());
 
     if (selectedRelease.length === 0) return null;
 
@@ -52,12 +53,14 @@
   }
 
   function handleSubmit() {
+    validateForm();
+
     const runConfigurations = new RunConfigurations(
       getExplicitReleaseValues(),
-      crucialReleaseDefinitions?.split(',').map(s => s.trim()) ?? null,
+      crucialReleaseDefinitions?.split(',').map((s) => s.trim()) ?? null,
       organizationUrl.trim(),
       personalAccessToken.trim(),
-      queries?.split(',').map(s => s.trim()) ?? null,
+      queries?.split(',').map((s) => s.trim()) ?? null,
       releaseNameFormat.trim(),
       releaseTargetEnv.trim(),
       isSearchOnly(),
@@ -76,6 +79,17 @@
     } else if (runType && runType === 'Deploy') {
       return false;
     }
+  }
+
+  function validateForm(): void {
+    new Toast({
+      target: document.body,
+      props: {
+        message: 'Invalid Form',
+        type: ToastType.Error,
+        duration: 1000,
+      },
+    });
   }
 </script>
 
