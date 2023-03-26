@@ -1,11 +1,11 @@
 <script>
-  import { createPopper } from '@popperjs/core';
   import { onMount } from 'svelte';
-  import { clickOutside } from '../../utils/click-outside';
+  import { RunType } from '../../../models/enums/enums';
+  import { clickOutside } from '../../../utils/click-outside';
 
   let categories = [
     {
-      name: 'Search',
+      name: RunType.Search,
       tasks: [
         'Via Environment',
         'Via Latest in Environment',
@@ -14,7 +14,7 @@
       ],
     },
     {
-      name: 'Deploy',
+      name: RunType.Deploy,
       tasks: ['Via Number', 'Via Latest in Environment'],
     },
   ];
@@ -27,12 +27,9 @@
   let dropdownList;
 
   let dropdownOpen = false;
-  let dropdownPopover = null;
 
   const closeDropdown = () => {
     dropdownOpen = false;
-    dropdownPopover.destroy();
-    dropdownPopover = null;
   };
 
   const handleClickOutside = () => {
@@ -43,23 +40,6 @@
 
   const toggleDropdown = () => {
     dropdownOpen = !dropdownOpen;
-    
-    if (dropdownOpen) {
-      dropdownPopover = createPopper(dropdownButton, dropdownList, {
-        placement: 'bottom-start',
-        modifiers: [
-          {
-            name: 'offset',
-            options: {
-              offset: [0, 10],
-            },
-          },
-        ],
-      });
-    } else {
-      dropdownPopover.destroy();
-      dropdownPopover = null;
-    }
   };
 
   const selectCategory = (category) => {
@@ -76,9 +56,8 @@
   onMount(() => {
     // destroy popper instance if dropdown is closed on component unmount
     return () => {
-      if (dropdownPopover) {
-        dropdownPopover.destroy();
-        dropdownPopover = null;
+      if (dropdownOpen) {
+        dropdownOpen = !dropdownOpen;
       }
     };
   });
@@ -96,12 +75,12 @@
       {selectedCategory.name}
       {#if selectedTask} &raquo; {selectedTask} {/if}
     {:else}
-      Select a category
+      Select run type
     {/if}
   </button>
   {#if dropdownOpen}
     <div
-      class="absolute w-full mt-2 bg-white rounded-md shadow-lg"
+      class="absolute w-full mt-2 bg-transparent rounded-md shadow-lg"
       role="menu"
       aria-orientation="vertical"
       aria-labelledby="options-menu"
@@ -109,7 +88,7 @@
     >
       {#each categories as category}
         <button
-          class="flex items-center justify-between w-full px-4 py-2 text-gray-200 rounded hover:bg-gray-800"
+          class="flex items-center justify-start w-full px-4 py-2 bg-stone-900 text-gray-200 rounded-lg hover:bg-gray-800"
           on:click={() => selectCategory(category)}
         >
           <span class="text-lg font-semibold">{category.name}</span>
@@ -117,7 +96,7 @@
         {#if selectedCategory === category}
           {#each category.tasks as task}
             <button
-              class="flex items-center justify-between w-full px-4 py-2 text-gray-200 rounded hover:bg-gray-800"
+              class="flex items-center justify-start w-full px-4 py-2 bg-stone-800 text-gray-200 rounded hover:bg-gray-700"
               on:click={() => selectTask(task)}
             >
               <small class="ml-3 italic">{task}</small>
