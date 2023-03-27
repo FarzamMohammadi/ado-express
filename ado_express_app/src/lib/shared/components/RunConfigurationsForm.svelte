@@ -1,11 +1,14 @@
 <script lang="ts">
   import { ADOExpressApi } from '../../core/services/api';
   import { RunConfigurations } from '../../models/classes/run-configurations.model';
-  import { RunType, ToastType } from '../../models/enums/enums';
+  import {
+      RunType,
+      SearchRunMethod,
+      ToastType
+  } from '../../models/enums/enums';
   import type { IDeploymentDetails } from '../../models/interfaces/ideployment-details.interface';
   import type { IExplicitExclusion } from '../../models/interfaces/iexplicit-exclusion.interface';
   import type { IExplicitInclusion } from '../../models/interfaces/iexplicit-inclusion.interface';
-  import CustomCheckboxInput from './custom-form-components/CustomCheckboxInput.svelte';
   import CustomPasswordInput from './custom-form-components/CustomPasswordInput.svelte';
   import CustomRunSpecifierDropdown from './custom-form-components/CustomRunSpecifierDropdown.svelte';
   import CustomTextInput from './custom-form-components/CustomTextInput.svelte';
@@ -108,7 +111,36 @@
     }
   }
 
-  function setupRunConfigurationRunTypeVariables(): void {}
+  function setupRunConfigurationRunTypeVariables(): void {
+    if (runType === RunType.Search) {
+      if (
+        runMethod == SearchRunMethod.ViaEnvironment ||
+        runMethod == SearchRunMethod.ViaQuery
+      ) {
+        viaEnv = true;
+        viaEnvLatestRelease = false;
+      } else if (runMethod == SearchRunMethod.ViaLatestInEnvironment) {
+        viaEnv = true;
+        viaEnvLatestRelease = true;
+        queries = '';
+      } else if (runMethod == SearchRunMethod.ViaNumber) {
+        viaEnv = false;
+        viaEnvLatestRelease = false;
+        queries = '';
+      }
+    } else if (runType === RunType.Deploy)  {
+      if (runMethod == SearchRunMethod.ViaLatestInEnvironment) {
+        viaEnv = true;
+        viaEnvLatestRelease = true;
+        queries = '';
+      }
+      else if (runMethod == SearchRunMethod.ViaNumber) {
+        viaEnv = false;
+        viaEnvLatestRelease = false;
+        queries = '';
+      }
+    }
+  }
 
   function showToast(
     type: ToastType,
@@ -178,16 +210,6 @@
       label="Release Source Environment"
       id="viaEnvSourceName"
       bind:bindValue={viaEnvSourceName}
-    />
-    <CustomCheckboxInput
-      label="Via Release Environment"
-      id="viaEnv"
-      bind:bindValue={viaEnv}
-    />
-    <CustomCheckboxInput
-      label="Via Latest in Release Environment"
-      id="viaEnvLatestRelease"
-      bind:bindValue={viaEnvLatestRelease}
     />
 
     <div
