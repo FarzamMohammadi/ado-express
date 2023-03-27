@@ -1,79 +1,85 @@
-import {
-  DEPLOY,
-  SEARCH_VIA_ENVIRONMENT,
-  SEARCH_VIA_LATEST,
-  SEARCH_VIA_NUMBER,
-  SEARCH_VIA_QUERY,
-} from '../../../api';
+import type { RunConfigurations } from '../../../models/classes/run-configurations.model';
+import type { IDeploymentDetails } from '../../../models/interfaces/ideployment-details.interface';
 import type { IReleaseDetails } from '../../../models/interfaces/irelease-details.interface';
-import type { IRunConfigurations } from '../../../models/interfaces/irun-configurations.interface';
-import { snakeToCamel } from '../../../utils/snake-to-camel';
 import { JSONHttp } from '../https';
+import { Endpoints } from './endpoints';
 
 export class ADOExpressApi {
-  public async searchViaEnvironment(runConfigurations: IRunConfigurations) {
-    const parsedRunConfigurations =
-      this.convertObjectToCamelCase(runConfigurations);
+
+  public async runADOExpress(runConfigurations: RunConfigurations): Promise<[IReleaseDetails] | [IDeploymentDetails]> {
+    if (runConfigurations.searchOnly) {
+      if (runConfigurations.queries) {
+       return await this.searchViaQuery(runConfigurations);
+      }
+      else if (!runConfigurations.viaEnv && !runConfigurations.viaEnvLatestRelease) {
+       return await this.searchViaNumber(runConfigurations);
+      }
+      else if (runConfigurations.viaEnv && !runConfigurations.viaEnvLatestRelease) {
+       return await this.searchViaEnvironment(runConfigurations);
+      }
+      else if (runConfigurations.viaEnv && runConfigurations.viaEnvLatestRelease) {
+       return await this.searchViaLatest(runConfigurations);
+      }
+    }
+    else {
+      // Deploy
+      return await this.deploy(runConfigurations);
+    }
+  }
+
+
+  private async searchViaEnvironment(runConfigurations: RunConfigurations) {
+    const parsedRunConfigurations = runConfigurations.toSnakeCase();
 
     return await JSONHttp.post<[IReleaseDetails]>(
-      SEARCH_VIA_ENVIRONMENT,
+      Endpoints.searchViaEnvironment,
       parsedRunConfigurations
     ).then((res) => {
-      console.log(res);
+      return res;
     });
   }
 
-  public async searchViaLatest(runConfigurations: IRunConfigurations) {
-    const parsedRunConfigurations =
-      this.convertObjectToCamelCase(runConfigurations);
+  private async searchViaLatest(runConfigurations: RunConfigurations) {
+    const parsedRunConfigurations = runConfigurations.toSnakeCase();
 
     return await JSONHttp.post<[IReleaseDetails]>(
-      SEARCH_VIA_LATEST,
+      Endpoints.searchViaLatest,
       parsedRunConfigurations
     ).then((res) => {
-      console.log(res);
+      return res;
     });
   }
 
-  public async searchViaNumber(runConfigurations: IRunConfigurations) {
-    const parsedRunConfigurations =
-      this.convertObjectToCamelCase(runConfigurations);
+  private async searchViaNumber(runConfigurations: RunConfigurations) {
+    const parsedRunConfigurations = runConfigurations.toSnakeCase();
 
     return await JSONHttp.post<[IReleaseDetails]>(
-      SEARCH_VIA_NUMBER,
+      Endpoints.searchViaNumber,
       parsedRunConfigurations
     ).then((res) => {
-      console.log(res);
+      return res;
     });
   }
 
-  public async searchViaQuery(runConfigurations: IRunConfigurations) {
-    const parsedRunConfigurations =
-      this.convertObjectToCamelCase(runConfigurations);
+  private async searchViaQuery(runConfigurations: RunConfigurations) {
+    const parsedRunConfigurations = runConfigurations.toSnakeCase();
 
     return await JSONHttp.post<[IReleaseDetails]>(
-      SEARCH_VIA_QUERY,
+      Endpoints.searchViaQuery,
       parsedRunConfigurations
     ).then((res) => {
-      console.log(res);
+      return res;
     });
   }
 
-  public async deploy(runConfigurations: IRunConfigurations) {
-    const parsedRunConfigurations =
-      this.convertObjectToCamelCase(runConfigurations);
+  private async deploy(runConfigurations: RunConfigurations) {
+    const parsedRunConfigurations = runConfigurations.toSnakeCase();
 
-    return await JSONHttp.post<[IReleaseDetails]>(
-      DEPLOY,
+    return await JSONHttp.post<[IDeploymentDetails]>(
+      Endpoints.deploy,
       parsedRunConfigurations
     ).then((res) => {
-      console.log(res);
+      return res;
     });
   }
-
-  private convertObjectToCamelCase = (obj: any) => {
-    return Object.fromEntries(
-      Object.entries(obj).map(([key, value]) => [snakeToCamel(key), value])
-    );
-  };
 }

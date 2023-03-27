@@ -38,7 +38,9 @@ export class DeploymentDetails
     return this;
   }
 
-  toSnakeCase(str: string): string {
-    return camelCaseToSnakeCase(str);
+  toSnakeCase(): Object {
+    return Object.fromEntries(
+      Object.entries(this).map(([key, value]) => [camelCaseToSnakeCase(key), value])
+    );
   }
 }

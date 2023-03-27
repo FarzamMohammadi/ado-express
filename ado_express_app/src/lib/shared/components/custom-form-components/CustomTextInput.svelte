@@ -1,15 +1,46 @@
 <script>
+  import { onMount } from 'svelte';
+  import Tooltip from '../utils/Tooltip.svelte';
+
   export let label;
   export let id;
   export let bindValue;
+  export let required = false;
+
+  let textarea;
+  let expand = false;
+  const textLengthToExtendAt = 40;
+
+  onMount(() => {
+    textarea.addEventListener('input', () => {
+      const textLength = textarea.value.length;
+      const threshold = textLengthToExtendAt;
+
+      if (textLength >= threshold) {
+        expand = true;
+      } else {
+        expand = false;
+      }
+    });
+  });
 </script>
 
 <div class="input-field mb-4">
-  <label for={id} class="font-bold mb-2">{label}</label>
-  <input
-    type="text"
+  <div class="flex items-center justify-between">
+    <label for={id} class="font-bold mb-2">{label} </label>
+    <Tooltip text="Top tooltip" position="right">
+      <i class="mi mi-circle-information"><span class="sr-only">Circle information</span></i>
+    </Tooltip>
+  </div>
+
+  <textarea
     {id}
-    class="shadow appearance-none border rounded w-full py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
+    {required}
+    rows="1"
+    class="resize-none transition-all duration-500 ease-in-out border-2 rounded p-2 w-full {expand
+      ? 'h-24'
+      : 'h-11'} bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
     bind:value={bindValue}
+    bind:this={textarea}
   />
 </div>

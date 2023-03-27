@@ -1,19 +1,28 @@
 <script>
+  import Tooltip from '../utils/Tooltip.svelte';
+
   export let label;
   export let id;
   export let bindValue;
-
+  export let required = false;
+  
   let showPAT = false;
 </script>
 
 <div class="password-input mb-4">
-  <label for={id} class="block font-bold mb-2">{label}</label>
-  <div class="relative">
+  <div class="flex items-center justify-between">
+    <label for={id} class="font-bold mb-2">{label} </label>
+    <Tooltip text="Top tooltip" position="right">
+      <i class="mi mi-circle-information"><span class="sr-only">Circle information</span></i>
+    </Tooltip>
+  </div>
+  <div class="relative divide-x-0 divide-gray-200 hover:divide-x-2 divide-y-0">
     {#if showPAT}
       <input
         type="text"
         {id}
-        class="shadow appearance-none border rounded w-full py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
+        {required}
+        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
         autocomplete="off"
         bind:value={bindValue}
       />
@@ -21,13 +30,15 @@
       <input
         type="password"
         {id}
-        class="shadow appearance-none border rounded w-full py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
+        {required}
+        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
         autocomplete="off"
         bind:value={bindValue}
       />
     {/if}
     <button
-      class="absolute inset-y-0 right-0 flex items-center px-2 text-gray-700"
+      type="button"
+      class="absolute inset-y-0 right-0 items-center px-2"
       on:click={() => (showPAT = !showPAT)}
     >
       {#if showPAT}
