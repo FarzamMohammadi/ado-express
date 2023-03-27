@@ -31,7 +31,7 @@
   let viaEnvSourceName = '';
   let deployment_details: IDeploymentDetails[] = [];
 
-  function getExplicitReleaseValues() {
+  function getExplicitReleaseValues(): IExplicitInclusion | IExplicitExclusion {
     if (!hasExplicitReleaseValues) return null;
 
     const selectedRelease: string[] = explicitReleaseValuesReleases
@@ -55,24 +55,15 @@
     return explicitReleaseValues;
   }
 
-  function isNullOrUndefined(variable: any): Boolean {
-    if (variable === null || variable === undefined) {
-      return true;
-    }
-    return false;
-  }
-
-  function handleSubmit() {
+  function handleSubmit(): void {
     if (isNullOrUndefined(runType) || isNullOrUndefined(runMethod)) {
-      new Toast({
-        target: document.body,
-        props: {
-          type: ToastType.Warning,
-          message: 'Please complete the run type selection at the top'
-        },
-      });
-      return;
+      return showToast(
+        ToastType.Warning,
+        'Please complete the run type selection at the top'
+      );
     }
+
+    setupRunConfigurationRunTypeVariables();
 
     const runConfigurations = new RunConfigurations(
       getExplicitReleaseValues(),
@@ -91,9 +82,17 @@
 
     const adoExpressApi = new ADOExpressApi();
     console.log(adoExpressApi.runADOExpress(runConfigurations));
+    showToast(ToastType.Success, 'Successfully submitted run request');
   }
 
-  function isSearchOnly() {
+  function isNullOrUndefined(variable: any): Boolean {
+    if (variable === null || variable === undefined) {
+      return true;
+    }
+    return false;
+  }
+
+  function isSearchOnly(): boolean {
     if (runType && runType === 'Search') {
       return true;
     } else if (runType && runType === 'Deploy') {
@@ -101,12 +100,29 @@
     }
   }
 
-  function onRunTypeSelection(runType) {
+  function onRunTypeSelection(runType): void {
     if (runType === RunType.Search) {
       submitButtonLabel = 'Run the Search';
     } else if (runType === RunType.Deploy) {
       submitButtonLabel = 'Run the Deployment';
     }
+  }
+
+  function setupRunConfigurationRunTypeVariables(): void {}
+
+  function showToast(
+    type: ToastType,
+    message: string,
+    duration?: number
+  ): void {
+    new Toast({
+      target: document.body,
+      props: {
+        type,
+        message,
+        duration,
+      },
+    });
   }
 
   $: onRunTypeSelection(runType);
@@ -127,7 +143,7 @@
 </div>
 
 <form on:submit|preventDefault={handleSubmit}>
-  <div class="flex flex-col">
+  <div class="flex flex-col text-gray-900">
     <CustomTextInput
       label="Crucial Release Definitions"
       id="crucialReleaseDefinitions"
@@ -231,7 +247,7 @@
     </div>
 
     {#if showSubmitButton}
-      <div class="flex justify-center">
+      <div class="flex justify-center pt-4">
         <button
           type="submit"
           class="bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
