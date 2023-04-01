@@ -1,6 +1,6 @@
 <script>
   import { onMount } from 'svelte';
-  import { RunType } from '../../../models/enums/enums';
+  import { DeployRunMethod, RunType, SearchRunMethod } from '../../../models/enums/enums';
   import { clickOutside } from '../../../utils/click-outside';
   import Tooltip from '../utils/Tooltip.svelte';
 
@@ -8,15 +8,15 @@
     {
       name: RunType.Search,
       tasks: [
-        'Via Environment',
-        'Via Latest in Environment',
-        'Via Number',
-        'Via Query',
+        SearchRunMethod.ViaEnvironment,
+        SearchRunMethod.ViaLatestInEnvironment,
+        SearchRunMethod.ViaNumber,
+        SearchRunMethod.ViaQuery,
       ],
     },
     {
       name: RunType.Deploy,
-      tasks: ['Via Number', 'Via Latest in Environment'],
+      tasks: [DeployRunMethod.ViaLatestInEnvironment, DeployRunMethod.ViaNumber],
     },
   ];
 

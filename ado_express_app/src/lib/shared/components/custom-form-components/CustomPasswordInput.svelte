@@ -5,10 +5,12 @@
   export let id;
   export let bindValue;
   export let required = false;
-  
+  export let showInput;
+
   let showPAT = false;
 </script>
 
+{#if showInput}
 <div class="password-input mb-4">
   <div class="flex items-center justify-between">
     <label for={id} class="font-bold mb-2">{label} </label>
@@ -79,3 +81,4 @@
     </button>
   </div>
 </div>
+{/if}
