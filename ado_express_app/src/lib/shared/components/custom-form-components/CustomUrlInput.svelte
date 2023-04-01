@@ -5,8 +5,10 @@
   export let id;
   export let bindValue;
   export let required = false;
+  export let showInput;
 </script>
 
+{#if showInput}
 <div class="input-field mb-4">
   <div class="flex items-center justify-between">
     <label for={id} class="font-bold mb-2">{label} </label>
@@ -22,3 +24,4 @@
     bind:value={bindValue}
   />
 </div>
+{/if}

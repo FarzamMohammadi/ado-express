@@ -8,17 +8,15 @@
     <Navbar />
   </div>
 
-  <div
-    class="flex flex-col items-center justify-center bg-gradient-to-br from-pink-500 to-orange-500"
-  >
-    <div class="text-gray-900 ">
-      <h1 class="text-6xl font-bold text-center uppercase py-10">
+  <div class="flex flex-col items-center min-w-full min-h-screen justify-center bg-gradient-to-br from-pink-500 to-orange-500 pb-8">
+    
+    <div>
+      <h1 class="text-6xl font-bold text-center uppercase py-10 text-gray-900">
         ADO EXPRESS
       </h1>
 
-      <div>
-        <RunConfigurationsForm />
-      </div>
+      <RunConfigurationsForm />
     </div>
+
   </div>
 </main>
