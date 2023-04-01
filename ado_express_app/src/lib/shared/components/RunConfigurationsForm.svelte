@@ -52,17 +52,18 @@
     } as IInputSettings,
   };
 
-  let runType = null;
+  let formInputRequirements = structuredClone(defaultFormInputRequirements);
   let runMethod = null;
+  let runType = null;
   let showSubmitButton = true;
   let submitButtonLabel = 'Run ADO Express';
-  let formInputRequirements = structuredClone(defaultFormInputRequirements);
 
   // RunConfigurations
-  let hasExplicitReleaseValues = false;
-  let explicitReleaseValuesType = '';
-  let explicitReleaseValuesReleases = '';
   let crucialReleaseDefinitions: '';
+  let deployment_details: IDeploymentDetails[] = [];
+  let explicitReleaseValuesReleases = '';
+  let explicitReleaseValuesType = '';
+  let hasExplicitReleaseValues = false;
   let organizationUrl = '';
   let personalAccessToken = '';
   let queries: '';
@@ -71,7 +72,6 @@
   let viaEnv = false;
   let viaEnvLatestRelease = false;
   let viaEnvSourceName = '';
-  let deployment_details: IDeploymentDetails[] = [];
 
   function getExplicitReleaseValues(): IExplicitInclusion | IExplicitExclusion {
     if (!hasExplicitReleaseValues) return null;
@@ -144,32 +144,32 @@
 
   function onRunMethodSelection(runMethod) {
     formInputRequirements = structuredClone(defaultFormInputRequirements);
-    
+
     if (runType === RunType.Search) {
       formInputRequirements.crd.required = false;
       formInputRequirements.crd.show = false;
-      
+
       // Currently works on deployment only
       formInputRequirements.erv.required = false;
       formInputRequirements.erv.show = false;
       if (runMethod == SearchRunMethod.ViaEnvironment) {
         formInputRequirements.queries.required = false;
         formInputRequirements.queries.show = false;
-        
+
         formInputRequirements.rse.required = false;
         formInputRequirements.rse.show = false;
       } else if (runMethod == SearchRunMethod.ViaLatestInEnvironment) {
         viaEnv = true;
         viaEnvLatestRelease = true;
         queries = '';
-        
+
         formInputRequirements.queries.required = false;
         formInputRequirements.queries.show = false;
       } else if (runMethod == SearchRunMethod.ViaNumber) {
         viaEnv = false;
         viaEnvLatestRelease = false;
         queries = '';
-        
+
         formInputRequirements.queries.required = false;
         formInputRequirements.queries.show = false;
 
@@ -184,7 +184,7 @@
         viaEnv = true;
         viaEnvLatestRelease = true;
         queries = '';
-        
+
         formInputRequirements.queries.required = false;
         formInputRequirements.queries.show = false;
       } else if (runMethod == SearchRunMethod.ViaNumber) {
