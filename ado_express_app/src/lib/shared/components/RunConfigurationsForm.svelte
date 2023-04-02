@@ -1,5 +1,6 @@
 <script lang="ts">
   import { ADOExpressApi } from '../../core/services/api';
+    import type { DeploymentDetails } from '../../models/classes/deployment-details.model';
   import { RunConfigurations } from '../../models/classes/run-configurations.model';
   import {
       RunType,
@@ -19,6 +20,7 @@
   import ExplicitReleaseValuesInput from './custom-form-components/ExplicitReleaseValuesInput.svelte';
   import Toast from './utils/Toast.svelte';
 
+  let customDeploymentDetailsSelector;
   const defaultFormInputRequirements = {
     crd: {
       required: true,
@@ -56,11 +58,12 @@
 
   let deploymentDetailsType = '';
   let deploymentSelectorHeaders = [
+    '',
     'Project Name',
     'Release Name',
-    'Release Number',
-    'Rollback Number',
-    'Is Crucial',
+    'Release #',
+    'Rollback #',
+    'Crucial',
   ];
   let formInputRequirements = structuredClone(defaultFormInputRequirements);
   let runMethod = null;
@@ -70,7 +73,7 @@
 
   // RunConfigurations
   let crucialReleaseDefinitions: '';
-  let deployment_details: IDeploymentDetails[] = [];
+  let deploymentDetails: DeploymentDetails[] = [];
   let explicitReleaseValuesReleases = '';
   let explicitReleaseValuesType = '';
   let hasExplicitReleaseValues = false;
@@ -82,6 +85,12 @@
   let viaEnv = false;
   let viaEnvLatestRelease = false;
   let viaEnvSourceName = '';
+
+  function configureDeploymentDetails() {
+    if (deploymentDetailsType === 'custom') {
+      deploymentDetails = customDeploymentDetailsSelector.getDeploymentDetails();
+    }
+  }
 
   function getExplicitReleaseValues(): IExplicitInclusion | IExplicitExclusion {
     if (!hasExplicitReleaseValues) return null;
@@ -115,7 +124,10 @@
       );
     }
 
+    //TODO: within this or run method validator set a variable to be levered for finding out whether we need deployment details or not 
     setupRunConfigurationRunTypeVariables();
+
+    configureDeploymentDetails();
 
     const runConfigurations = new RunConfigurations(
       getExplicitReleaseValues(),
@@ -129,10 +141,11 @@
       viaEnv,
       viaEnvLatestRelease,
       viaEnvSourceName.trim(),
-      deployment_details
+      deploymentDetails
     );
 
     const adoExpressApi = new ADOExpressApi();
+    console.log(runConfigurations)
     console.log(adoExpressApi.runADOExpress(runConfigurations));
     showToast(ToastType.Success, 'Successfully submitted run request');
   }
@@ -266,10 +279,6 @@
 
   $: onRunTypeSelection(runType);
   $: onRunMethodSelection(runMethod);
-
-  function handleDataExport(event) {
-    console.log('Exported data:', event.detail);
-  }
 </script>
 
 <svelte:head>
@@ -289,9 +298,9 @@
   </div>
 
   <div class="min-w-full border-2 border-gray-200 rounded dark:border-gray-700 mt-2 mb-2 p-2 mx-4" id="deploymentDetails">
-    <label for="deploymentDetails" class="font-bold">Deployment Details</label>
+    <label for="deploymentDetails" class="font-bold text-gray-900">Deployment Details</label>
     
-    <div class="pb-2 pt-2">
+    <div class="pb-2 pt-2 text-gray-900">
       <label class="pr-3">
         <input
           type="radio"
@@ -316,15 +325,14 @@
     {#if deploymentDetailsType === 'custom'}
       <div class="p-2">
         <ExcelPatternSelector
-          columns={5}
           rows={4}
           headers={deploymentSelectorHeaders}
-          on:dataExport={handleDataExport}
+          bind:this={customDeploymentDetailsSelector}
         />
       </div>
     {:else if deploymentDetailsType === 'file'}
       <div class="p-2">
-        <ExcelFileInput />
+        <ExcelFileInput bind:deploymentDetails={deploymentDetails} />
       </div>
     {/if}
   </div>

@@ -3,7 +3,7 @@
 	import type { DeploymentDetails } from '../../../models/classes/deployment-details.model';
   
     let file: File;
-    let dataArray: DeploymentDetails[] = [];
+    export let deploymentDetails: DeploymentDetails[] = [];
   
     function handleFileUpload(e: Event) {
       file = (e.target as HTMLInputElement).files[0];
@@ -18,8 +18,7 @@
   
         const jsonData = XLSX.utils.sheet_to_json<DeploymentDetails>(worksheet);
   
-        dataArray = jsonData;
-        console.log(dataArray);
+        deploymentDetails = jsonData;
       };
   
       reader.readAsArrayBuffer(file);
