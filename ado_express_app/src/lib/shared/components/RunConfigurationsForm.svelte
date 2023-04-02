@@ -278,124 +278,128 @@
     href="https://unpkg.com/mono-icons@1.0.5/iconfont/icons.css"
   />
 </svelte:head>
-
-<div class="relative mb-16 z-10">
-  <CustomRunSpecifierDropdown
-    bind:selectedCategoryName={runType}
-    bind:selectedTask={runMethod}
-  />
-</div>
-
-<div class="w-auto items-center border-2 border-gray-200 rounded dark:border-gray-700 mt-2 mb-2 p-2 mx-4" id="deploymentDetails">
-  <label for="deploymentDetails" class="font-bold">Deployment Details</label>
-
-  <div class="flex justify-center pb-2 pt-2">
-    <label class="pr-3">
-      <input
-        type="radio"
-        name="deploymentDetailsType"
-        value="file"
-        bind:group={deploymentDetailsType}
-      />
-      Excel File
-    </label>
-
-    <label>
-      <input
-        type="radio"
-        name="deploymentDetailsType"
-        value="custom"
-        bind:group={deploymentDetailsType}
-      />
-      Manual Input
-    </label>
-  </div>
-
-  {#if deploymentDetailsType === 'custom'}
-    <div class="flex items-center justify-center p-2">
-      <ExcelPatternSelector
-        columns={5}
-        rows={4}
-        headers={deploymentSelectorHeaders}
-        on:dataExport={handleDataExport}
-      />
-    </div>
-  {:else if deploymentDetailsType === 'file'}
-    <div class="flex items-center justify-center p-2">
-      <ExcelFileInput />
-    </div>
-  {/if}
-</div>
-
-<form on:submit|preventDefault={handleSubmit}>
-
-  <div class="relative flex flex-col text-gray-900">
-    <CustomTextInput
-      label="Crucial Release Definitions"
-      id="crucialReleaseDefinitions"
-      bind:required={formInputRequirements.crd.required}
-      bind:showInput={formInputRequirements.crd.show}
-      bind:bindValue={crucialReleaseDefinitions}
-    />
-    <CustomUrlInput
-      label="Organization Url"
-      id="organizationUrl"
-      bind:required={formInputRequirements.org_url.required}
-      bind:showInput={formInputRequirements.org_url.show}
-      bind:bindValue={organizationUrl}
-    />
-    <CustomPasswordInput
-      label="Personal Access Token"
-      id="personalAccessToken"
-      bind:required={formInputRequirements.pat.required}
-      bind:showInput={formInputRequirements.pat.show}
-      bind:bindValue={personalAccessToken}
-    />
-    <CustomTextInput
-      label="Queries"
-      id="queries"
-      bind:required={formInputRequirements.queries.required}
-      bind:showInput={formInputRequirements.queries.show}
-      bind:bindValue={queries}
-    />
-    <CustomTextInput
-      label="Release Name Format"
-      id="releaseNameFormat"
-      bind:required={formInputRequirements.rnf.required}
-      bind:showInput={formInputRequirements.rnf.show}
-      bind:bindValue={releaseNameFormat}
-    />
-    <CustomTextInput
-      label="Release Target Environment"
-      id="releaseTargetEnv"
-      bind:required={formInputRequirements.rte.required}
-      bind:showInput={formInputRequirements.rte.show}
-      bind:bindValue={releaseTargetEnv}
-    />
-    <CustomTextInput
-      label="Release Source Environment"
-      id="viaEnvSourceName"
-      bind:required={formInputRequirements.rse.required}
-      bind:showInput={formInputRequirements.rse.show}
-      bind:bindValue={viaEnvSourceName}
-    />
-
-    <ExplicitReleaseValuesInput
-      bind:hasExplicitReleaseValues
-      bind:explicitReleaseValuesType
-      bind:explicitReleaseValuesReleases
-      bind:showInput={formInputRequirements.erv.show}
+    
+<div class="flex flex-col max-w-3xl items-center justify-center">
+  
+  <div class="mb-16 z-10 w-96">
+    <CustomRunSpecifierDropdown
+      bind:selectedCategoryName={runType}
+      bind:selectedTask={runMethod}
     />
   </div>
 
-  {#if showSubmitButton}
-    <div class="flex justify-center pt-4">
-      <button
-        type="submit"
-        class="bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-      >
-        {submitButtonLabel}
-      </button>
+  <div class="min-w-full border-2 border-gray-200 rounded dark:border-gray-700 mt-2 mb-2 p-2 mx-4" id="deploymentDetails">
+    <label for="deploymentDetails" class="font-bold">Deployment Details</label>
+    
+    <div class="pb-2 pt-2">
+      <label class="pr-3">
+        <input
+          type="radio"
+          name="deploymentDetailsType"
+          value="file"
+          bind:group={deploymentDetailsType}
+        />
+        Excel File
+      </label>
+  
+      <label>
+        <input
+          type="radio"
+          name="deploymentDetailsType"
+          value="custom"
+          bind:group={deploymentDetailsType}
+        />
+        Manual Input
+      </label>
     </div>
-  {/if}
-</form>
+  
+    {#if deploymentDetailsType === 'custom'}
+      <div class="p-2">
+        <ExcelPatternSelector
+          columns={5}
+          rows={4}
+          headers={deploymentSelectorHeaders}
+          on:dataExport={handleDataExport}
+        />
+      </div>
+    {:else if deploymentDetailsType === 'file'}
+      <div class="p-2">
+        <ExcelFileInput />
+      </div>
+    {/if}
+  </div>
+  
+  <form class="w-96" on:submit|preventDefault={handleSubmit}>
+
+    <div class="relative flex flex-col text-gray-900">
+      <CustomTextInput
+        label="Crucial Release Definitions"
+        id="crucialReleaseDefinitions"
+        bind:required={formInputRequirements.crd.required}
+        bind:showInput={formInputRequirements.crd.show}
+        bind:bindValue={crucialReleaseDefinitions}
+      />
+      <CustomUrlInput
+        label="Organization Url"
+        id="organizationUrl"
+        bind:required={formInputRequirements.org_url.required}
+        bind:showInput={formInputRequirements.org_url.show}
+        bind:bindValue={organizationUrl}
+      />
+      <CustomPasswordInput
+        label="Personal Access Token"
+        id="personalAccessToken"
+        bind:required={formInputRequirements.pat.required}
+        bind:showInput={formInputRequirements.pat.show}
+        bind:bindValue={personalAccessToken}
+      />
+      <CustomTextInput
+        label="Queries"
+        id="queries"
+        bind:required={formInputRequirements.queries.required}
+        bind:showInput={formInputRequirements.queries.show}
+        bind:bindValue={queries}
+      />
+      <CustomTextInput
+        label="Release Name Format"
+        id="releaseNameFormat"
+        bind:required={formInputRequirements.rnf.required}
+        bind:showInput={formInputRequirements.rnf.show}
+        bind:bindValue={releaseNameFormat}
+      />
+      <CustomTextInput
+        label="Release Target Environment"
+        id="releaseTargetEnv"
+        bind:required={formInputRequirements.rte.required}
+        bind:showInput={formInputRequirements.rte.show}
+        bind:bindValue={releaseTargetEnv}
+      />
+      <CustomTextInput
+        label="Release Source Environment"
+        id="viaEnvSourceName"
+        bind:required={formInputRequirements.rse.required}
+        bind:showInput={formInputRequirements.rse.show}
+        bind:bindValue={viaEnvSourceName}
+      />
+
+      <ExplicitReleaseValuesInput
+        bind:hasExplicitReleaseValues
+        bind:explicitReleaseValuesType
+        bind:explicitReleaseValuesReleases
+        bind:showInput={formInputRequirements.erv.show}
+      />
+    </div>
+
+    {#if showSubmitButton}
+      <div class="flex justify-center pt-4">
+        <button
+          type="submit"
+          class="bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+        >
+          {submitButtonLabel}
+        </button>
+      </div>
+    {/if}
+  </form>
+
+</div>

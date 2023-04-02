@@ -32,26 +32,24 @@
   $: gridColsClass = `grid grid-cols-[repeat(${columns},minmax(0,1fr))] gap-1`;
 </script>
 
-<div class="">
-  <div class={gridColsClass}>
-    {#each headers as header}
+<div class={gridColsClass}>
+  {#each headers as header}
+    <input
+      class="read-only text-center font-bold w-full h-8 px-2 text-md border border-gray-800 rounded-md focus:outline-none focus:border-blue-500 disabled:bg-gray-900"
+      type="text"
+      value={header}
+      disabled={true}
+      readonly
+    />
+  {/each}
+
+  {#each Array(rows).fill(null) as _, row}
+    {#each Array(columns).fill(null) as _, col}
       <input
-        class="read-only text-center font-bold w-full h-8 px-2 text-md border border-gray-800 rounded-md focus:outline-none focus:border-blue-500 disabled:bg-gray-900"
         type="text"
-        value={header}
-        disabled={true}
-        readonly
+        class="text-center w-full h-8 px-2 py-1 text-sm border bg-gray-700 border-gray-800 rounded-md focus:outline-none focus:border-blue-500"
+        on:input={(event) => handleInput(row, col, event)}
       />
     {/each}
-
-    {#each Array(rows).fill(null) as _, row}
-      {#each Array(columns).fill(null) as _, col}
-        <input
-          type="text"
-          class="text-center w-full h-8 px-2 py-1 text-sm border bg-gray-700 border-gray-800 rounded-md focus:outline-none focus:border-blue-500"
-          on:input={(event) => handleInput(row, col, event)}
-        />
-      {/each}
-    {/each}
-  </div>
+  {/each}
 </div>
