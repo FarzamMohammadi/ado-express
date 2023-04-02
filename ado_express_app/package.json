@@ -28,6 +28,7 @@
   },
   "dependencies": {
     "popper.js": "^1.16.1",
-    "svelte-popperjs": "^1.3.2"
+    "svelte-popperjs": "^1.3.2",
+    "xlsx": "^0.18.5"
   }
 }

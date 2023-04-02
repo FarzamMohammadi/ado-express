@@ -14,6 +14,8 @@
   import CustomRunSpecifierDropdown from './custom-form-components/CustomRunSpecifierDropdown.svelte';
   import CustomTextInput from './custom-form-components/CustomTextInput.svelte';
   import CustomUrlInput from './custom-form-components/CustomUrlInput.svelte';
+  import ExcelFileInput from './custom-form-components/ExcelFileInput.svelte';
+  import ExcelPatternSelector from './custom-form-components/ExcelPatternSelector.svelte';
   import ExplicitReleaseValuesInput from './custom-form-components/ExplicitReleaseValuesInput.svelte';
   import Toast from './utils/Toast.svelte';
 
@@ -52,6 +54,14 @@
     } as IInputSettings,
   };
 
+  let deploymentDetailsType = '';
+  let deploymentSelectorHeaders = [
+    'Project Name',
+    'Release Name',
+    'Release Number',
+    'Rollback Number',
+    'Is Crucial',
+  ];
   let formInputRequirements = structuredClone(defaultFormInputRequirements);
   let runMethod = null;
   let runType = null;
@@ -256,6 +266,10 @@
 
   $: onRunTypeSelection(runType);
   $: onRunMethodSelection(runMethod);
+
+  function handleDataExport(event) {
+    console.log('Exported data:', event.detail);
+  }
 </script>
 
 <svelte:head>
@@ -265,15 +279,57 @@
   />
 </svelte:head>
 
-<div class="mb-16 relative z-10">
+<div class="relative mb-16 z-10">
   <CustomRunSpecifierDropdown
     bind:selectedCategoryName={runType}
     bind:selectedTask={runMethod}
   />
 </div>
 
+<div class="w-auto items-center border-2 border-gray-200 rounded dark:border-gray-700 mt-2 mb-2 p-2 mx-4" id="deploymentDetails">
+  <label for="deploymentDetails" class="font-bold">Deployment Details</label>
+
+  <div class="flex justify-center pb-2 pt-2">
+    <label class="pr-3">
+      <input
+        type="radio"
+        name="deploymentDetailsType"
+        value="file"
+        bind:group={deploymentDetailsType}
+      />
+      Excel File
+    </label>
+
+    <label>
+      <input
+        type="radio"
+        name="deploymentDetailsType"
+        value="custom"
+        bind:group={deploymentDetailsType}
+      />
+      Manual Input
+    </label>
+  </div>
+
+  {#if deploymentDetailsType === 'custom'}
+    <div class="flex items-center justify-center p-2">
+      <ExcelPatternSelector
+        columns={5}
+        rows={4}
+        headers={deploymentSelectorHeaders}
+        on:dataExport={handleDataExport}
+      />
+    </div>
+  {:else if deploymentDetailsType === 'file'}
+    <div class="flex items-center justify-center p-2">
+      <ExcelFileInput />
+    </div>
+  {/if}
+</div>
+
 <form on:submit|preventDefault={handleSubmit}>
-  <div class="flex flex-col text-gray-900">
+
+  <div class="relative flex flex-col text-gray-900">
     <CustomTextInput
       label="Crucial Release Definitions"
       id="crucialReleaseDefinitions"
@@ -330,16 +386,16 @@
       bind:explicitReleaseValuesReleases
       bind:showInput={formInputRequirements.erv.show}
     />
-
-    {#if showSubmitButton}
-      <div class="flex justify-center pt-4">
-        <button
-          type="submit"
-          class="bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-        >
-          {submitButtonLabel}
-        </button>
-      </div>
-    {/if}
   </div>
+
+  {#if showSubmitButton}
+    <div class="flex justify-center pt-4">
+      <button
+        type="submit"
+        class="bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+      >
+        {submitButtonLabel}
+      </button>
+    </div>
+  {/if}
 </form>
