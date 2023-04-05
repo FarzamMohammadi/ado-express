@@ -204,6 +204,9 @@
       } else if (runMethod == SearchRunMethod.ViaQuery) {
         viaEnv = true;
         viaEnvLatestRelease = false;
+
+        formInputRequirements.dd.required = false;
+        formInputRequirements.dd.show = false;
       }
     } else if (runType === RunType.Deploy) {
       if (runMethod == SearchRunMethod.ViaLatestInEnvironment) {
