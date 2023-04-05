@@ -282,11 +282,6 @@
 
   $: onRunTypeSelection(runType);
   $: onRunMethodSelection(runMethod);
-
-
-    function doThis() {
-        console.log(deploymentDetails)
-    }
 </script>
 
 <svelte:head>
@@ -295,8 +290,6 @@
     href="https://unpkg.com/mono-icons@1.0.5/iconfont/icons.css"
   />
 </svelte:head>
-
-<button on:click={doThis}>132123</button>
 
 <div class="flex flex-col max-w-3xl items-center justify-center">
   <div class="mb-16 z-10 w-96">
@@ -308,8 +301,10 @@
 
   <DeploymentDetailsSelector
     {deploymentSelectorHeaders}
+    bind:deploymentDetailsType={deploymentDetailsType}
     bind:deploymentDetails
     bind:showInput={formInputRequirements.dd.show}
+    bind:customDeploymentDetailsSelector={customDeploymentDetailsSelector}
   />
 
   <form class="w-96" on:submit|preventDefault={handleSubmit}>

@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { createEventDispatcher } from 'svelte';
   import { DeploymentDetails } from '../../../models/classes/deployment-details.model';
 
   export let headers: String[];
@@ -7,8 +6,6 @@
   export let columns = 6;
   export let disabledColumns: number[] = [];
   let cells = {};
-
-  const dispatch = createEventDispatcher();
 
   function addRow() {
     rows += 1;
@@ -18,8 +15,15 @@
     return `${row}-${col}`;
   }
 
+  function getBooleanValue(isCrucialUserInput: String) {
+    const trueValues = ['t', 'true', 'y', 'yes', '1']
+
+    return trueValues.includes(isCrucialUserInput.toLowerCase())
+  }
+
   export function getDeploymentDetails() {
-    let output = [];
+    let rowsToExclude: number[] = [];
+    let userInputValues = [];
     const rowNumberCol = 0;
     const isCrucialCol = 5;
 
@@ -35,6 +39,7 @@
             c !== isCrucialCol &&
             !disabledColumns.includes(c)
           ) {
+            rowsToExclude.push(r);
             continue;
           }
           else{
@@ -42,30 +47,27 @@
           }
         }
       }
-      output.push(rowData);
+      userInputValues.push(rowData);
     }   
     let deploymentDetails: DeploymentDetails[] = [];
 
-    output.forEach(rowData => {
-      let rowDeploymentDetails = new DeploymentDetails(rowData[0], rowData[1], rowData[2], rowData[3], rowData[4]);
-      deploymentDetails.push(rowDeploymentDetails)
-    })
+    for(let row = 0; row < userInputValues.length; row++){
+      if (!rowsToExclude.includes(row)){
+        deploymentDetails.push(new DeploymentDetails(userInputValues[row][0], userInputValues[row][1], userInputValues[row][2], userInputValues[row][3], getBooleanValue(userInputValues[row][4])));
+      }
+    }
 
-    dispatch('customDeploymentDetails', deploymentDetails);
     return deploymentDetails;
   }
 
   function handleInput(row, col, event) {
     const id = cellId(row, col);
     cells[id] = event.target.value;
-    dispatch('cellChange', { row, col, value: event.target.value });
   }
 
   function RemoveRow() {
     rows -= 1;
   }
-
-  // $: gridColsClass = `grid grid-cols-[repeat(${columns},minmax(0,1fr))] gap-1`;
 </script>
 
 <div class="flex flex-row mb-2 items-center justify-end">

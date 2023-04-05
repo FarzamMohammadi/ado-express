@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
   import Tooltip from '../utils/Tooltip.svelte';
   import ExcelFileInput from './ExcelFileInput.svelte';
   import ExcelPatternSelector from './ExcelPatternSelector.svelte';
@@ -7,12 +6,8 @@
   export let deploymentDetails;
   export let deploymentSelectorHeaders: string[] = [];
   export let showInput: boolean;
-  let deploymentDetailsType = 'file';
-  let customDeploymentDetailsSelector;
-
-  onMount(() => {
-    // Perform any initialization or setup here
-  });
+  export let deploymentDetailsType;
+  export let customDeploymentDetailsSelector;
 </script>
 
 {#if showInput}
