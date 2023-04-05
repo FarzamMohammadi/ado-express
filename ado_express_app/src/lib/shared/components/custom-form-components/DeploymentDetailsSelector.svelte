@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import Tooltip from '../utils/Tooltip.svelte';
   import ExcelFileInput from './ExcelFileInput.svelte';
   import ExcelPatternSelector from './ExcelPatternSelector.svelte';
 
@@ -19,11 +20,19 @@
     class="min-w-full border-2 border-gray-200 rounded dark:border-gray-700 mt-2 mb-2 p-2 mx-4"
     id="deploymentDetails"
   >
-    <label for="deploymentDetails" class="font-bold text-gray-900"
-      >Deployment Details</label
-    >
+    <div class="flex justify-center ml-3">
+      <label for="deploymentDetails" class="font-bold text-gray-900 mt-2 mr-1"
+        >Deployment Details</label
+      >
 
-    <div class="pb-2 pt-2 text-gray-900">
+      <Tooltip text="Top tooltip" position="right">
+        <i class="mi mi-circle-information text-gray-900"
+          ><span class="sr-only">Circle information</span></i
+        >
+      </Tooltip>
+    </div>
+
+    <div class="pb-2 pt-2 text-gray-900 flex justify-center">
       <label class="pr-3">
         <input
           type="radio"

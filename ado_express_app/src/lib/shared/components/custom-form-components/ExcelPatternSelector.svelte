@@ -1,7 +1,6 @@
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
-    import { DeploymentDetails } from '../../../models/classes/deployment-details.model';
-    import type { IDeploymentDetails } from '../../../models/interfaces/ideployment-details.interface';
+  import { DeploymentDetails } from '../../../models/classes/deployment-details.model';
 
   export let headers: String[];
   export let rows: number;
@@ -69,7 +68,7 @@
   // $: gridColsClass = `grid grid-cols-[repeat(${columns},minmax(0,1fr))] gap-1`;
 </script>
 
-<div class="flex flex-row m-1 items-center justify-end">
+<div class="flex flex-row mb-2 items-center justify-end">
   <button
     disabled={rows >= 25}
     on:click={addRow}
