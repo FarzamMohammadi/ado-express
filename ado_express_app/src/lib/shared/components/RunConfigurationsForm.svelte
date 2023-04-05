@@ -1,5 +1,6 @@
 <script lang="ts">
   import { ADOExpressApi } from '../../core/services/api';
+    import type { DeploymentDetails } from '../../models/classes/deployment-details.model';
   import { RunConfigurations } from '../../models/classes/run-configurations.model';
   import {
       RunType,
@@ -14,9 +15,12 @@
   import CustomRunSpecifierDropdown from './custom-form-components/CustomRunSpecifierDropdown.svelte';
   import CustomTextInput from './custom-form-components/CustomTextInput.svelte';
   import CustomUrlInput from './custom-form-components/CustomUrlInput.svelte';
+  import ExcelFileInput from './custom-form-components/ExcelFileInput.svelte';
+  import ExcelPatternSelector from './custom-form-components/ExcelPatternSelector.svelte';
   import ExplicitReleaseValuesInput from './custom-form-components/ExplicitReleaseValuesInput.svelte';
   import Toast from './utils/Toast.svelte';
 
+  let customDeploymentDetailsSelector;
   const defaultFormInputRequirements = {
     crd: {
       required: true,
@@ -52,6 +56,15 @@
     } as IInputSettings,
   };
 
+  let deploymentDetailsType = '';
+  let deploymentSelectorHeaders = [
+    '',
+    'Project Name',
+    'Release Name',
+    'Release #',
+    'Rollback #',
+    'Crucial',
+  ];
   let formInputRequirements = structuredClone(defaultFormInputRequirements);
   let runMethod = null;
   let runType = null;
@@ -60,7 +73,7 @@
 
   // RunConfigurations
   let crucialReleaseDefinitions: '';
-  let deployment_details: IDeploymentDetails[] = [];
+  let deploymentDetails: DeploymentDetails[] = [];
   let explicitReleaseValuesReleases = '';
   let explicitReleaseValuesType = '';
   let hasExplicitReleaseValues = false;
@@ -72,6 +85,12 @@
   let viaEnv = false;
   let viaEnvLatestRelease = false;
   let viaEnvSourceName = '';
+
+  function configureDeploymentDetails() {
+    if (deploymentDetailsType === 'custom') {
+      deploymentDetails = customDeploymentDetailsSelector.getDeploymentDetails();
+    }
+  }
 
   function getExplicitReleaseValues(): IExplicitInclusion | IExplicitExclusion {
     if (!hasExplicitReleaseValues) return null;
@@ -105,7 +124,10 @@
       );
     }
 
+    //TODO: within this or run method validator set a variable to be levered for finding out whether we need deployment details or not 
     setupRunConfigurationRunTypeVariables();
+
+    configureDeploymentDetails();
 
     const runConfigurations = new RunConfigurations(
       getExplicitReleaseValues(),
@@ -119,10 +141,11 @@
       viaEnv,
       viaEnvLatestRelease,
       viaEnvSourceName.trim(),
-      deployment_details
+      deploymentDetails
     );
 
     const adoExpressApi = new ADOExpressApi();
+    console.log(runConfigurations)
     console.log(adoExpressApi.runADOExpress(runConfigurations));
     showToast(ToastType.Success, 'Successfully submitted run request');
   }
@@ -264,72 +287,116 @@
     href="https://unpkg.com/mono-icons@1.0.5/iconfont/icons.css"
   />
 </svelte:head>
+    
+<div class="flex flex-col max-w-3xl items-center justify-center">
+  
+  <div class="mb-16 z-10 w-96">
+    <CustomRunSpecifierDropdown
+      bind:selectedCategoryName={runType}
+      bind:selectedTask={runMethod}
+    />
+  </div>
 
-<div class="mb-16 relative z-10">
-  <CustomRunSpecifierDropdown
-    bind:selectedCategoryName={runType}
-    bind:selectedTask={runMethod}
-  />
-</div>
+  <div class="min-w-full border-2 border-gray-200 rounded dark:border-gray-700 mt-2 mb-2 p-2 mx-4" id="deploymentDetails">
+    <label for="deploymentDetails" class="font-bold text-gray-900">Deployment Details</label>
+    
+    <div class="pb-2 pt-2 text-gray-900">
+      <label class="pr-3">
+        <input
+          type="radio"
+          name="deploymentDetailsType"
+          value="file"
+          bind:group={deploymentDetailsType}
+        />
+        Excel File
+      </label>
+  
+      <label>
+        <input
+          type="radio"
+          name="deploymentDetailsType"
+          value="custom"
+          bind:group={deploymentDetailsType}
+        />
+        Manual Input
+      </label>
+    </div>
+  
+    {#if deploymentDetailsType === 'custom'}
+      <div class="p-2">
+        <ExcelPatternSelector
+          rows={4}
+          headers={deploymentSelectorHeaders}
+          bind:this={customDeploymentDetailsSelector}
+        />
+      </div>
+    {:else if deploymentDetailsType === 'file'}
+      <div class="p-2">
+        <ExcelFileInput bind:deploymentDetails={deploymentDetails} />
+      </div>
+    {/if}
+  </div>
+  
+  <form class="w-96" on:submit|preventDefault={handleSubmit}>
 
-<form on:submit|preventDefault={handleSubmit}>
-  <div class="flex flex-col text-gray-900">
-    <CustomTextInput
-      label="Crucial Release Definitions"
-      id="crucialReleaseDefinitions"
-      bind:required={formInputRequirements.crd.required}
-      bind:showInput={formInputRequirements.crd.show}
-      bind:bindValue={crucialReleaseDefinitions}
-    />
-    <CustomUrlInput
-      label="Organization Url"
-      id="organizationUrl"
-      bind:required={formInputRequirements.org_url.required}
-      bind:showInput={formInputRequirements.org_url.show}
-      bind:bindValue={organizationUrl}
-    />
-    <CustomPasswordInput
-      label="Personal Access Token"
-      id="personalAccessToken"
-      bind:required={formInputRequirements.pat.required}
-      bind:showInput={formInputRequirements.pat.show}
-      bind:bindValue={personalAccessToken}
-    />
-    <CustomTextInput
-      label="Queries"
-      id="queries"
-      bind:required={formInputRequirements.queries.required}
-      bind:showInput={formInputRequirements.queries.show}
-      bind:bindValue={queries}
-    />
-    <CustomTextInput
-      label="Release Name Format"
-      id="releaseNameFormat"
-      bind:required={formInputRequirements.rnf.required}
-      bind:showInput={formInputRequirements.rnf.show}
-      bind:bindValue={releaseNameFormat}
-    />
-    <CustomTextInput
-      label="Release Target Environment"
-      id="releaseTargetEnv"
-      bind:required={formInputRequirements.rte.required}
-      bind:showInput={formInputRequirements.rte.show}
-      bind:bindValue={releaseTargetEnv}
-    />
-    <CustomTextInput
-      label="Release Source Environment"
-      id="viaEnvSourceName"
-      bind:required={formInputRequirements.rse.required}
-      bind:showInput={formInputRequirements.rse.show}
-      bind:bindValue={viaEnvSourceName}
-    />
+    <div class="relative flex flex-col text-gray-900">
+      <CustomTextInput
+        label="Crucial Release Definitions"
+        id="crucialReleaseDefinitions"
+        bind:required={formInputRequirements.crd.required}
+        bind:showInput={formInputRequirements.crd.show}
+        bind:bindValue={crucialReleaseDefinitions}
+      />
+      <CustomUrlInput
+        label="Organization Url"
+        id="organizationUrl"
+        bind:required={formInputRequirements.org_url.required}
+        bind:showInput={formInputRequirements.org_url.show}
+        bind:bindValue={organizationUrl}
+      />
+      <CustomPasswordInput
+        label="Personal Access Token"
+        id="personalAccessToken"
+        bind:required={formInputRequirements.pat.required}
+        bind:showInput={formInputRequirements.pat.show}
+        bind:bindValue={personalAccessToken}
+      />
+      <CustomTextInput
+        label="Queries"
+        id="queries"
+        bind:required={formInputRequirements.queries.required}
+        bind:showInput={formInputRequirements.queries.show}
+        bind:bindValue={queries}
+      />
+      <CustomTextInput
+        label="Release Name Format"
+        id="releaseNameFormat"
+        bind:required={formInputRequirements.rnf.required}
+        bind:showInput={formInputRequirements.rnf.show}
+        bind:bindValue={releaseNameFormat}
+      />
+      <CustomTextInput
+        label="Release Target Environment"
+        id="releaseTargetEnv"
+        bind:required={formInputRequirements.rte.required}
+        bind:showInput={formInputRequirements.rte.show}
+        bind:bindValue={releaseTargetEnv}
+      />
+      <CustomTextInput
+        label="Release Source Environment"
+        id="viaEnvSourceName"
+        bind:required={formInputRequirements.rse.required}
+        bind:showInput={formInputRequirements.rse.show}
+        bind:bindValue={viaEnvSourceName}
+      />
 
-    <ExplicitReleaseValuesInput
-      bind:hasExplicitReleaseValues
-      bind:explicitReleaseValuesType
-      bind:explicitReleaseValuesReleases
-      bind:showInput={formInputRequirements.erv.show}
-    />
+      <ExplicitReleaseValuesInput
+        bind:hasExplicitReleaseValues
+        bind:explicitReleaseValuesType
+        bind:explicitReleaseValuesReleases
+        bind:showInput={formInputRequirements.erv.show}
+      />
+    </div>
 
     {#if showSubmitButton}
       <div class="flex justify-center pt-4">
@@ -341,5 +408,6 @@
         </button>
       </div>
     {/if}
-  </div>
-</form>
+  </form>
+
+</div>
