@@ -1,13 +1,12 @@
 <script lang="ts">
   import { ADOExpressApi } from '../../core/services/api';
-    import type { DeploymentDetails } from '../../models/classes/deployment-details.model';
+  import type { DeploymentDetails } from '../../models/classes/deployment-details.model';
   import { RunConfigurations } from '../../models/classes/run-configurations.model';
   import {
       RunType,
       SearchRunMethod,
       ToastType
   } from '../../models/enums/enums';
-  import type { IDeploymentDetails } from '../../models/interfaces/ideployment-details.interface';
   import type { IExplicitExclusion } from '../../models/interfaces/iexplicit-exclusion.interface';
   import type { IExplicitInclusion } from '../../models/interfaces/iexplicit-inclusion.interface';
   import type { IInputSettings } from '../../models/interfaces/input-settings.interface';
@@ -15,13 +14,16 @@
   import CustomRunSpecifierDropdown from './custom-form-components/CustomRunSpecifierDropdown.svelte';
   import CustomTextInput from './custom-form-components/CustomTextInput.svelte';
   import CustomUrlInput from './custom-form-components/CustomUrlInput.svelte';
-  import ExcelFileInput from './custom-form-components/ExcelFileInput.svelte';
-  import ExcelPatternSelector from './custom-form-components/ExcelPatternSelector.svelte';
+  import DeploymentDetailsSelector from './custom-form-components/DeploymentDetailsSelector.svelte';
   import ExplicitReleaseValuesInput from './custom-form-components/ExplicitReleaseValuesInput.svelte';
   import Toast from './utils/Toast.svelte';
 
   let customDeploymentDetailsSelector;
   const defaultFormInputRequirements = {
+    dd: {
+      required: true,
+      show: true,
+    } as IInputSettings,
     crd: {
       required: true,
       show: true,
@@ -88,7 +90,8 @@
 
   function configureDeploymentDetails() {
     if (deploymentDetailsType === 'custom') {
-      deploymentDetails = customDeploymentDetailsSelector.getDeploymentDetails();
+      deploymentDetails =
+        customDeploymentDetailsSelector.getDeploymentDetails();
     }
   }
 
@@ -124,7 +127,7 @@
       );
     }
 
-    //TODO: within this or run method validator set a variable to be levered for finding out whether we need deployment details or not 
+    //TODO: within this or run method validator set a variable to be levered for finding out whether we need deployment details or not
     setupRunConfigurationRunTypeVariables();
 
     configureDeploymentDetails();
@@ -145,7 +148,7 @@
     );
 
     const adoExpressApi = new ADOExpressApi();
-    console.log(runConfigurations)
+    console.log(runConfigurations);
     console.log(adoExpressApi.runADOExpress(runConfigurations));
     showToast(ToastType.Success, 'Successfully submitted run request');
   }
@@ -287,9 +290,8 @@
     href="https://unpkg.com/mono-icons@1.0.5/iconfont/icons.css"
   />
 </svelte:head>
-    
+
 <div class="flex flex-col max-w-3xl items-center justify-center">
-  
   <div class="mb-16 z-10 w-96">
     <CustomRunSpecifierDropdown
       bind:selectedCategoryName={runType}
@@ -297,48 +299,13 @@
     />
   </div>
 
-  <div class="min-w-full border-2 border-gray-200 rounded dark:border-gray-700 mt-2 mb-2 p-2 mx-4" id="deploymentDetails">
-    <label for="deploymentDetails" class="font-bold text-gray-900">Deployment Details</label>
-    
-    <div class="pb-2 pt-2 text-gray-900">
-      <label class="pr-3">
-        <input
-          type="radio"
-          name="deploymentDetailsType"
-          value="file"
-          bind:group={deploymentDetailsType}
-        />
-        Excel File
-      </label>
-  
-      <label>
-        <input
-          type="radio"
-          name="deploymentDetailsType"
-          value="custom"
-          bind:group={deploymentDetailsType}
-        />
-        Manual Input
-      </label>
-    </div>
-  
-    {#if deploymentDetailsType === 'custom'}
-      <div class="p-2">
-        <ExcelPatternSelector
-          rows={4}
-          headers={deploymentSelectorHeaders}
-          bind:this={customDeploymentDetailsSelector}
-        />
-      </div>
-    {:else if deploymentDetailsType === 'file'}
-      <div class="p-2">
-        <ExcelFileInput bind:deploymentDetails={deploymentDetails} />
-      </div>
-    {/if}
-  </div>
-  
-  <form class="w-96" on:submit|preventDefault={handleSubmit}>
+  <DeploymentDetailsSelector
+    {deploymentSelectorHeaders}
+    bind:deploymentDetails
+    bind:showInput={formInputRequirements.dd.show}
+  />
 
+  <form class="w-96" on:submit|preventDefault={handleSubmit}>
     <div class="relative flex flex-col text-gray-900">
       <CustomTextInput
         label="Crucial Release Definitions"
@@ -409,5 +376,4 @@
       </div>
     {/if}
   </form>
-
 </div>
