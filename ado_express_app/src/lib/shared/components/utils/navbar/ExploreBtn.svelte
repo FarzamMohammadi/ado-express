@@ -1,5 +1,5 @@
 <!-- SOURCE:
-<span>
+  <span>
   See the Pen <a href="https://codepen.io/jh3y/pen/eYPYKep">
   CSS Galaxy Button 🚀</a> 
   by Jhey (<a href="https://codepen.io/jh3y">@jh3y</a>)
@@ -35,10 +35,6 @@
   });
 </script>
 
-<a
-target="_blank"
-href="https://github.com/FarzamMohammadi"
->
   <button class="text-xl">
     <span class="spark" />
     <span class="backdrop" />
@@ -75,7 +71,7 @@ href="https://github.com/FarzamMohammadi"
     <span class="text text-sm">Explore Other Projects</span>
   </button>
   <div class="bodydrop" />
-</a>
+
 <style lang="scss">
   *,
   *:after,
@@ -101,10 +97,10 @@ href="https://github.com/FarzamMohammadi"
   }
 
   button {
-    --cut: 0.12em;
+    --cut: 0.1em;
     --active: 0;
     --bg: radial-gradient(
-          105% 120% at 126% 126%,
+          120% 120% at 126% 126%,
           hsl(
               var(--hue) calc(var(--active) * 97%) 98% /
                 calc(var(--active) * 0.9)
@@ -136,7 +132,7 @@ href="https://github.com/FarzamMohammadi"
     white-space: nowrap;
     border-radius: 2rem;
     position: relative;
-    box-shadow: 0 0 calc(var(--active) * 6em) calc(var(--active) * 1em)
+    box-shadow: 0 0 calc(var(--active) * 6em) calc(var(--active) * 3em)
         hsl(var(--hue) 97% 61% / 0.5),
       0 0.05em 0 0
         hsl(
