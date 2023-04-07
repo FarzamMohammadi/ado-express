@@ -10,12 +10,12 @@
   import type { IExplicitExclusion } from '../../models/interfaces/iexplicit-exclusion.interface';
   import type { IExplicitInclusion } from '../../models/interfaces/iexplicit-inclusion.interface';
   import type { IInputSettings } from '../../models/interfaces/input-settings.interface';
-  import CustomPasswordInput from './custom-form-components/CustomPasswordInput.svelte';
   import CustomRunSpecifierDropdown from './custom-form-components/CustomRunSpecifierDropdown.svelte';
-  import CustomTextInput from './custom-form-components/CustomTextInput.svelte';
-  import CustomUrlInput from './custom-form-components/CustomUrlInput.svelte';
-  import DeploymentDetailsSelector from './custom-form-components/DeploymentDetailsSelector.svelte';
+  import DeploymentDetailsSelector from './custom-form-components/deployment-details/DeploymentDetailsSelector.svelte';
   import ExplicitReleaseValuesInput from './custom-form-components/ExplicitReleaseValuesInput.svelte';
+  import CustomPasswordInput from './custom-form-components/inputs/CustomPasswordInput.svelte';
+  import CustomTextInput from './custom-form-components/inputs/CustomTextInput.svelte';
+  import CustomUrlInput from './custom-form-components/inputs/CustomUrlInput.svelte';
   import Toast from './utils/Toast.svelte';
 
   let customDeploymentDetailsSelector;

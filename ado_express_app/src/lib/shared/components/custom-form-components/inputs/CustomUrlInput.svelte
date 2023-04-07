@@ -1,5 +1,5 @@
 <script>
-  import Tooltip from '../utils/Tooltip.svelte';
+  import Tooltip from '../../utils/Tooltip.svelte';
 
   export let label;
   export let id;

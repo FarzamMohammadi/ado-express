@@ -1,5 +1,5 @@
 <script lang="ts">
-    import CustomTextInput from './CustomTextInput.svelte';
+    import CustomTextInput from './inputs/CustomTextInput.svelte';
 
   export let hasExplicitReleaseValues;
   export let explicitReleaseValuesType;

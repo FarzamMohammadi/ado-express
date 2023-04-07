@@ -1,5 +1,5 @@
 <script lang="ts">
-  import Tooltip from '../utils/Tooltip.svelte';
+  import Tooltip from '../../utils/Tooltip.svelte';
   import ExcelFileInput from './ExcelFileInput.svelte';
   import ExcelPatternSelector from './ExcelPatternSelector.svelte';
 
