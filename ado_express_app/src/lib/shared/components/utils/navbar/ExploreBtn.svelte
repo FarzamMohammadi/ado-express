@@ -72,10 +72,11 @@ href="https://github.com/FarzamMohammadi"
         <span class="star" />
       </span>
     </span>
-    <span class="text text-sm">Explore Other Projects</span>
+    <span class="text">Explore Other Projects</span>
   </button>
   <div class="bodydrop" />
 </a>
+
 <style lang="scss">
   *,
   *:after,
@@ -89,22 +90,11 @@ href="https://github.com/FarzamMohammadi"
     --hue: 245;
   }
 
-  body {
-    --active: 0;
-    background: hsl(var(--hue) calc(var(--active) * 97%) 6%);
-    display: grid;
-    place-items: center;
-    min-height: 100vh;
-    font-family: system-ui, sans-serif;
-
-    overflow: hidden;
-  }
-
   button {
     --cut: 0.12em;
     --active: 0;
     --bg: radial-gradient(
-          105% 120% at 126% 126%,
+          100% 120% at 126% 126%,
           hsl(
               var(--hue) calc(var(--active) * 97%) 98% /
                 calc(var(--active) * 0.9)
@@ -285,7 +275,7 @@ href="https://github.com/FarzamMohammadi"
     content: '';
     position: absolute;
     inset: var(--cut);
-    border-radius: 2rem;
+    border-radius: 22rem;
   }
 
   .backdrop {
@@ -307,21 +297,11 @@ href="https://github.com/FarzamMohammadi"
       --active: 1;
       --play-state: running;
     }
-    .bodydrop {
-      display: none;
-    }
   }
 
-  button:is(:hover, :focus-visible) ~ :is(.bodydrop, .particle-pen) {
+  button:is(:hover, :focus-visible) ~ :is(.particle-pen) {
     --active: 1;
     --play-state: running;
-  }
-
-  .bodydrop {
-    background: hsl(260 calc(var(--active) * 97%) 6%);
-    position: fixed;
-    inset: 0;
-    z-index: -1;
   }
 
   button:is(:hover, :focus-visible) {
@@ -336,13 +316,9 @@ href="https://github.com/FarzamMohammadi"
   }
 
   .text {
+    font-size: medium;
     translate: 2% -6%;
     letter-spacing: 0.01ch;
     color: hsl(0 0% calc(60% + (var(--active) * 26%)));
-  }
-
-  button svg {
-    inline-size: 1.25em;
-    translate: -25% -5%;
   }
 </style>
