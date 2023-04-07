@@ -12,7 +12,7 @@
 
 {#if showInput}
   <div
-    class="min-w-full border-2 border-gray-200 rounded dark:border-gray-700 mt-2 mb-2 p-2 mx-4"
+    class="min-w-full border-2 border-gray-200 rounded dark:border-gray-700 mt-2 mb-3 p-2 mx-4"
     id="deploymentDetails"
   >
     <div class="flex justify-center ml-3">

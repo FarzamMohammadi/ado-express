@@ -1,4 +1,6 @@
 <script lang="ts">
+    import ExploreBtn from './ExploreBtn.svelte';
+
   let isMenuOpen = false;
 
   function toggleMenu() {
@@ -10,31 +12,40 @@
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex items-center justify-between h-16">
       <div class="">
-        <div class="ml-10 flex items-baseline space-x-4">
-          <a
-            href="#"
-            class="text-md font-medium text-gray-900 px-3 py-2 border-2 border-gray-200 rounded dark:border-gray-700 hover:bg-gray-300"
-            >Contact</a
-          >
-          <a
-            href="#"
-            class="text-md font-medium text-gray-900 px-3 py-2 border-2 border-gray-200 rounded dark:border-gray-700 hover:bg-gray-300"
-            >About</a
-          >
-        </div>
-      </div>
+        <div class="ml-10 flex justify-center items-center space-x-4">
 
-      <div>
-        <a
+          <a
           target="_blank"
           href="https://github.com/FarzamMohammadi/ado-express"
         >
           <img
-            class="h-10 w-26 rounded-lg shadow-lg hover:shadow-xl transition duration-500 ease-in-out transform hover:-translate-y-0.5"
+            class="h-16 w-26 mr-2 rounded-lg shadow-lg hover:shadow-xl transition duration-500 ease-in-out transform hover:-translate-y-1 border-2 dark:border-gray-700"
             src="./src/assets/logo.png"
             alt="Logo"
           />
         </a>
+
+          <a
+            href="#"
+            class="text-md font-medium text-gray-900 px-3 py-2 border-2 rounded dark:border-gray-700 hover:bg-gray-300"
+            >Contact</a
+          >
+          <a
+            href="#"
+            class="text-md font-medium text-gray-900 px-3 py-2 border-2 rounded dark:border-gray-700 hover:bg-gray-300"
+            >About</a
+          >
+
+          <a
+          href="#"
+          class="text-md font-medium text-gray-900 px-3 py-2 border-2 rounded dark:border-gray-700 hover:bg-gray-300"
+          >Technical FAQs</a
+        >
+        </div>
+      </div>
+
+      <div>
+        <ExploreBtn />
       </div>
     </div>
     <div class="flex items-center justify-end">

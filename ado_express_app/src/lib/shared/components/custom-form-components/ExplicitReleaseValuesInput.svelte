@@ -9,7 +9,7 @@
 
 {#if showInput}
   <div
-    class="w-full items-center border-2 border-gray-200 rounded dark:border-gray-700 mt-2 mb-2"
+    class="w-full items-center border-2 border-gray-200 rounded dark:border-gray-700 mb-2"
     id="hasExplicitReleaseValues"
   >
     <div
