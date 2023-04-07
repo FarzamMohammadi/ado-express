@@ -10,7 +10,7 @@
 
   let textarea;
   let expand = false;
-  const textLengthToExtendAt = 40;
+  const textLengthToExtendAt = 25;
 
   onMount(() => {
     textarea.addEventListener('input', () => {
