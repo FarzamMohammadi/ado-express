@@ -96,7 +96,7 @@
               var(--hue) calc(var(--active) * 97%) 98% /
                 calc(var(--active) * 0.9)
             )
-            25%,
+            28%,
           transparent 50%
         )
         calc(100px - (var(--active) * 100px)) 0 / 100% 100% no-repeat,
@@ -145,7 +145,7 @@
   }
 
   .star {
-    height: calc(var(--size) * 1px);
+    height: calc(var(--size) * 0.65px);
     aspect-ratio: 1;
     background: white;
     border-radius: 50%;
