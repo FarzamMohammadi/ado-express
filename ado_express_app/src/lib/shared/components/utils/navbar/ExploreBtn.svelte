@@ -1,5 +1,5 @@
 <!-- SOURCE:
-  <span>
+<span>
   See the Pen <a href="https://codepen.io/jh3y/pen/eYPYKep">
   CSS Galaxy Button 🚀</a> 
   by Jhey (<a href="https://codepen.io/jh3y">@jh3y</a>)
@@ -35,6 +35,7 @@
   });
 </script>
 
+<a target="_blank" href="https://github.com/FarzamMohammadi">
   <button class="text-xl">
     <span class="spark" />
     <span class="backdrop" />
@@ -68,9 +69,10 @@
         <span class="star" />
       </span>
     </span>
-    <span class="text text-sm">Explore Other Projects</span>
+    <span class="text">Explore Other Projects</span>
   </button>
   <div class="bodydrop" />
+</a>
 
 <style lang="scss">
   *,
@@ -85,19 +87,8 @@
     --hue: 245;
   }
 
-  body {
-    --active: 0;
-    background: hsl(var(--hue) calc(var(--active) * 97%) 6%);
-    display: grid;
-    place-items: center;
-    min-height: 100vh;
-    font-family: system-ui, sans-serif;
-
-    overflow: hidden;
-  }
-
   button {
-    --cut: 0.1em;
+    --cut: 0.12em;
     --active: 0;
     --bg: radial-gradient(
           120% 120% at 126% 126%,
@@ -105,7 +96,7 @@
               var(--hue) calc(var(--active) * 97%) 98% /
                 calc(var(--active) * 0.9)
             )
-            40%,
+            25%,
           transparent 50%
         )
         calc(100px - (var(--active) * 100px)) 0 / 100% 100% no-repeat,
@@ -132,7 +123,7 @@
     white-space: nowrap;
     border-radius: 2rem;
     position: relative;
-    box-shadow: 0 0 calc(var(--active) * 6em) calc(var(--active) * 3em)
+    box-shadow: 0 0 calc(var(--active) * 6em) calc(var(--active) * 1em)
         hsl(var(--hue) 97% 61% / 0.5),
       0 0.05em 0 0
         hsl(
@@ -144,7 +135,6 @@
         ) inset;
     transition: box-shadow var(--transition), scale var(--transition),
       background var(--transition);
-    scale: calc(1 + (var(--active) * 0.1));
     transform-style: preserve-3d;
     perspective: 100vmin;
     overflow: hidden;
@@ -281,7 +271,7 @@
     content: '';
     position: absolute;
     inset: var(--cut);
-    border-radius: 2rem;
+    border-radius: 22rem;
   }
 
   .backdrop {
@@ -303,21 +293,11 @@
       --active: 1;
       --play-state: running;
     }
-    .bodydrop {
-      display: none;
-    }
   }
 
-  button:is(:hover, :focus-visible) ~ :is(.bodydrop, .particle-pen) {
+  button:is(:hover, :focus-visible) ~ :is(.particle-pen) {
     --active: 1;
     --play-state: running;
-  }
-
-  .bodydrop {
-    background: hsl(260 calc(var(--active) * 97%) 6%);
-    position: fixed;
-    inset: 0;
-    z-index: -1;
   }
 
   button:is(:hover, :focus-visible) {
@@ -332,13 +312,9 @@
   }
 
   .text {
+    font-size: medium;
     translate: 2% -6%;
     letter-spacing: 0.01ch;
     color: hsl(0 0% calc(60% + (var(--active) * 26%)));
-  }
-
-  button svg {
-    inline-size: 1.25em;
-    translate: -25% -5%;
   }
 </style>
