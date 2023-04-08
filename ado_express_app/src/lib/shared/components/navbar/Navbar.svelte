@@ -24,7 +24,7 @@
           >
             <img
               class="h-16 w-26 mr-2 rounded-lg shadow-lg hover:shadow-xl transition duration-500 ease-in-out transform hover:-translate-y-1 border-2 dark:border-gray-700"
-              src="./src/assets/logo.png"
+              src="./logo.png"
               alt="Logo"
             />
           </a>
