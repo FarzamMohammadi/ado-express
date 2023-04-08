@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { DeploymentDetails } from '../../../models/classes/deployment-details.model';
+  import { DeploymentDetails } from '../../../../models/classes/deployment-details.model';
 
   export let headers: String[];
   export let rows: number;

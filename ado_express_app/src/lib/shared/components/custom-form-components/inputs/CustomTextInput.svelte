@@ -1,6 +1,6 @@
 <script>
   import { onMount } from 'svelte';
-  import Tooltip from '../utils/Tooltip.svelte';
+  import Tooltip from '../../utils/Tooltip.svelte';
 
   export let label;
   export let id;
@@ -10,7 +10,7 @@
 
   let textarea;
   let expand = false;
-  const textLengthToExtendAt = 40;
+  const textLengthToExtendAt = 25;
 
   onMount(() => {
     textarea.addEventListener('input', () => {

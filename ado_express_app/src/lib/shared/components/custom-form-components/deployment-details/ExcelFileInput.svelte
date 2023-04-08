@@ -1,6 +1,6 @@
 <script lang="ts">
   import * as XLSX from 'xlsx';
-  import { DeploymentDetails } from '../../../models/classes/deployment-details.model';
+  import { DeploymentDetails } from '../../../../models/classes/deployment-details.model';
 
   let file: File;
   export let deploymentDetails: DeploymentDetails[] = [];
