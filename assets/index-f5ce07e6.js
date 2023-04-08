@@ -91,4 +91,9 @@ var ef=Object.defineProperty;var rf=(e,t,r)=>t in e?ef(e,t,{enumerable:!0,config
     --tw-gradient-to: rgb(243 244 246 / 0);
     --tw-gradient-stops: var(--tw-gradient-from), #f3f4f6, var(--tw-gradient-to);
     --tw-gradient-to: #4b5563
-}`,r=ge(),a=Z("main"),n=Z("div"),tr(s.$$.fragment),i=ge(),c=Z("div"),f=Z("div"),f.innerHTML='<h1 class="text-6xl font-bold text-center uppercase py-10 text-gray-900">ADO EXPRESS</h1>',l=ge(),o=Z("div"),tr(h.$$.fragment),N(c,"class","flex flex-col items-center min-w-full min-h-screen justify-center to-gray-600 pb-8")},m(d,x){j(document.head,t),xe(d,r,x),xe(d,a,x),j(a,n),Ke(s,n,null),j(a,i),j(a,c),j(c,f),j(c,l),j(c,o),Ke(h,o,null),u=!0},p:Ze,i(d){u||(Te(s.$$.fragment,d),Te(h.$$.fragment,d),u=!0)},o(d){Ce(s.$$.fragment,d),Ce(h.$$.fragment,d),u=!1},d(d){he(t),d&&he(r),d&&he(a),Ye(s),Ye(h)}}}class Ig extends Mr{constructor(t){super(),Pr(this,t,null,Rg,Lr,{})}}new Ig({target:document.getElementById("app")});
+}`,r=ge(),a=Z("main"),n=Z("div"),tr(s.$$.fragment),i=ge(),c=Z("div"),f=Z("div"),f.innerHTML=`<h1 class="text-6xl font-bold uppercase pt-10 pb-5 text-gray-900">ADO EXPRESS</h1> 
+
+
+      <p class="text-md text-gray-900 pb-8">A release management tool designed to streamline the Azure DevOps release deployment process.</p> 
+
+      <hr class="border-gray-900 border-t-4 mx-auto mb-8 w-2/12"/>`,l=ge(),o=Z("div"),tr(h.$$.fragment),N(f,"class","text-center"),N(c,"class","flex flex-col items-center min-w-full min-h-screen justify-center to-gray-600 pb-8")},m(d,x){j(document.head,t),xe(d,r,x),xe(d,a,x),j(a,n),Ke(s,n,null),j(a,i),j(a,c),j(c,f),j(c,l),j(c,o),Ke(h,o,null),u=!0},p:Ze,i(d){u||(Te(s.$$.fragment,d),Te(h.$$.fragment,d),u=!0)},o(d){Ce(s.$$.fragment,d),Ce(h.$$.fragment,d),u=!1},d(d){he(t),d&&he(r),d&&he(a),Ye(s),Ye(h)}}}class Ig extends Mr{constructor(t){super(),Pr(this,t,null,Rg,Lr,{})}}new Ig({target:document.getElementById("app")});
