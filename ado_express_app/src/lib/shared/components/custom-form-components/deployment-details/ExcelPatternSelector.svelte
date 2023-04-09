@@ -17,12 +17,6 @@
     return `${row}-${col}`;
   }
 
-  function getBooleanValue(isCrucialUserInput) {
-    const trueValues = ['t', 'true', 'y', 'yes', '1', 'on']
-    console.log(isCrucialUserInput)
-    return trueValues.includes(isCrucialUserInput.toLowerCase())
-  }
-
   export function getDeploymentDetails() {
     let rowsToExclude: number[] = [];
     let userInputValues = [];
@@ -35,7 +29,7 @@
       for (let c = 0; c < columns; c++) {
         if (c != rowNumberCol) {
           let rowColValue = cells[cellId(r, c)] ?? '';
-
+          console.log(rowColValue)
           if (
             rowColValue === '' &&
             c !== isCrucialCol &&
@@ -55,7 +49,7 @@
 
     for(let row = 0; row < userInputValues.length; row++){
       if (!rowsToExclude.includes(row)){
-        newDeploymentDetails.push(new DeploymentDetails(userInputValues[row][0], userInputValues[row][1], userInputValues[row][2], userInputValues[row][3], getBooleanValue(userInputValues[row][4])));
+        newDeploymentDetails.push(new DeploymentDetails(userInputValues[row][0], userInputValues[row][1], userInputValues[row][2], userInputValues[row][3], userInputValues[row][4] == true));
       }
     }
 
@@ -65,9 +59,13 @@
   }
 
   function handleInput(row, col, event) {
-    const id = cellId(row, col);
+  const id = cellId(row, col);
+  if (col === 5) {
+    cells[id] = event.target.checked;
+  } else {
     cells[id] = event.target.value;
   }
+}
 
   function RemoveRow() {
     rows -= 1;
