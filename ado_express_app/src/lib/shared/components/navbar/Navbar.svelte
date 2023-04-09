@@ -58,17 +58,20 @@
 
           {#if showLinks && !isMobile}
             <a
-              href="#"
+              target="_blank"
+              href="https://github.com/FarzamMohammadi/ado-express/"
               class="text-md font-medium text-gray-900 px-3 py-2 border-2 rounded dark:border-gray-700 hover:bg-gray-300"
               >About</a
             >
             <a
-              href="#"
+              target="_blank"
+              href="https://github.com/FarzamMohammadi/ado-express/issues"
               class="text-md font-medium text-gray-900 px-3 py-2 border-2 rounded dark:border-gray-700 hover:bg-gray-300"
               >Contact</a
             >
             <a
-              href="#"
+              target="_blank"
+              href="https://github.com/FarzamMohammadi/ado-express#readme"
               class="text-md font-medium text-gray-900 px-3 py-2 border-2 rounded dark:border-gray-700 hover:bg-gray-300"
               >Technical FAQs</a
             >
@@ -123,14 +126,22 @@
   <div class={`${isMenuOpen ? 'block' : 'hidden'} md:hidden`}>
     <div class="px-2 pt-2 pb-3 sm:px-3">
       <a
-        href="#"
+        target="_blank"
+        href="https://github.com/FarzamMohammadi/ado-express"
         class="block px-3 py-2 rounded-md text-base text-md font-medium text-gray-900 border-2 border-gray-200 dark:border-gray-700"
-        >Home</a
+        >About</a
       >
       <a
-        href="#"
-        class="mt-1 block px-3 py-2 rounded-md text-base text-md font-medium text-gray-900 border-2 border-gray-200 dark:border-gray-700"
+        target="_blank"
+        href="https://github.com/FarzamMohammadi/ado-express/issues"
+        class="block px-3 py-2 rounded-md text-base text-md font-medium text-gray-900 border-2 border-gray-200 dark:border-gray-700"
         >About</a
+      >
+      <a
+        target="_blank"
+        href="https://github.com/FarzamMohammadi/ado-express#readme"
+        class="mt-1 block px-3 py-2 rounded-md text-base text-md font-medium text-gray-900 border-2 border-gray-200 dark:border-gray-700"
+        >Technical FAQs</a
       >
     </div>
   </div>
