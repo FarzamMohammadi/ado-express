@@ -1,9 +1,12 @@
 <script lang="ts">
-  import Tooltip from '../../utils/Tooltip.svelte';
-  import ExcelFileInput from './ExcelFileInput.svelte';
-  import ExcelPatternSelector from './ExcelPatternSelector.svelte';
+    import type { DeploymentDetails } from '../../../../models/classes/deployment-details.model';
+    import Tooltip from '../../utils/Tooltip.svelte';
+    import DeploymentDetailSelectionResults from './DeploymentDetailSelectionResults.svelte';
+    import ExcelFileInput from './ExcelFileInput.svelte';
+    import ExcelPatternSelector from './ExcelPatternSelector.svelte';
 
-  export let deploymentDetails;
+  let removeExcelFile;
+  export let deploymentDetails: DeploymentDetails[];
   export let deploymentSelectorHeaders: string[] = [];
   export let showInput: boolean;
   export let deploymentDetailsType;
@@ -12,7 +15,7 @@
 
 {#if showInput}
   <div
-    class="min-w-full border-2 border-gray-200 rounded dark:border-gray-700 mt-2 mb-3 p-2 mx-4"
+    class="w-full border-2 rounded border-gray-700 mt-2 mb-3 p-2 mx-4"
     id="deploymentDetails"
   >
     <div class="flex justify-center ml-3">
@@ -54,13 +57,17 @@
         <ExcelPatternSelector
           rows={4}
           headers={deploymentSelectorHeaders}
+          bind:deploymentDetails
           bind:this={customDeploymentDetailsSelector}
         />
       </div>
     {:else if deploymentDetailsType === 'file'}
       <div class="p-2">
-        <ExcelFileInput bind:deploymentDetails />
+        <ExcelFileInput bind:deploymentDetails/>
       </div>
+    {/if}
+    {#if deploymentDetails.length}
+      <DeploymentDetailSelectionResults bind:deploymentDetails on:removeDeploymentDetails={() => deploymentDetails = []} />
     {/if}
   </div>
 {/if}
