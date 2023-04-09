@@ -9,7 +9,7 @@
 
 {#if showInput}
   <div
-    class="w-full items-center border-2 border-gray-200 rounded dark:border-gray-700 mb-2"
+    class="items-center border-2 border-gray-200 rounded dark:border-gray-700 mb-2"
     id="hasExplicitReleaseValues"
   >
     <div
@@ -30,7 +30,7 @@
     </div>
 
     {#if hasExplicitReleaseValues}
-      <div class="flex justify-center pb-2 pt-2">
+      <div class="flex justify-center">
         <label class="pr-3">
           <input
             type="radio"

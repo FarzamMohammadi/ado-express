@@ -11,15 +11,15 @@
   </style>
 </svelte:head>
 
-<main>
+<main class="min-w-full min-h-screen">
   <div>
     <Navbar />
   </div>
 
   <div
-    class="flex flex-col items-center min-w-full min-h-screen justify-center to-gray-600 pb-8"
+  class="flex flex-col items-center justify-center to-gray-600 pb-8"
   >
-    <div class="text-center">
+    <div>
       <h1 class="text-6xl font-bold uppercase pt-10 pb-5 text-gray-900">
         ADO EXPRESS
       </h1>

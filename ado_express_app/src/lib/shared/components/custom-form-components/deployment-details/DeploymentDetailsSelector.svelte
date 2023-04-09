@@ -27,7 +27,7 @@
       </Tooltip>
     </div>
 
-    <div class="pb-2 pt-2 text-gray-900 flex justify-center">
+    <div class="flex justify-center pb-2 pt-2 text-gray-900">
       <label class="pr-3">
         <input
           type="radio"
