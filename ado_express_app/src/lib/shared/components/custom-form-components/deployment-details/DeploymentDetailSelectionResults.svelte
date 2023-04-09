@@ -5,14 +5,16 @@
 	const dispatch = createEventDispatcher();
 
   export let deploymentDetails: DeploymentDetails[];
-
-  let hideResults = false;
+  export let showResults;
   
   function removeDeploymentDetails() {
 		dispatch('removeDeploymentDetails');
 	}
 </script>
-<div class="flex flex-col items-center border-2 rounded border-gray-500 m-2">
+
+
+{#if showResults}
+  <div class="flex flex-col items-center border-2 rounded border-gray-500 m-2">
     <div class="overflow-x-auto sm:-mx-6 lg:-mx-8">
       <div class="inline-block min-w-full py-2 sm:px-6 lg:px-8">
         <div class="overflow-hidden">
@@ -49,6 +51,7 @@
       </div>
     </div>
   </div>
+{/if}
 
 <style>
   table {
