@@ -1,12 +1,31 @@
 <script lang="ts">
+  import { onMount } from 'svelte';
   import ExploreBtn from './ExploreBtn.svelte';
 
   let isMenuOpen = false;
   let showLinks = false;
+  let isMobile = false;
+  const breakpoint = 768;
+
+  function checkScreenSize() {
+    isMobile = window.innerWidth <= breakpoint;
+  }
+
+  function handleResize() {
+    checkScreenSize();
+  }
 
   function toggleMenu() {
     isMenuOpen = !isMenuOpen;
   }
+
+  onMount(() => {
+    window.addEventListener('resize', handleResize);
+    checkScreenSize();
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  });
 </script>
 
 <nav>
@@ -22,25 +41,32 @@
             href="https://github.com/FarzamMohammadi/ado-express"
             on:mouseenter={() => (showLinks = true)}
           >
-            <img
-              class="h-16 w-26 mr-2 rounded-lg shadow-lg hover:shadow-xl transition duration-500 ease-in-out transform hover:-translate-y-1 border-2 dark:border-gray-700"
-              src="./logo.png"
-              alt="Logo"
-            />
+            {#if isMobile}
+              <img
+                class="h-16 w-26 mr-2 rounded-lg shadow-lg hover:shadow-xl border-2 dark:border-gray-700"
+                src="./logo.png"
+                alt="Logo of the application name, 'ADO Express'"
+              />
+            {:else}
+              <img
+                class="h-16 w-26 mr-2 rounded-lg shadow-lg hover:shadow-xl transition duration-500 ease-in-out transform hover:-translate-y-1 border-2 dark:border-gray-700"
+                src="./logo.png"
+                alt="Logo of the application name, 'ADO Express'"
+              />
+            {/if}
           </a>
 
-          {#if showLinks}
-            <a
-              href="#"
-              class="text-md font-medium text-gray-900 px-3 py-2 border-2 rounded dark:border-gray-700 hover:bg-gray-300"
-              >Contact</a
-            >
+          {#if showLinks && !isMobile}
             <a
               href="#"
               class="text-md font-medium text-gray-900 px-3 py-2 border-2 rounded dark:border-gray-700 hover:bg-gray-300"
               >About</a
             >
-
+            <a
+              href="#"
+              class="text-md font-medium text-gray-900 px-3 py-2 border-2 rounded dark:border-gray-700 hover:bg-gray-300"
+              >Contact</a
+            >
             <a
               href="#"
               class="text-md font-medium text-gray-900 px-3 py-2 border-2 rounded dark:border-gray-700 hover:bg-gray-300"
@@ -54,7 +80,7 @@
         <ExploreBtn />
       </div>
     </div>
-    <div class="flex items-center justify-end m-2">
+    <div class="flex items-center justify-end m-6">
       <div class="mt-2 flex md:hidden">
         <button
           type="button"
@@ -98,12 +124,12 @@
     <div class="px-2 pt-2 pb-3 sm:px-3">
       <a
         href="#"
-        class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-white border-2 border-gray-200 rounded dark:border-gray-700"
+        class="block px-3 py-2 rounded-md text-base text-md font-medium text-gray-900 border-2 border-gray-200 dark:border-gray-700"
         >Home</a
       >
       <a
         href="#"
-        class="mt-1 block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-white border-2 border-gray-200 rounded dark:border-gray-700"
+        class="mt-1 block px-3 py-2 rounded-md text-base text-md font-medium text-gray-900 border-2 border-gray-200 dark:border-gray-700"
         >About</a
       >
     </div>
