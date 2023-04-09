@@ -88,7 +88,7 @@
       />
     {/if}
 
-    {#if !showResults}
+    {#if !showResults && deploymentDetails.length}
       <button
         class="bg-transparent hover:bg-green-700 text-green-900 font-semibold hover:text-white py-2 px-4 border border-green-800 hover:border-transparent rounded-lg shadow-lg"
         >Show Selection</button
