@@ -88,13 +88,6 @@
   let viaEnvLatestRelease = false;
   let viaEnvSourceName = '';
 
-  function configureDeploymentDetails() {
-    if (deploymentDetailsType === 'custom') {
-      deploymentDetails =
-        customDeploymentDetailsSelector.getDeploymentDetails();
-    }
-  }
-
   function getExplicitReleaseValues(): IExplicitInclusion | IExplicitExclusion {
     if (!hasExplicitReleaseValues) return null;
 
@@ -129,8 +122,6 @@
 
     //TODO: within this or run method validator set a variable to be levered for finding out whether we need deployment details or not
     setupRunConfigurationRunTypeVariables();
-
-    configureDeploymentDetails();
 
     const runConfigurations = new RunConfigurations(
       getExplicitReleaseValues(),

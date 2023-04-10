@@ -1,11 +1,13 @@
 <script lang="ts">
   import { DeploymentDetails } from '../../../../models/classes/deployment-details.model';
 
+  export let deploymentDetails: DeploymentDetails[];
+  export let disabledColumns: number[] = [];
   export let headers: String[];
   export let rows: number;
-  export let columns = 6;
-  export let disabledColumns: number[] = [];
+  
   let cells = {};
+  let columns = 6;
 
   function addRow() {
     rows += 1;
@@ -13,12 +15,6 @@
 
   function cellId(row, col) {
     return `${row}-${col}`;
-  }
-
-  function getBooleanValue(isCrucialUserInput: String) {
-    const trueValues = ['t', 'true', 'y', 'yes', '1']
-
-    return trueValues.includes(isCrucialUserInput.toLowerCase())
   }
 
   export function getDeploymentDetails() {
@@ -33,7 +29,7 @@
       for (let c = 0; c < columns; c++) {
         if (c != rowNumberCol) {
           let rowColValue = cells[cellId(r, c)] ?? '';
-
+          console.log(rowColValue)
           if (
             rowColValue === '' &&
             c !== isCrucialCol &&
@@ -49,21 +45,27 @@
       }
       userInputValues.push(rowData);
     }   
-    let deploymentDetails: DeploymentDetails[] = [];
+    let newDeploymentDetails: DeploymentDetails[] = [];
 
     for(let row = 0; row < userInputValues.length; row++){
       if (!rowsToExclude.includes(row)){
-        deploymentDetails.push(new DeploymentDetails(userInputValues[row][0], userInputValues[row][1], userInputValues[row][2], userInputValues[row][3], getBooleanValue(userInputValues[row][4])));
+        newDeploymentDetails.push(new DeploymentDetails(userInputValues[row][0], userInputValues[row][1], userInputValues[row][2], userInputValues[row][3], userInputValues[row][4] == true));
       }
     }
+
+    deploymentDetails = newDeploymentDetails;
 
     return deploymentDetails;
   }
 
   function handleInput(row, col, event) {
-    const id = cellId(row, col);
+  const id = cellId(row, col);
+  if (col === 5) {
+    cells[id] = event.target.checked;
+  } else {
     cells[id] = event.target.value;
   }
+}
 
   function RemoveRow() {
     rows -= 1;
@@ -125,7 +127,6 @@
       {:else if col === 5}
         <input
           type="checkbox"
-          value="true"
           disabled={disabledColumns.includes(col)}
           class="text-center text-sm border border-gray-800 rounded-md focus:outline-none focus:border-blue-500 'w-24'"
           on:input={(event) => handleInput(row, col, event)}
@@ -146,4 +147,13 @@
       {/if}
     {/each}
   {/each}
+</div>
+<div class="flex justify-center mt-4 mb-2">
+  <button
+    on:click={() => getDeploymentDetails()}
+    type="button"
+    class="bg-transparent hover:bg-blue-700 text-blue-900 font-semibold hover:text-white border border-blue-800 hover:border-transparent rounded-lg shadow-lg"
+    >
+    Submit
+  </button>
 </div>

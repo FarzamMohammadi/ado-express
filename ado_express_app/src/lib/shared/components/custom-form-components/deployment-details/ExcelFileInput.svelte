@@ -2,7 +2,6 @@
   import * as XLSX from 'xlsx';
   import { DeploymentDetails } from '../../../../models/classes/deployment-details.model';
 
-  let file: File;
   export let deploymentDetails: DeploymentDetails[] = [];
 
   function getBooleanValue(isCrucialUserInput: String) {
@@ -11,12 +10,13 @@
     return trueValues.includes(isCrucialUserInput.toLowerCase());
   }
 
-  function handleFileUpload(e: Event) {
-    file = (e.target as HTMLInputElement).files[0];
+  function handleFileUpload(event: Event) {
+    const target = event.target as HTMLInputElement;
+    const file = target.files && target.files[0];
     const reader = new FileReader();
 
-    reader.onload = (event) => {
-      const data = new Uint8Array(event.target.result);
+    reader.onload = (event: ProgressEvent<FileReader>) => {
+      const data = new Uint8Array(event.target.result as ArrayBuffer);
       const workbook = XLSX.read(data, { type: 'array' });
 
       const sheetName = workbook.SheetNames[0];
@@ -50,6 +50,7 @@
     };
 
     reader.readAsArrayBuffer(file);
+    target.value = '';
   }
 </script>
 
