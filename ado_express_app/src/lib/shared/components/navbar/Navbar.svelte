@@ -43,7 +43,7 @@
           >
             {#if isMobile}
               <img
-                class="h-16 w-26 mr-2 rounded-lg shadow-lg hover:shadow-xl border-2 dark:border-gray-700"
+                class="h-16 w-26 mr-2 rounded-lg shadow-lg hover:shadow-xl border-2 border-gray-700"
                 src="./logo.png"
                 alt="Logo of the application name, 'ADO Express'"
               />

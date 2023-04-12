@@ -1,4 +1,5 @@
 <script lang="ts">
+  import DarkToggle from './lib/shared/DarkToggle.svelte';
   import RunConfigurationsForm from './lib/shared/components/RunConfigurationsForm.svelte';
   import Navbar from './lib/shared/components/navbar/Navbar.svelte';
 </script>
@@ -20,9 +21,15 @@
   class="flex flex-col items-center justify-center to-gray-600 pb-8"
   >
     <div>
+      <div class="flex flex-row items-center justify-center">
       <h1 class="text-6xl font-bold uppercase pt-10 pb-5 text-gray-900">
         ADO EXPRESS
       </h1>
+      <div class="mt-8 transform rotate-90">
+        <DarkToggle />
+      </div>
+    </div>
+      
 
 
       <p class="text-md text-gray-900 pb-8">
