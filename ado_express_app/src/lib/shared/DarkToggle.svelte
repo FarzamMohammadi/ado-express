@@ -257,7 +257,7 @@
           --stroke-width: 3px;
           width: 47px;
           height: 36px;
-          stroke-width: 3px;
+          stroke-width: 3.5px;
         }
       }
       div {
