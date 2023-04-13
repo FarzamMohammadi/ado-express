@@ -7,10 +7,14 @@
 <svelte:head>
   <style>
     body {
-      @apply bg-gradient-to-r from-gray-300 via-gray-100 to-gray-600;
+      @apply bg-gradient-to-r from-gray-300 via-gray-200 to-gray-600;
+    }
+    .dark body {
+      @apply bg-gradient-to-r from-gray-600 via-gray-600 to-gray-800;
     }
   </style>
 </svelte:head>
+
 
 <main class="min-w-full min-h-screen">
   <div>

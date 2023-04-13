@@ -21,6 +21,7 @@
 
   onMount(() => {
     darkMode = localStorage.getItem('darkMode') === 'true';
+
     if (darkMode) {
       document.documentElement.classList.add('dark');
     } else {
@@ -28,6 +29,12 @@
     }
 
     document.querySelectorAll('.day-night').forEach((dayNight: HTMLElement) => {
+      if (!darkMode){
+        dayNight.classList.add('night');
+        dayNight.style.setProperty('--moon-y', '0px');
+        dayNight.style.setProperty('--sun-y', '60px');
+      }
+      
       let toggle = dayNight.querySelector('.toggle') as HTMLElement,
         svgLine = dayNight.querySelector('.line') as HTMLElement;
 
