@@ -1,8 +1,32 @@
+<!-- SOURCE: 
+  https://codepen.io/aaroniker/pen/PoNewGe Day & Night Toggle
+  by Aaron Iker https://codepen.io/aaroniker
+-->
+
 <script lang="ts">
   import gsap from 'gsap';
   import { onMount } from 'svelte';
 
+  let darkMode = false;
+
+  function toggleDarkMode() {
+    darkMode = !darkMode;
+    localStorage.setItem('darkMode', darkMode.toString());
+    if (darkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }
+
   onMount(() => {
+    darkMode = localStorage.getItem('darkMode') === 'true';
+    if (darkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+
     document.querySelectorAll('.day-night').forEach((dayNight: HTMLElement) => {
       let toggle = dayNight.querySelector('.toggle') as HTMLElement,
         svgLine = dayNight.querySelector('.line') as HTMLElement;
@@ -27,10 +51,13 @@
 
       toggle.addEventListener('click', (e) => {
         e.preventDefault();
-
+      
         if (dayNight.classList.contains('animate')) {
           return;
         }
+        
+        toggleDarkMode();
+        
         dayNight.classList.add('animate');
 
         let night = dayNight.classList.contains('night');
@@ -262,7 +289,7 @@
         height: 45px;
         overflow: hidden;
         position: absolute;
-        left: 37px;
+        left: 38px;
         top: 10px;
         border-radius: 0 0 9px 9px;
         svg {
@@ -280,7 +307,8 @@
           }
           &.moon {
             --stroke: var(--moon);
-            transform: translateY(var(--moon-y)) scale(0.75) translateZ(0) rotate(-90deg);
+            transform: translateY(var(--moon-y)) scale(0.75) translateZ(0)
+              rotate(-90deg);
             .star-1,
             .star-2 {
               stroke: var(--moon-stars);

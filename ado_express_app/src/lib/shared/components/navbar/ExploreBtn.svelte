@@ -1,10 +1,6 @@
-<!-- SOURCE:
-<span>
-  See the Pen <a href="https://codepen.io/jh3y/pen/eYPYKep">
-  CSS Galaxy Button 🚀</a> 
-  by Jhey (<a href="https://codepen.io/jh3y">@jh3y</a>)
-  on <a href="https://codepen.io">CodePen</a>.
-</span> 
+<!-- SOURCE: 
+  https://codepen.io/jh3y/pen/eYPYKep CSS Galaxy Button 🚀
+  by Jhey https://codepen.io/jh3y
 -->
 
 <script lang="ts">
