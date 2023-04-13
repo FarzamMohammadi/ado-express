@@ -197,7 +197,7 @@
     --sun: #f0c644;
     --day-background: transparent;
     --day-line: #111827;
-    --moon: #111827;
+    --moon: #09090b;
     --moon-stars: #ddeafb;
     --night-background: transparent;
     --night-line: #111827;
@@ -230,7 +230,6 @@
       clip-path: circle(var(--new-percent) at 50% 50%);
     }
     .toggle {
-      -webkit-appearance: none;
       outline: none;
       border: none;
       background: none;
@@ -240,7 +239,7 @@
       padding: 0;
       margin: 0;
       display: block;
-      width: 48px;
+      width: 120px;
       height: 34px;
       svg {
         display: block;
@@ -254,26 +253,23 @@
         stroke-width: var(--stroke-width, 2px);
         stroke: var(--stroke, var(--line));
         &.line {
-          --stroke-width: 3px;
-          width: 47px;
-          height: 36px;
-          stroke-width: 3.5px;
+          --stroke-width: 2px;
+          stroke-width: 1.5px;
         }
       }
       div {
-        width: 28px;
-        height: 41px;
+        width: 102px;
+        height: 45px;
         overflow: hidden;
         position: absolute;
-        left: 10px;
-        top: -6px;
+        left: 37px;
+        top: 10px;
         border-radius: 0 0 9px 9px;
         svg {
           --left: 2px;
           --top: 6px;
-          width: 24px;
-          height: 24px;
-
+          width: 35px;
+          height: 30px;
           &.sun {
             --stroke: var(--sun);
             transform: translateY(var(--sun-y)) translateZ(0);

@@ -134,7 +134,7 @@
           var(--hue) calc(var(--active) * 97%) calc(var(--active) * 10%)
         ) inset;
     transition: box-shadow var(--transition), scale var(--transition),
-      background var(--transition);
+    background var(--transition);
     transform-style: preserve-3d;
     perspective: 100vmin;
     overflow: hidden;

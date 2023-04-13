@@ -1,6 +1,5 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import DarkToggle from '../../DarkToggle.svelte';
   import ExploreBtn from './ExploreBtn.svelte';
 
   let isMenuOpen = false;
@@ -80,11 +79,8 @@
         </div>
       </div>
 
-      <div on:mouseenter={() => (showLinks = false)} class="flex flex-row items-center justify-center">
+      <div on:mouseenter={() => (showLinks = false)}>
         <ExploreBtn />
-        <div class="transform rotate-90 mt-1">
-          <DarkToggle />
-        </div>
       </div>
     </div>
     <div class="flex items-center justify-end m-6">
