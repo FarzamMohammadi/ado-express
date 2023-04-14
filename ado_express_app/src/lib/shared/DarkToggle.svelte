@@ -98,7 +98,7 @@
               ['--' + (night ? 'sun-y' : 'moon-y')]: '0px',
               duration: 0.5,
               ease: 'elastic.out(1, .5)',
-              clearProps: '--sun-y,--moon-y,--line',
+              clearProps: '--sun-y,--moon-y',
               onComplete() {
                 if (night) {
                   dayNight.classList.remove('night');
@@ -230,7 +230,7 @@
   .day-night {
     --sun: #f0c644;
     --day-background: transparent;
-    --day-line: #111827;
+    --day-line: #ddeafb;
     --moon: #09090b;
     --moon-stars: #ddeafb;
     --night-background: transparent;
