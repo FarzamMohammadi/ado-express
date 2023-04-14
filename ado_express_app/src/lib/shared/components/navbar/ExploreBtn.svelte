@@ -1,10 +1,6 @@
-<!-- SOURCE:
-<span>
-  See the Pen <a href="https://codepen.io/jh3y/pen/eYPYKep">
-  CSS Galaxy Button 🚀</a> 
-  by Jhey (<a href="https://codepen.io/jh3y">@jh3y</a>)
-  on <a href="https://codepen.io">CodePen</a>.
-</span> 
+<!-- SOURCE: 
+  https://codepen.io/jh3y/pen/eYPYKep CSS Galaxy Button 🚀
+  by Jhey https://codepen.io/jh3y
 -->
 
 <script lang="ts">
@@ -134,7 +130,7 @@
           var(--hue) calc(var(--active) * 97%) calc(var(--active) * 10%)
         ) inset;
     transition: box-shadow var(--transition), scale var(--transition),
-      background var(--transition);
+    background var(--transition);
     transform-style: preserve-3d;
     perspective: 100vmin;
     overflow: hidden;

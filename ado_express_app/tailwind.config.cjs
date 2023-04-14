@@ -1,11 +1,12 @@
-const config = {
-  content: ["./src/**/*.{html,js,svelte,ts}"],
-
-  theme: {
-    extend: {},
+module.exports = {
+  purge: {
+    content: [
+      './src/**/*.html',
+      './src/**/*.svelte',
+    ],
+    options: {
+      safelist: [/^bg-/, /^text-/, /^border-/, /^dark:/],
+    },
   },
-
-  plugins: [],
+  darkMode: 'class',
 };
-
-module.exports = config;
