@@ -22,19 +22,21 @@
   onMount(() => {
     darkMode = localStorage.getItem('darkMode') === 'true';
 
-    if (darkMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-
     document.querySelectorAll('.day-night').forEach((dayNight: HTMLElement) => {
-      if (!darkMode){
+      if (darkMode) {
         dayNight.classList.add('night');
         dayNight.style.setProperty('--moon-y', '0px');
         dayNight.style.setProperty('--sun-y', '60px');
+        dayNight.style.setProperty('--line', 'var(--night-line)');
+        document.documentElement.classList.add('dark');
+      } else {
+        dayNight.classList.remove('night');
+        dayNight.style.setProperty('--moon-y', '60px');
+        dayNight.style.setProperty('--sun-y', '0px');
+        dayNight.style.setProperty('--line', 'var(--day-line)');
+        document.documentElement.classList.remove('dark');
       }
-      
+
       let toggle = dayNight.querySelector('.toggle') as HTMLElement,
         svgLine = dayNight.querySelector('.line') as HTMLElement;
 
@@ -58,13 +60,11 @@
 
       toggle.addEventListener('click', (e) => {
         e.preventDefault();
-      
+
         if (dayNight.classList.contains('animate')) {
           return;
         }
-        
-        toggleDarkMode();
-        
+
         dayNight.classList.add('animate');
 
         let night = dayNight.classList.contains('night');
@@ -90,6 +90,9 @@
                   '--background': night
                     ? 'var(--day-background)'
                     : 'var(--night-background)',
+                  '--new-background': night
+                    ? 'var(--day-background)'
+                    : 'var(--night-background)',
                   duration: 0.5,
                 });
               },
@@ -111,6 +114,7 @@
                 }
                 dayNight.classList.remove('animate');
                 dayNight.style.setProperty('--new-percent', '0%');
+                toggleDarkMode();
               },
             },
           ],
@@ -229,12 +233,12 @@
 <style lang="scss">
   .day-night {
     --sun: #f0c644;
-    --day-background: transparent;
-    --day-line: #ddeafb;
-    --moon: #09090b;
+    --day-background: #eeeeee;
+    --day-line: #3bb6c3;
+    --moon: #fdd47e;
     --moon-stars: #ddeafb;
-    --night-background: transparent;
-    --night-line: #111827;
+    --night-background: #121820;
+    --night-line: #73a1bb;
     --sun-lines: 1;
     --sun-lines-r: 0deg;
     --sun-y: 0;
@@ -243,7 +247,7 @@
     --background: var(--day-background);
     --line: var(--day-line);
     --new-background: var(--night-background);
-    &.night {
+    &.night { 
       --sun-y: 60px;
       --background: var(--night-background);
       --line: var(--night-line);
@@ -251,7 +255,6 @@
     }
     display: grid;
     place-items: center;
-    background: var(--background);
     &:before {
       content: '';
       display: block;
@@ -262,6 +265,7 @@
       bottom: 0;
       background: var(--new-background);
       clip-path: circle(var(--new-percent) at 50% 50%);
+      z-index: 40;
     }
     .toggle {
       outline: none;
@@ -269,11 +273,11 @@
       background: none;
       position: relative;
       cursor: pointer;
-      z-index: 1;
+      z-index: 50;
       padding: 0;
       margin: 0;
       display: block;
-      width: 120px;
+      width: 100px;
       height: 34px;
       svg {
         display: block;
@@ -296,14 +300,14 @@
         height: 45px;
         overflow: hidden;
         position: absolute;
-        left: 38px;
+        left: 30.5px;
         top: 10px;
         border-radius: 0 0 9px 9px;
         svg {
           --left: 2px;
           --top: 6px;
-          width: 35px;
-          height: 30px;
+          width: 31px;
+          height: 26px;
           &.sun {
             --stroke: var(--sun);
             transform: translateY(var(--sun-y)) translateZ(0);
@@ -313,9 +317,9 @@
             }
           }
           &.moon {
+            left: 3px;
             --stroke: var(--moon);
-            transform: translateY(var(--moon-y)) scale(0.75) translateZ(0)
-              rotate(-90deg);
+            transform: translateY(var(--moon-y)) scale(0.75) translateZ(0);
             .star-1,
             .star-2 {
               stroke: var(--moon-stars);
