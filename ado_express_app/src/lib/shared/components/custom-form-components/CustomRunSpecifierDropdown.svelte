@@ -66,7 +66,7 @@
 
 <div class="relative" use:clickOutside on:click_outside={handleClickOutside}>
   <button
-    class="w-full px-4 text-left text-gray-800 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-indigo-500 flex items-center justify-between"
+    class="w-full px-4 text-left text-gray-800 bg-white border border-gray-500 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-indigo-500 flex items-center justify-between"
     on:click={toggleDropdown}
     aria-haspopup="true"
     aria-expanded={dropdownOpen ? 'true' : 'false'}

@@ -24,7 +24,7 @@
 
 {#if showInput}
   <div
-    class="w-full border-2 rounded border-gray-700 mt-2 mb-3 p-2 mx-4"
+    class="w-full border-2 rounded border-gray-600 mt-2 mb-3 p-2 mx-4"
     id="deploymentDetails"
     use:clickOutside
     on:click_outside={handleClickOutside}
