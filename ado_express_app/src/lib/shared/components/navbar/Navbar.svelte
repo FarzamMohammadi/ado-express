@@ -29,9 +29,9 @@
 </script>
 
 <nav>
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+  <div class="w-full mx-auto px-4 sm:px-6 lg:px-8">
     <div
-      class="flex items-center justify-between h-16"
+      class="flex items-center justify-between h-14"
       on:mouseleave={() => (showLinks = false)}
     >
       <div class="flex justify-center items-center">

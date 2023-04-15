@@ -1,7 +1,7 @@
 <script lang="ts">
-    import DarkToggle from './lib/shared/DarkToggle.svelte';
     import RunConfigurationsForm from './lib/shared/components/RunConfigurationsForm.svelte';
     import Navbar from './lib/shared/components/navbar/Navbar.svelte';
+    import DarkToggle from './lib/shared/components/utils/DarkToggle.svelte';
 </script>
 
 <svelte:head>
