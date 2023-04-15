@@ -13,7 +13,7 @@
     id="hasExplicitReleaseValues"
   >
     <div
-      class="flex justify-between items-center"
+      class="flex justify-between items-center px-1"
       on:click={() => (hasExplicitReleaseValues = !hasExplicitReleaseValues)}
       on:keypress={() => (hasExplicitReleaseValues = !hasExplicitReleaseValues)}
     >

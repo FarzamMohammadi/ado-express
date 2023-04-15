@@ -43,13 +43,13 @@
           >
             {#if isMobile}
               <img
-                class="h-16 w-22 mr-2 rounded-lg shadow-lg hover:shadow-xl border-2 border-gray-700"
+                class="h-16 w-22 mr-2 rounded-lg shadow-lg hover:shadow-xl border-2 border-gray-700 dark:border-gray-600"
                 src="./logo.png"
                 alt="Logo of the application name, 'ADO Express'"
               />
             {:else}
               <img
-                class="h-16 w-26 mr-2 rounded-lg shadow-lg hover:shadow-xl transition duration-500 ease-in-out transform hover:-translate-y-1 border-2 border-gray-700"
+                class="h-16 w-26 mr-2 rounded-lg shadow-lg hover:shadow-xl transition duration-500 ease-in-out transform hover:-translate-y-1 border-2 border-gray-700 dark:border-gray-600"
                 src="./logo.png"
                 alt="Logo of the application name, 'ADO Express'"
               />
@@ -60,19 +60,19 @@
             <a
               target="_blank"
               href="https://github.com/FarzamMohammadi/ado-express/"
-              class="text-md font-medium text-gray-900 dark:text-white px-3 py-2 border-2 rounded border-gray-700 hover:bg-gray-200 hover:shadow-xl"
+              class="text-md font-medium text-gray-900 dark:text-white px-3 py-2 border-2 rounded border-gray-700 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-800 hover:shadow-xl"
               >About</a
             >
             <a
               target="_blank"
               href="https://github.com/FarzamMohammadi/ado-express/issues"
-              class="text-md font-medium text-gray-900 dark:text-white px-3 py-2 border-2 rounded border-gray-700 hover:bg-gray-200 hover:shadow-xl"
+              class="text-md font-medium text-gray-900 dark:text-white px-3 py-2 border-2 rounded border-gray-700 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-800 hover:shadow-xl"
               >Contact</a
             >
             <a
               target="_blank"
               href="https://github.com/FarzamMohammadi/ado-express#readme"
-              class="text-md font-medium text-gray-900 dark:text-white px-3 py-2 border-2 rounded border-gray-700 hover:bg-gray-200 hover:shadow-xl"
+              class="text-md font-medium text-gray-900 dark:text-white px-3 py-2 border-2 rounded border-gray-700 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-800 hover:shadow-xl"
               >Technical FAQs</a
             >
           {/if}
@@ -128,19 +128,19 @@
       <a
         target="_blank"
         href="https://github.com/FarzamMohammadi/ado-express"
-        class="mt-1 block px-3 py-2 rounded-md text-base text-md font-medium text-gray-900 dark:text-white border-2 dark:border-gray-200 border-gray-700 hover:bg-gray-200 hover:shadow-xl"
+        class="mt-1 block px-3 py-2 rounded-md text-base text-md font-medium text-gray-900 dark:text-white border-2 border-gray-700 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-800 hover:shadow-xl"
         >About</a
       >
       <a
         target="_blank"
         href="https://github.com/FarzamMohammadi/ado-express/issues"
-        class="mt-1 block px-3 py-2 rounded-md text-base text-md font-medium text-gray-900 dark:text-white border-2 dark:border-gray-200 border-gray-700 hover:bg-gray-200 hover:shadow-xl"
+        class="mt-1 block px-3 py-2 rounded-md text-base text-md font-medium text-gray-900 dark:text-white border-2 border-gray-700 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-800 hover:shadow-xl"
         >Contact</a
       >
       <a
         target="_blank"
         href="https://github.com/FarzamMohammadi/ado-express#readme"
-        class="mt-1 block px-3 py-2 rounded-md text-base text-md font-medium text-gray-900 dark:text-white border-2 dark:border-gray-200 border-gray-700 hover:bg-gray-200 hover:shadow-xl"
+        class="mt-1 block px-3 py-2 rounded-md text-base text-md font-medium text-gray-900 dark:text-white border-2 border-gray-700 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-800 hover:shadow-xl"
         >Technical FAQs</a
       >
     </div>
