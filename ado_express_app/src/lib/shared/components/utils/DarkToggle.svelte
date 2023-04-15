@@ -231,6 +231,7 @@
 </div>
 
 <style lang="scss">
+
   .day-night {
     --sun: #f0c644;
     --day-background: #eeeeee;
@@ -247,18 +248,12 @@
     --background: var(--day-background);
     --line: var(--day-line);
     --new-background: var(--night-background);
-    &.night { 
-      --sun-y: 60px;
-      --background: var(--night-background);
-      --line: var(--night-line);
-      --new-background: var(--day-background);
-    }
     display: grid;
     place-items: center;
     &:before {
       content: '';
       display: block;
-      position: absolute;
+      position: fixed;
       left: 0;
       top: 0;
       right: 0;

@@ -18,7 +18,7 @@
       <i class="mi mi-circle-information"><span class="sr-only">Circle information</span></i>
     </Tooltip>
   </div>
-  <div class="relative divide-x-0 divide-gray-200 hover:divide-x-2 divide-y-0">
+  <div class="relative divide-x-0 divide-gray-600 dark:divide-gray-200 hover:divide-x-2 divide-y-0">
     {#if showPAT}
       <input
         type="text"
