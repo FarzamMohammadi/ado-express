@@ -5,7 +5,7 @@
   import {
       RunType,
       SearchRunMethod,
-      ToastType
+      ToastType,
   } from '../../models/enums/enums';
   import type { IExplicitExclusion } from '../../models/interfaces/iexplicit-exclusion.interface';
   import type { IExplicitInclusion } from '../../models/interfaces/iexplicit-inclusion.interface';
@@ -67,8 +67,8 @@
     'Crucial',
   ];
   let formInputRequirements = structuredClone(defaultFormInputRequirements);
-  let runMethod = null;
-  let runType = null;
+  export let runMethod = null;
+  export let runType = null;
   let showSubmitButton = true;
   let submitButtonLabel = 'Run ADO Express';
 
@@ -285,12 +285,12 @@
 </svelte:head>
 
 <div class="flex flex-col max-w-3xl items-center justify-center">
-    <DeploymentDetailsSelector
+  <DeploymentDetailsSelector
     {deploymentSelectorHeaders}
-    bind:deploymentDetailsType={deploymentDetailsType}
+    bind:deploymentDetailsType
     bind:deploymentDetails
     bind:showInput={formInputRequirements.dd.show}
-    bind:customDeploymentDetailsSelector={customDeploymentDetailsSelector}
+    bind:customDeploymentDetailsSelector
   />
 
   <form class="w-96" on:submit|preventDefault={handleSubmit}>
@@ -358,7 +358,7 @@
         <button
           type="submit"
           class="bg-transparent hover:bg-blue-700 text-blue-900 dark:text-blue-500 font-semibold hover:text-white dark:hover:text-white border border-blue-800 hover:border-transparent rounded-lg shadow-lg"
-          >
+        >
           {submitButtonLabel}
         </button>
       </div>

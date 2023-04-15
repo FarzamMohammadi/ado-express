@@ -1,7 +1,7 @@
 <script lang="ts">
+  import RunResults from './lib/shared/RunResults.svelte';
   import RunConfigurationsForm from './lib/shared/components/RunConfigurationsForm.svelte';
   import CustomRunSpecifierDropdown from './lib/shared/components/custom-form-components/CustomRunSpecifierDropdown.svelte';
-  import RunResults from './lib/shared/components/custom-form-components/RunResults.svelte';
   import Navbar from './lib/shared/components/navbar/Navbar.svelte';
   import DarkToggle from './lib/shared/components/utils/DarkToggle.svelte';
   import { running } from './lib/utils/stores';
@@ -61,21 +61,29 @@
       />
     </div>
 
-    <div class="z-30 flex justify-center" style="max-width: 100vw;">
+    <div
+      class="z-30 flex justify-center items-center"
+      style="max-width: 100vw;"
+    >
       <div
         class="smooth-transition"
         style="transform: {$running ? 'translateX(-25%)' : 'translateX(0)'}
         width: {$running ? '100%' : '50%'}"
       >
-        <RunConfigurationsForm />
+        <RunConfigurationsForm
+          bind:running={$running}
+          bind:runType
+          bind:runMethod
+        />
       </div>
 
       <div
-        class="w-0 overflow-hidden smooth-transition items-center"
+        class="overflow-hidden smooth-transition items-center"
         style="
           width: {$running ? '50%' : '0'};
           transform: {$running ? 'translateX(25%)' : 'translateX(0)'};
           max-width: 35vw;
+          min-width: {$running ? '35vw' : '0'};
         "
       >
         <RunResults />

@@ -1,4 +1,5 @@
 <script>
+  export let runDetails = '';
   let matrixTheme = true;
 
   function toggleTheme() {
@@ -7,9 +8,7 @@
 </script>
 
 <div class="terminal-container my-4">
-  <pre
-    class="terminal-content"
-    class:matrix={matrixTheme}>{"asdfasdfasdfasdfasdfasdfasdfasdfasdfsadf"}</pre>
+  <pre class="terminal-content" class:matrix={matrixTheme}>{runDetails}</pre>
 </div>
 
 {#if matrixTheme}
@@ -25,7 +24,7 @@
     border-radius: 8px;
     overflow-y: auto;
     width: 100%;
-    height: 90vh;
+    height: 80vh;
   }
 
   .terminal-content {
