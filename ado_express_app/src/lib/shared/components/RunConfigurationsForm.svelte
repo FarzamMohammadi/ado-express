@@ -10,7 +10,6 @@
   import type { IExplicitExclusion } from '../../models/interfaces/iexplicit-exclusion.interface';
   import type { IExplicitInclusion } from '../../models/interfaces/iexplicit-inclusion.interface';
   import type { IInputSettings } from '../../models/interfaces/input-settings.interface';
-  import CustomRunSpecifierDropdown from './custom-form-components/CustomRunSpecifierDropdown.svelte';
   import DeploymentDetailsSelector from './custom-form-components/deployment-details/DeploymentDetailsSelector.svelte';
   import ExplicitReleaseValuesInput from './custom-form-components/ExplicitReleaseValuesInput.svelte';
   import CustomPasswordInput from './custom-form-components/inputs/CustomPasswordInput.svelte';
@@ -286,14 +285,7 @@
 </svelte:head>
 
 <div class="flex flex-col max-w-3xl items-center justify-center">
-  <div class="mb-16 z-10 w-96">
-    <CustomRunSpecifierDropdown
-      bind:selectedCategoryName={runType}
-      bind:selectedTask={runMethod}
-    />
-  </div>
-
-  <DeploymentDetailsSelector
+    <DeploymentDetailsSelector
     {deploymentSelectorHeaders}
     bind:deploymentDetailsType={deploymentDetailsType}
     bind:deploymentDetails
