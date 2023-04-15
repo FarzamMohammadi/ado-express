@@ -69,6 +69,7 @@
   let formInputRequirements = structuredClone(defaultFormInputRequirements);
   export let runMethod = null;
   export let runType = null;
+  export let running;
   let showSubmitButton = true;
   let submitButtonLabel = 'Run ADO Express';
 
