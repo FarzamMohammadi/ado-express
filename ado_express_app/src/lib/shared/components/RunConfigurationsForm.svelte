@@ -10,8 +10,9 @@
   import type { IExplicitExclusion } from '../../models/interfaces/iexplicit-exclusion.interface';
   import type { IExplicitInclusion } from '../../models/interfaces/iexplicit-inclusion.interface';
   import type { IInputSettings } from '../../models/interfaces/input-settings.interface';
-  import DeploymentDetailsSelector from './custom-form-components/deployment-details/DeploymentDetailsSelector.svelte';
+  import { runResultData } from '../../utils/stores';
   import ExplicitReleaseValuesInput from './custom-form-components/ExplicitReleaseValuesInput.svelte';
+  import DeploymentDetailsSelector from './custom-form-components/deployment-details/DeploymentDetailsSelector.svelte';
   import CustomPasswordInput from './custom-form-components/inputs/CustomPasswordInput.svelte';
   import CustomTextInput from './custom-form-components/inputs/CustomTextInput.svelte';
   import CustomUrlInput from './custom-form-components/inputs/CustomUrlInput.svelte';
@@ -88,6 +89,13 @@
   let viaEnvLatestRelease = false;
   let viaEnvSourceName = '';
 
+  function addStringToRunResults(str: string) {
+    runResultData.update((data) => {
+      data.push(str);
+      return data;
+    });
+  }
+
   function getExplicitReleaseValues(): IExplicitInclusion | IExplicitExclusion {
     if (!hasExplicitReleaseValues) return null;
 
@@ -112,7 +120,10 @@
     return explicitReleaseValues;
   }
 
-  function handleSubmit(): void {
+  function handleSubmit(): void { 
+    running = true;
+    addStringToRunResults('Running ADO Express...');
+
     if (isNullOrUndefined(runType) || isNullOrUndefined(runMethod)) {
       return showToast(
         ToastType.Warning,
