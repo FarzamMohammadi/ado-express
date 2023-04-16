@@ -19,7 +19,7 @@
       ],
     },
     {
-      name: RunType.Deploy,
+      name: RunType.Deployment,
       tasks: [
         DeployRunMethod.ViaLatestInEnvironment,
         DeployRunMethod.ViaNumber,

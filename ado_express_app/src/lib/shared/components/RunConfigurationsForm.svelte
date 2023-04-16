@@ -68,8 +68,8 @@
     'Crucial',
   ];
   let formInputRequirements = structuredClone(defaultFormInputRequirements);
-  export let runMethod = null;
-  export let runType = null;
+  export let runMethod: string = null;
+  export let runType: string = null;
   export let running;
   let showSubmitButton = true;
   let submitButtonLabel = 'Run ADO Express';
@@ -89,11 +89,14 @@
   let viaEnvLatestRelease = false;
   let viaEnvSourceName = '';
 
-  function addStringToRunResults(str: string) {
-    runResultData.update((data) => {
-      data.push(str);
-      return data;
-    });
+  function sendResultData(text: string, showIdleDots: boolean = false) {
+    runResultData.update((data) => [
+      ...data,
+      {
+        text,
+        showIdleDots,
+      },
+    ]);
   }
 
   function getExplicitReleaseValues(): IExplicitInclusion | IExplicitExclusion {
@@ -120,9 +123,9 @@
     return explicitReleaseValues;
   }
 
-  function handleSubmit(): void { 
+  function handleSubmit(): void {
     running = true;
-    addStringToRunResults('Running ADO Express...');
+    sendResultData(`Starting ${runType.toLowerCase()}`, false);
 
     if (isNullOrUndefined(runType) || isNullOrUndefined(runMethod)) {
       return showToast(
@@ -152,6 +155,7 @@
     const adoExpressApi = new ADOExpressApi();
     console.log(runConfigurations);
     console.log(adoExpressApi.runADOExpress(runConfigurations));
+
     showToast(ToastType.Success, 'Successfully submitted run request');
   }
 
@@ -165,7 +169,7 @@
   function isSearchOnly(): boolean {
     if (runType && runType === 'Search') {
       return true;
-    } else if (runType && runType === 'Deploy') {
+    } else if (runType && runType === 'Deployment') {
       return false;
     }
   }
@@ -210,7 +214,7 @@
         formInputRequirements.dd.required = false;
         formInputRequirements.dd.show = false;
       }
-    } else if (runType === RunType.Deploy) {
+    } else if (runType === RunType.Deployment) {
       if (runMethod == SearchRunMethod.ViaLatestInEnvironment) {
         viaEnv = true;
         viaEnvLatestRelease = true;
@@ -234,7 +238,7 @@
   function onRunTypeSelection(runType): void {
     if (runType === RunType.Search) {
       submitButtonLabel = 'Run the Search';
-    } else if (runType === RunType.Deploy) {
+    } else if (runType === RunType.Deployment) {
       submitButtonLabel = 'Run the Deployment';
     }
   }
@@ -257,7 +261,7 @@
         viaEnv = true;
         viaEnvLatestRelease = false;
       }
-    } else if (runType === RunType.Deploy) {
+    } else if (runType === RunType.Deployment) {
       if (runMethod == SearchRunMethod.ViaLatestInEnvironment) {
         viaEnv = true;
         viaEnvLatestRelease = true;

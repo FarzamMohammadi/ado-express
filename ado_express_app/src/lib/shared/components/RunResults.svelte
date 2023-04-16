@@ -1,12 +1,11 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
-  import type { IRunResultData } from '../models/interfaces/irun-result-data';
-  import { runResultData, running } from '../utils/stores/stores';
+  import { onDestroy, onMount } from 'svelte';
+  import type { IRunResultData } from '../../models/interfaces/irun-result-data';
+  import { runResultData, running } from '../../utils/stores/stores';
 
   let matrixTheme = true;
-  let isMounted = false;
   let localResultData: IRunResultData[] = [];
-  export let displayIdleDots = true;
+  export let displayIdleDots = false;
   let displayDataInputs: string[] = [];
 
   function typeEffect(
@@ -22,11 +21,6 @@
       setTimeout(() => typeEffect(dataInput, i + 1, dataIndex, speed), delay);
     }
   }
-  // const hello: IRunResultData = {
-  //     text: 'HELLO!!!',
-  //     showIdleDots: false,
-  //   }
-  //   runResultData.update((data) => [...data, hello]);
 
   function updateDots() {
     if (dotText.length < 3) {
@@ -39,6 +33,8 @@
     matrixTheme = !matrixTheme;
   }
 
+  let unsubscribeRunResultData;
+
   onMount(() => {
     localResultData = $runResultData;
     displayDataInputs = localResultData.map(() => '');
@@ -47,18 +43,25 @@
       typeEffect(dataInput.text || '', 0, index);
     });
 
-    isMounted = true;
+    // Subscribe to runResultData store
+    unsubscribeRunResultData = runResultData.subscribe(($runResultData) => {
+      if (localResultData.length !== $runResultData.length) {
+        const newIndex = $runResultData.length - 1;
+        localResultData = $runResultData;
+        
+        displayIdleDots = false; // Might adjust later but for now, never show idling dots
+        //displayIdleDots = !localResultData[newIndex].showIdleDots;
+
+        displayDataInputs = [...displayDataInputs, ''];
+        typeEffect(localResultData[newIndex].text || '', 0, newIndex);
+      }
+    });
   });
 
-  // Reactive statement to watch for changes in the $runResultData array
-  $: if (isMounted && localResultData.length !== $runResultData.length) {
-    const newIndex = $runResultData.length - 1;
-    localResultData = $runResultData;
-    displayIdleDots = !localResultData[newIndex].showIdleDots;
-
-    displayDataInputs = [...displayDataInputs, ''];
-    typeEffect(localResultData[newIndex].text || '', 0, newIndex);
-  }
+  onDestroy(() => {
+    // Unsubscribe from runResultData store
+    unsubscribeRunResultData();
+  });
 
   let dotText = '';
   setInterval(updateDots, 400);

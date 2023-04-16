@@ -1,18 +1,14 @@
 <script lang="ts">
-  import RunResults from './lib/shared/RunResults.svelte';
   import RunConfigurationsForm from './lib/shared/components/RunConfigurationsForm.svelte';
+  import RunResults from './lib/shared/components/RunResults.svelte';
   import CustomRunSpecifierDropdown from './lib/shared/components/custom-form-components/CustomRunSpecifierDropdown.svelte';
   import Navbar from './lib/shared/components/navbar/Navbar.svelte';
   import DarkToggle from './lib/shared/components/utils/DarkToggle.svelte';
   import { running } from './lib/utils/stores';
 
-  running.subscribe((val) => {
-    $running = val;
-  });
-
-  function setRunStatus() {
-    $running = !$running;
-  }
+  // function setRunStatus() {
+  //   $running = !$running;
+  // }
 
   let runType;
   let runMethod;
@@ -30,7 +26,7 @@
 </svelte:head>
 
 <main class="min-w-full min-h-screen">
-  <button on:click={setRunStatus}>asdfsadf</button>
+  <!-- <button on:click={setRunStatus}>asdfsadf</button> -->
 
   <div>
     <Navbar />
