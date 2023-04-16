@@ -1,24 +1,22 @@
 <script lang="ts">
-  import { runResultData } from '../utils/stores/stores';
+  import { runResultData, running } from '../utils/stores/stores';
+
   let matrixTheme = true;
   let localResultData = [];
   let displayIdleDots = true;
   let lastDataInput = '';
 
-  // Subscribe to changes in $runResultData
   $: {
     localResultData = $runResultData;
     lastDataInput = localResultData[localResultData.length - 1];
-    displayIdleDots = !lastDataInput.includes('-ADDTHREEDOTSHERE');
+    displayIdleDots = !lastDataInput?.includes('-ADDTHREEDOTSHERE');
   }
 
   function toggleTheme() {
     matrixTheme = !matrixTheme;
   }
 
-  runResultData.update((data) => [...data, 'New Item-ADDTHREEDOTSHERE', "da,asdfasfd"]);
-  runResultData.update((data) => [...data, "da,123d"]);
-
+  // runResultData.update((data) => [...data, 'New Item-ADDTHREEDOTSHERE']);
   let dotText = '';
   const updateDots = () => {
     if (dotText.length < 3) {
@@ -33,27 +31,35 @@
 
 <div>
   <div class="terminal-container my-4">
-    <pre class="terminal-content" class:matrix={matrixTheme}>
-      {#each localResultData as dataInput}
-          {#if dataInput.includes('-ADDTHREEDOTSHERE')}
-            {dataInput.replace('-ADDTHREEDOTSHERE', '')} 
-              {#if lastDataInput === dataInput}
-                {dotText}
-              {/if}
+    <div
+      class="terminal-content flex-col items-center justify-end ml-6"
+      class:matrix={matrixTheme}
+    >
+      <span>
+        {#each localResultData as dataInput, i}
+          {#if i + 1 == localResultData.length}
+            {#if dataInput.includes('-ADDTHREEDOTSHERE')}
+              <br />{dataInput.replace('-ADDTHREEDOTSHERE', '')}{dotText}
+            {:else}
+              <br />{dataInput}
+            {/if}
+          {:else if dataInput.includes('-ADDTHREEDOTSHERE')}
+            <br />{dataInput.replace('-ADDTHREEDOTSHERE', '')}
           {:else}
-            {'\n'}{dataInput}
+            <br />{dataInput}
           {/if}
-      {/each}
-      {#if displayIdleDots}
-        {dotText}
+        {/each}
+      </span>
+      {#if $running && displayIdleDots}
+        <br />{dotText}
       {/if}
-    </pre>    
+    </div>
   </div>
 
   {#if matrixTheme}
-    <button on:click={toggleTheme}> Matrix Theme On </button>
+    <button on:click={toggleTheme}> Matrix Theme: ON </button>
   {:else}
-    <button on:click={toggleTheme}> Matrix Theme Off </button>
+    <button on:click={toggleTheme}> Matrix Theme: OFF </button>
   {/if}
 </div>
 
