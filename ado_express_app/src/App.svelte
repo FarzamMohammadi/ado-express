@@ -49,7 +49,7 @@
         release deployment process.
       </p>
 
-      <div class="mb-12">
+      <div class="z-50 mb-12">
         <DarkToggle />
       </div>
     </div>
