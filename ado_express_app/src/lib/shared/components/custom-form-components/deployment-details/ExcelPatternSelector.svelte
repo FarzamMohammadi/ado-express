@@ -101,7 +101,7 @@
 <div class="grid grid-cols-[repeat(6,minmax(0,auto))] gap-1">
   {#each headers as header, col}
     <input
-      class="read-only text-center font-bold h-8 px-2 text-md border border-gray-800 rounded-md focus:outline-none focus:border-blue-500 disabled:bg-gray-900 {col ===
+      class="read-only text-center font-bold h-8 px-2 text-md border border-gray-800 rounded-md focus:outline-none focus:border-blue-500 disabled:bg-gray-900 dark:disabled:bg-gray-800 {col ===
       0
         ? 'w-12'
         : col === 3 || col === 4 || col === 5
@@ -118,7 +118,7 @@
     {#each Array(columns).fill(null) as _, col}
       {#if col === 0}
         <input
-          class="read-only text-center font-bold h-8 px-2 text-md border border-gray-800 rounded-md focus:outline-none focus:border-blue-500 disabled:bg-gray-900 w-12"
+          class="read-only text-center font-bold h-8 px-2 text-md border border-gray-800 rounded-md focus:outline-none focus:border-blue-500 disabled:bg-gray-900 dark:disabled:bg-gray-800 w-12"
           type="text"
           value={row + 1}
           disabled={true}
@@ -152,7 +152,7 @@
   <button
     on:click={() => getDeploymentDetails()}
     type="button"
-    class="bg-transparent hover:bg-blue-700 text-blue-900 font-semibold hover:text-white border border-blue-800 hover:border-transparent rounded-lg shadow-lg"
+    class="bg-transparent hover:bg-blue-700 text-blue-900 dark:text-blue-500 font-semibold hover:text-white dark:hover:text-white border border-blue-800 hover:border-transparent rounded-lg shadow-lg"
     >
     Submit
   </button>

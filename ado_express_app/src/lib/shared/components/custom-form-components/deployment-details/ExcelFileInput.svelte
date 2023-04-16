@@ -64,7 +64,7 @@
   />
   <label
     for="file-upload"
-    class="bg-transparent hover:bg-blue-700 text-blue-900 font-semibold hover:text-white py-2 px-4 border border-blue-800 hover:border-transparent rounded-lg shadow-lg"
+    class="bg-transparent hover:bg-blue-700 text-blue-900 dark:text-blue-500 font-semibold hover:text-white dark:hover:text-white py-2 px-4 border border-blue-800 hover:border-transparent rounded-lg shadow-lg"
   >
     Upload Excel File
   </label>

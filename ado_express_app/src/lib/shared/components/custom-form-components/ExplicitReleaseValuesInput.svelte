@@ -9,11 +9,11 @@
 
 {#if showInput}
   <div
-    class="items-center border-2 border-gray-200 rounded dark:border-gray-700 mb-2"
+    class="items-center border-2 border-gray-600 rounded dark:border-gray-500 mb-2"
     id="hasExplicitReleaseValues"
   >
     <div
-      class="flex justify-between items-center"
+      class="flex justify-between items-center px-1"
       on:click={() => (hasExplicitReleaseValues = !hasExplicitReleaseValues)}
       on:keypress={() => (hasExplicitReleaseValues = !hasExplicitReleaseValues)}
     >

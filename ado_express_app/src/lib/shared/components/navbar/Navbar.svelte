@@ -29,9 +29,9 @@
 </script>
 
 <nav>
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+  <div class="w-full mx-auto px-4 sm:px-6 lg:px-8">
     <div
-      class="flex items-center justify-between h-16"
+      class="flex items-center justify-between h-14"
       on:mouseleave={() => (showLinks = false)}
     >
       <div class="flex justify-center items-center">
@@ -43,13 +43,13 @@
           >
             {#if isMobile}
               <img
-                class="h-16 w-26 mr-2 rounded-lg shadow-lg hover:shadow-xl border-2 border-gray-700"
+                class="h-16 w-22 mr-2 rounded-lg shadow-lg hover:shadow-xl border-2 border-gray-700 dark:border-gray-600"
                 src="./logo.png"
                 alt="Logo of the application name, 'ADO Express'"
               />
             {:else}
               <img
-                class="h-16 w-26 mr-2 rounded-lg shadow-lg hover:shadow-xl transition duration-500 ease-in-out transform hover:-translate-y-1 border-2 dark:border-gray-700"
+                class="h-16 w-26 mr-2 rounded-lg shadow-lg hover:shadow-xl transition duration-500 ease-in-out transform hover:-translate-y-1 border-2 border-gray-700 dark:border-gray-600"
                 src="./logo.png"
                 alt="Logo of the application name, 'ADO Express'"
               />
@@ -60,26 +60,26 @@
             <a
               target="_blank"
               href="https://github.com/FarzamMohammadi/ado-express/"
-              class="text-md font-medium text-gray-900 px-3 py-2 border-2 rounded dark:border-gray-700 hover:bg-gray-300"
+              class="text-md font-medium text-gray-900 dark:text-white px-3 py-2 border-2 rounded border-gray-700 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-800 hover:shadow-xl"
               >About</a
             >
             <a
               target="_blank"
               href="https://github.com/FarzamMohammadi/ado-express/issues"
-              class="text-md font-medium text-gray-900 px-3 py-2 border-2 rounded dark:border-gray-700 hover:bg-gray-300"
+              class="text-md font-medium text-gray-900 dark:text-white px-3 py-2 border-2 rounded border-gray-700 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-800 hover:shadow-xl"
               >Contact</a
             >
             <a
               target="_blank"
               href="https://github.com/FarzamMohammadi/ado-express#readme"
-              class="text-md font-medium text-gray-900 px-3 py-2 border-2 rounded dark:border-gray-700 hover:bg-gray-300"
+              class="text-md font-medium text-gray-900 dark:text-white px-3 py-2 border-2 rounded border-gray-700 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-800 hover:shadow-xl"
               >Technical FAQs</a
             >
           {/if}
         </div>
       </div>
 
-      <div on:mouseenter={() => (showLinks = false)}>
+      <div on:mouseenter={() => (showLinks = false)} class="m-1">
         <ExploreBtn />
       </div>
     </div>
@@ -87,7 +87,7 @@
       <div class="mt-2 flex md:hidden">
         <button
           type="button"
-          class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-900 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 focus:text-gray-900 transition duration-150 ease-in-out"
+          class="inline-flex items-center justify-center p-2 rounded-md border-2 border-gray-400 text-gray-500 hover:text-gray-900 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 focus:text-gray-900 dark:text-white transition duration-150 ease-in-out"
           aria-label="Main menu"
           aria-expanded="false"
           on:click={toggleMenu}
@@ -128,19 +128,19 @@
       <a
         target="_blank"
         href="https://github.com/FarzamMohammadi/ado-express"
-        class="block px-3 py-2 rounded-md text-base text-md font-medium text-gray-900 border-2 border-gray-200 dark:border-gray-700"
+        class="mt-1 block px-3 py-2 rounded-md text-base text-md font-medium text-gray-900 dark:text-white border-2 border-gray-700 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-800 hover:shadow-xl"
         >About</a
       >
       <a
         target="_blank"
         href="https://github.com/FarzamMohammadi/ado-express/issues"
-        class="block px-3 py-2 rounded-md text-base text-md font-medium text-gray-900 border-2 border-gray-200 dark:border-gray-700"
-        >About</a
+        class="mt-1 block px-3 py-2 rounded-md text-base text-md font-medium text-gray-900 dark:text-white border-2 border-gray-700 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-800 hover:shadow-xl"
+        >Contact</a
       >
       <a
         target="_blank"
         href="https://github.com/FarzamMohammadi/ado-express#readme"
-        class="mt-1 block px-3 py-2 rounded-md text-base text-md font-medium text-gray-900 border-2 border-gray-200 dark:border-gray-700"
+        class="mt-1 block px-3 py-2 rounded-md text-base text-md font-medium text-gray-900 dark:text-white border-2 border-gray-700 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-800 hover:shadow-xl"
         >Technical FAQs</a
       >
     </div>

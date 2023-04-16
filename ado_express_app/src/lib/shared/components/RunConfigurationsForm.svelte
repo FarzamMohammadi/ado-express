@@ -302,7 +302,7 @@
   />
 
   <form class="w-96" on:submit|preventDefault={handleSubmit}>
-    <div class="relative flex flex-col text-gray-900">
+    <div class="relative flex flex-col text-gray-900 dark:text-white">
       <CustomTextInput
         label="Crucial Release Definitions"
         id="crucialReleaseDefinitions"
@@ -365,7 +365,7 @@
       <div class="flex justify-center pt-4">
         <button
           type="submit"
-          class="bg-transparent hover:bg-blue-700 text-blue-900 font-semibold hover:text-white border border-blue-800 hover:border-transparent rounded-lg shadow-lg"
+          class="bg-transparent hover:bg-blue-700 text-blue-900 dark:text-blue-500 font-semibold hover:text-white dark:hover:text-white border border-blue-800 hover:border-transparent rounded-lg shadow-lg"
           >
           {submitButtonLabel}
         </button>
