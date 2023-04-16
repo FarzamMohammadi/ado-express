@@ -1,58 +1,88 @@
 <script lang="ts">
+  import { onMount } from 'svelte';
+  import type { IRunResultData } from '../models/interfaces/irun-result-data';
   import { runResultData, running } from '../utils/stores/stores';
 
   let matrixTheme = true;
-  let localResultData = [];
-  let displayIdleDots = true;
-  let lastDataInput = '';
+  let isMounted = false;
+  let localResultData: IRunResultData[] = [];
+  export let displayIdleDots = true;
+  let displayDataInputs: string[] = [];
 
-  $: {
-    localResultData = $runResultData;
-    lastDataInput = localResultData[localResultData.length - 1];
-    displayIdleDots = !lastDataInput?.includes('-ADDTHREEDOTSHERE');
+  function typeEffect(
+    dataInput: string,
+    i: number,
+    dataIndex: number,
+    speed = 50,
+    delay = 50
+  ) {
+    if (i < dataInput.length) {
+      displayDataInputs[dataIndex] =
+        (displayDataInputs[dataIndex] || '') + dataInput[i];
+      setTimeout(() => typeEffect(dataInput, i + 1, dataIndex, speed), delay);
+    }
   }
+  // const hello: IRunResultData = {
+  //     text: 'HELLO!!!',
+  //     showIdleDots: false,
+  //   }
+  //   runResultData.update((data) => [...data, hello]);
 
-  function toggleTheme() {
-    matrixTheme = !matrixTheme;
-  }
-
-  // runResultData.update((data) => [...data, 'New Item-ADDTHREEDOTSHERE']);
-  let dotText = '';
-  const updateDots = () => {
+  function updateDots() {
     if (dotText.length < 3) {
       dotText += '.';
     } else {
       dotText = '';
     }
-  };
+  }
+  function toggleTheme() {
+    matrixTheme = !matrixTheme;
+  }
 
+  onMount(() => {
+    localResultData = $runResultData;
+    displayDataInputs = localResultData.map(() => '');
+
+    localResultData.forEach((dataInput, index) => {
+      typeEffect(dataInput.text || '', 0, index);
+    });
+
+    isMounted = true;
+  });
+
+  // Reactive statement to watch for changes in the $runResultData array
+  $: if (isMounted && localResultData.length !== $runResultData.length) {
+    const newIndex = $runResultData.length - 1;
+    localResultData = $runResultData;
+    displayIdleDots = !localResultData[newIndex].showIdleDots;
+
+    displayDataInputs = [...displayDataInputs, ''];
+    typeEffect(localResultData[newIndex].text || '', 0, newIndex);
+  }
+
+  let dotText = '';
   setInterval(updateDots, 400);
 </script>
 
 <div>
-  <div class="terminal-container my-4">
-    <div
-      class="terminal-content flex-col items-center justify-end ml-6"
-      class:matrix={matrixTheme}
-    >
-      <span>
-        {#each localResultData as dataInput, i}
-          {#if i + 1 == localResultData.length}
-            {#if dataInput.includes('-ADDTHREEDOTSHERE')}
-              <br />{dataInput.replace('-ADDTHREEDOTSHERE', '')}{dotText}
-            {:else}
-              <br />{dataInput}
-            {/if}
-          {:else if dataInput.includes('-ADDTHREEDOTSHERE')}
-            <br />{dataInput.replace('-ADDTHREEDOTSHERE', '')}
-          {:else}
-            <br />{dataInput}
-          {/if}
-        {/each}
-      </span>
-      {#if $running && displayIdleDots}
-        <br />{dotText}
-      {/if}
+  <div>
+    <div class="terminal-container my-4">
+      <div
+        class="terminal-content flex-col items-center justify-end ml-6 mr-6"
+        class:matrix={matrixTheme}
+      >
+        <div class="dataInput-container">
+          {#each displayDataInputs as dataInput, i}
+            <span>
+              {dataInput}
+              {#if localResultData[i].showIdleDots && i + 1 == displayDataInputs.length}{dotText}{/if}
+            </span>
+          {/each}
+        </div>
+        {#if $running && displayIdleDots}
+          <br />{dotText}
+        {/if}
+      </div>
     </div>
   </div>
 
@@ -64,6 +94,11 @@
 </div>
 
 <style lang="scss">
+  .dataInput-container {
+    display: block;
+    word-break: break-all;
+  }
+
   .terminal-container {
     background-color: black;
     padding-block: 20px;
