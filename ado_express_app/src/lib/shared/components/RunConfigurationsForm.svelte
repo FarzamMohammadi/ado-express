@@ -125,7 +125,7 @@
 
   function handleSubmit(): void {
     running = true;
-    sendResultData(`Starting ${runType.toLowerCase()}`, false);
+    sendResultData(`Starting ${runType.toLowerCase()}`, true);
 
     if (isNullOrUndefined(runType) || isNullOrUndefined(runMethod)) {
       return showToast(
