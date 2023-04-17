@@ -4,9 +4,9 @@ from rest_framework import serializers
 class DeploymentDetailsSerializer(serializers.Serializer):
     release_project_name = serializers.CharField(max_length=200, required=True)
     release_name = serializers.CharField(max_length=200, required=True)
-    release_number = serializers.IntegerField(min_value=0, required=True)
-    release_rollback = serializers.IntegerField(min_value=0, required=True)
-    is_crucial = serializers.BooleanField(default=False)
+    release_number = serializers.IntegerField(min_value=0, required=False, allow_null=True)
+    release_rollback = serializers.IntegerField(min_value=0, required=False, allow_null=True)
+    is_crucial = serializers.BooleanField(default=False, required=False)
     
     def set_required_fields_for_via_latest(self):
         self.fields['release_number'].required = False
@@ -29,7 +29,7 @@ class RunConfigurationsSerializer(serializers.Serializer):
     release_target_env = serializers.CharField(max_length=200)
     search_only = serializers.BooleanField()
     via_env = serializers.BooleanField()
-    via_env_source_name = serializers.CharField(max_length=200)
+    via_env_source_name = serializers.CharField(max_length=200, allow_null=True, allow_blank=True, required=False)
     via_env_latest_release = serializers.BooleanField()
     
-    deployment_details = serializers.ListSerializer(child=DeploymentDetailsSerializer())
+    deployment_details = serializers.ListSerializer(child=DeploymentDetailsSerializer(), allow_empty=True, allow_null=True)

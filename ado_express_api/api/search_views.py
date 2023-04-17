@@ -1,16 +1,17 @@
 import json
+
 import status
-
-from rest_framework.response import Response
-from rest_framework.decorators import api_view
-
+from base.models.DeploymentDetails import DeploymentDetails
 from base.models.ReleaseDetails import ReleaseDetails
 from base.models.RunConfigurations import RunConfigurations
-from base.models.DeploymentDetails import DeploymentDetails
-
-from .serializers import RunConfigurationsSerializer, DeploymentDetailsSerializer
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
 
 from ado_express.main import Startup
+
+from .serializers import (DeploymentDetailsSerializer,
+                          RunConfigurationsSerializer)
+
 
 @api_view(['POST'])
 def search_via_release_environment(request):
@@ -21,7 +22,7 @@ def search_via_release_environment(request):
     serializer.fields['deployment_details'].child = deployment_details
 
     # Fields required for via environment run
-    serializer.fields['deployment_details'].allow_empty = True
+    serializer.fields['deployment_details'].allow_empty = False
     # Fields not required for via environment run
     serializer.fields['search_only'].required = False
     serializer.fields['via_env'].required = False
@@ -50,14 +51,14 @@ def search_via_release_environment(request):
             
             releases: list[ReleaseDetails] = startup_runners.search_and_log_details_only(converted_deployment_details)
             
-            if releases: release_details.append(dict({'release_definition': deployment['release_name'], 'results': [release.__dict__ for release in releases]}))
+            if releases: release_details.append(dict({'release_definition': deployment['release_name'], 'release_details': [release.__dict__ for release in releases]}))
 
         if release_details:
-            return Response(status=status.HTTP_200_OK, data={'releases': json.dumps(release_details, default=str)})
+            return Response(status=status.HTTP_200_OK, data=release_details)
         else:
-            return Response(status=status.HTTP_200_OK, data={'releases': []})
+            return Response(status=status.HTTP_200_OK, data=[])
     else:
-        return Response(status=status.HTTP_400_BAD_REQUEST, data=f"Fields are invalid.\n{serializer.error_messages}")
+        return Response(status=status.HTTP_400_BAD_REQUEST, data=f"Errors:\n{serializer.errors}")
 
 @api_view(['POST'])
 def search_via_latest_release(request):

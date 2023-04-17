@@ -69,9 +69,19 @@ export class RunConfigurations
     return this;
   }
 
+  private static toSnakeCaseDeep(obj: any): any {
+    if (Array.isArray(obj)) {
+      return obj.map(RunConfigurations.toSnakeCaseDeep);
+    } else if (obj && typeof obj === 'object') {
+      return Object.fromEntries(
+        Object.entries(obj).map(([key, value]) => [camelCaseToSnakeCase(key), RunConfigurations.toSnakeCaseDeep(value)])
+      );
+    } else {
+      return obj;
+    }
+  }
+  
   toSnakeCase(): Object {
-    return Object.fromEntries(
-      Object.entries(this).map(([key, value]) => [camelCaseToSnakeCase(key), value])
-    );
+    return RunConfigurations.toSnakeCaseDeep(this);
   }
 }

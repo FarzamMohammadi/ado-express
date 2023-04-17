@@ -42,8 +42,8 @@
           new DeploymentDetails(
             item[0],
             item[1],
-            item[2],
-            item[3],
+            item[2] === '' ? null : item[3],
+            item[3] === '' ? null : item[3],
             getBooleanValue(item[4])
           )
       );

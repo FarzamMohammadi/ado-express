@@ -10,6 +10,7 @@
   import type { IExplicitExclusion } from '../../models/interfaces/iexplicit-exclusion.interface';
   import type { IExplicitInclusion } from '../../models/interfaces/iexplicit-inclusion.interface';
   import type { IInputSettings } from '../../models/interfaces/input-settings.interface';
+  import { ResultHandler } from '../../utils/result-handler';
   import { runResultData } from '../../utils/stores';
   import ExplicitReleaseValuesInput from './custom-form-components/ExplicitReleaseValuesInput.svelte';
   import DeploymentDetailsSelector from './custom-form-components/deployment-details/DeploymentDetailsSelector.svelte';
@@ -82,14 +83,14 @@
   let hasExplicitReleaseValues = false;
   let organizationUrl = '';
   let personalAccessToken = '';
-  let queries: '';
+  let queries: string = null;
   let releaseNameFormat = 'Release-$(rev:r)';
   let releaseTargetEnv = '';
   let viaEnv = false;
   let viaEnvLatestRelease = false;
   let viaEnvSourceName = '';
 
-  function sendResultData(text: string, showIdleDots: boolean = false) {
+  function sendMessage(text: string, showIdleDots: boolean = false) {
     runResultData.update((data) => [
       ...data,
       {
@@ -97,6 +98,19 @@
         showIdleDots,
       },
     ]);
+  }
+
+  function sendResultData(results: any[], showIdleDots: boolean = false) {
+    results.forEach(resultItem => {
+      const parsedResult = JSON.stringify(resultItem);
+      runResultData.update((data) => [
+      ...data,
+      {
+        parsedResult,
+        showIdleDots,
+      },
+    ]);
+    });
   }
 
   function getExplicitReleaseValues(): IExplicitInclusion | IExplicitExclusion {
@@ -123,9 +137,9 @@
     return explicitReleaseValues;
   }
 
-  function handleSubmit(): void {
+  async function handleSubmit() {
     running = true;
-    sendResultData(`Starting ${runType.toLowerCase()}`, true);
+    sendMessage(`Starting ${runType.toLowerCase()}`, true);
 
     if (isNullOrUndefined(runType) || isNullOrUndefined(runMethod)) {
       return showToast(
@@ -154,9 +168,13 @@
 
     const adoExpressApi = new ADOExpressApi();
     console.log(runConfigurations);
-    console.log(adoExpressApi.runADOExpress(runConfigurations));
 
     showToast(ToastType.Success, 'Successfully submitted run request');
+
+    const results = await adoExpressApi.runADOExpress(runConfigurations);
+    console.log(results);
+
+    ResultHandler.sendRunResults(results);
   }
 
   function isNullOrUndefined(variable: any): Boolean {
@@ -193,14 +211,14 @@
       } else if (runMethod == SearchRunMethod.ViaLatestInEnvironment) {
         viaEnv = true;
         viaEnvLatestRelease = true;
-        queries = '';
+        queries = null;
 
         formInputRequirements.queries.required = false;
         formInputRequirements.queries.show = false;
       } else if (runMethod == SearchRunMethod.ViaNumber) {
         viaEnv = false;
         viaEnvLatestRelease = false;
-        queries = '';
+        queries = null;
 
         formInputRequirements.queries.required = false;
         formInputRequirements.queries.show = false;
@@ -218,14 +236,14 @@
       if (runMethod == SearchRunMethod.ViaLatestInEnvironment) {
         viaEnv = true;
         viaEnvLatestRelease = true;
-        queries = '';
+        queries = null;
 
         formInputRequirements.queries.required = false;
         formInputRequirements.queries.show = false;
       } else if (runMethod == SearchRunMethod.ViaNumber) {
         viaEnv = false;
         viaEnvLatestRelease = false;
-        queries = '';
+        queries = null;
         formInputRequirements.queries.required = false;
         formInputRequirements.queries.show = false;
 
@@ -248,15 +266,15 @@
       if (runMethod == SearchRunMethod.ViaEnvironment) {
         viaEnv = true;
         viaEnvLatestRelease = false;
-        queries = '';
+        queries = null;
       } else if (runMethod == SearchRunMethod.ViaLatestInEnvironment) {
         viaEnv = true;
         viaEnvLatestRelease = true;
-        queries = '';
+        queries = null;
       } else if (runMethod == SearchRunMethod.ViaNumber) {
         viaEnv = false;
         viaEnvLatestRelease = false;
-        queries = '';
+        queries = null;
       } else if (runMethod == SearchRunMethod.ViaQuery) {
         viaEnv = true;
         viaEnvLatestRelease = false;
@@ -265,11 +283,11 @@
       if (runMethod == SearchRunMethod.ViaLatestInEnvironment) {
         viaEnv = true;
         viaEnvLatestRelease = true;
-        queries = '';
+        queries = null;
       } else if (runMethod == SearchRunMethod.ViaNumber) {
         viaEnv = false;
         viaEnvLatestRelease = false;
-        queries = '';
+        queries = null;
       }
     }
   }
