@@ -1,8 +1,8 @@
 <script lang="ts">
   import * as XLSX from 'xlsx';
-  import { DeploymentDetails } from '../../../../models/classes/deployment-details.model';
+  import { DeploymentDetail } from '../../../../models/classes/deployment-detail.model';
 
-  export let deploymentDetails: DeploymentDetails[] = [];
+  export let deploymentDetails: DeploymentDetail[] = [];
 
   function getBooleanValue(isCrucialUserInput: String) {
     const trueValues = ['t', 'true', 'y', 'yes', '1'];
@@ -39,7 +39,7 @@
 
       deploymentDetails = excelData.map(
         (item: any) =>
-          new DeploymentDetails(
+          new DeploymentDetail(
             item[0],
             item[1],
             item[2] === '' ? null : item[3],

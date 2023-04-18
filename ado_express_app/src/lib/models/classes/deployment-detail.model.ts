@@ -1,13 +1,13 @@
 import { camelCaseToSnakeCase } from '../../utils/camel-to-snakecase';
-import type { IDeploymentDetails } from '../interfaces/ideployment-details.interface';
+import type { IDeploymentDetail } from '../interfaces/ideployment-detail.interface';
 import type { IDeserializable } from '../interfaces/ideserializable.interface';
 import type { IToSnakeCase } from '../interfaces/ito-snake-case.interface';
 
-export class DeploymentDetails
+export class DeploymentDetail
   implements
-    IDeserializable<IDeploymentDetails>,
+    IDeserializable<IDeploymentDetail>,
     IToSnakeCase,
-    IDeploymentDetails
+    IDeploymentDetail
 {
   public releaseProjectName!: string;
 
@@ -33,7 +33,7 @@ export class DeploymentDetails
     this.isCrucial = isCrucial;
   }
 
-  deserialize(input: IDeploymentDetails): this {
+  deserialize(input: IDeploymentDetail): this {
     Object.assign(this, input);
     return this;
   }

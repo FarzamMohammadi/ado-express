@@ -43,20 +43,17 @@ def search_via_release_environment(request):
                                                serializer.validated_data['deployment_details'])
         
         startup_runners = Startup(run_configurations)
-        release_details = []
+        release_details = dict()
 
         #TODO Make concurrent
         for deployment in run_configurations.deployment_details:
             converted_deployment_details = DeploymentDetails(deployment['release_project_name'], deployment['release_name'], None, None, False)
             
             releases: list[ReleaseDetails] = startup_runners.search_and_log_details_only(converted_deployment_details)
-            
-            if releases: release_details.append(dict({'release_definition': deployment['release_name'], 'release_details': [release.__dict__ for release in releases]}))
 
-        if release_details:
-            return Response(status=status.HTTP_200_OK, data=release_details)
-        else:
-            return Response(status=status.HTTP_200_OK, data=[])
+            if releases: release_details[deployment['release_name']] = [release.__dict__ for release in releases]
+
+        return Response(status=status.HTTP_200_OK, data=release_details)
     else:
         return Response(status=status.HTTP_400_BAD_REQUEST, data=f"Errors:\n{serializer.errors}")
 
@@ -92,22 +89,19 @@ def search_via_latest_release(request):
                                                serializer.validated_data['deployment_details'])
         
         startup_runners = Startup(run_configurations)
-        deployment_details = []
+        deployment_details = dict()
 
         #TODO Make concurrent
         for deployment in run_configurations.deployment_details:
             converted_deployment_details = DeploymentDetails(deployment['release_project_name'], deployment['release_name'], None, None, deployment['is_crucial'])
             
-            release = startup_runners.get_deployment_detail_from_latest_release(converted_deployment_details)
+            deployment_detail = startup_runners.get_deployment_detail_from_latest_release(converted_deployment_details)
             
-            if release: deployment_details.append(release)
+            if deployment_detail: deployment_details[deployment['release_name']] = deployment_detail.__dict__
 
-        if deployment_details:
-            return Response(status=status.HTTP_200_OK, data={'releases': json.dumps([ob.__dict__ for ob in deployment_details])})
-        else:
-            return Response(status=status.HTTP_200_OK, data={'releases': []})
+        return Response(status=status.HTTP_200_OK, data=deployment_details)
     else:
-        return Response(status=status.HTTP_400_BAD_REQUEST, data=f"Fields are invalid.\n{serializer.error_messages}")
+        return Response(status=status.HTTP_400_BAD_REQUEST, data=f"Errors:\n{serializer.errors}")
     
 @api_view(['POST'])
 def search_via_release_number(request):
@@ -125,7 +119,7 @@ def search_via_release_number(request):
     serializer.fields['via_env_latest_release'].required = False
     serializer.fields['release_target_env'].allow_blank = True
     serializer.fields['via_env_source_name'].allow_blank = True
-    print(serializer.initial_data)
+    
     if not serializer.is_valid(): print(serializer.errors)
 
     if serializer.is_valid():

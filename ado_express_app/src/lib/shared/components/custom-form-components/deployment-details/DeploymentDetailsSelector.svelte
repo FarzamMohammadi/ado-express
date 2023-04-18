@@ -1,12 +1,12 @@
 <script lang="ts">
-  import type { DeploymentDetails } from '../../../../models/classes/deployment-details.model';
+  import type { DeploymentDetail } from '../../../../models/classes/deployment-detail.model';
   import { clickOutside } from '../../../../utils/click-outside';
   import Tooltip from '../../utils/Tooltip.svelte';
   import DeploymentDetailSelectionResults from './DeploymentDetailSelectionResults.svelte';
   import ExcelFileInput from './ExcelFileInput.svelte';
   import ExcelPatternSelector from './ExcelPatternSelector.svelte';
 
-  export let deploymentDetails: DeploymentDetails[];
+  export let deploymentDetails: DeploymentDetail[];
   export let deploymentSelectorHeaders: string[] = [];
   export let showInput: boolean;
   export let deploymentDetailsType;

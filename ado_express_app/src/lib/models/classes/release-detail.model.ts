@@ -1,10 +1,10 @@
 import { camelCaseToSnakeCase } from '../../utils/camel-to-snakecase';
 import type { IDeserializable } from '../interfaces/ideserializable.interface';
-import type { IReleaseDetails } from '../interfaces/irelease-details.interface';
+import type { IReleaseDetail } from '../interfaces/irelease-detail.interface';
 import type { IToSnakeCase } from '../interfaces/ito-snake-case.interface';
 
-export class ReleaseDetails
-  implements IDeserializable<IReleaseDetails>, IToSnakeCase, IReleaseDetails
+export class ReleaseDetail
+  implements IDeserializable<IReleaseDetail>, IToSnakeCase, IReleaseDetail
 {
   public releaseProjectName!: string;
 
@@ -34,7 +34,7 @@ export class ReleaseDetails
     this.modifiedOn = modifiedOn;
   }
 
-  deserialize(input: IReleaseDetails): this {
+  deserialize(input: IReleaseDetail): this {
     Object.assign(this, input);
     return this;
   }

@@ -1,6 +1,5 @@
 import { camelCase, mapKeys } from 'lodash';
 import type { RunConfigurations } from '../../../models/classes/run-configurations.model';
-import type { ISearchViaReleaseEnvironment } from '../../../models/interfaces/dtos/search_via_release_environment';
 import type { IDeploymentDetails } from '../../../models/interfaces/ideployment-details.interface';
 import type { IReleaseDetails } from '../../../models/interfaces/irelease-details.interface';
 import { JSONHttp } from '../https';
@@ -8,7 +7,7 @@ import { Endpoints } from './endpoints';
 
 export class ADOExpressApi {
 
-  public async runADOExpress(runConfigurations: RunConfigurations): Promise<IReleaseDetails[] | IDeploymentDetails[] | ISearchViaReleaseEnvironment[]> {
+  public async runADOExpress(runConfigurations: RunConfigurations): Promise<IReleaseDetails[] | IReleaseDetails | IDeploymentDetails[] | IDeploymentDetails> {
     if (runConfigurations.searchOnly) {
       if (runConfigurations.queries) {
         return await this.searchViaQuery(runConfigurations);
@@ -28,26 +27,29 @@ export class ADOExpressApi {
     }
   }
 
-  private async searchViaEnvironment(runConfigurations: RunConfigurations): Promise<ISearchViaReleaseEnvironment[]> {
+  private async searchViaEnvironment(runConfigurations: RunConfigurations): Promise<IReleaseDetails> {
     const parsedRunConfigurations = runConfigurations.toSnakeCase();
 
-    return await JSONHttp.post<ISearchViaReleaseEnvironment[]>(
+    return await JSONHttp.post<IReleaseDetails>(
       Endpoints.searchViaEnvironment,
       parsedRunConfigurations
     ).then((res) => {
-      const releaseDetails: ISearchViaReleaseEnvironment[] = this.toCamelCase(res);
-      return releaseDetails;
+      console.log(res.internationalapp);
+      console.log(res);
+      return res;
     });
   }
 
 
-  private async searchViaLatest(runConfigurations: RunConfigurations) {
+  private async searchViaLatest(runConfigurations: RunConfigurations): Promise<IDeploymentDetails> {
     const parsedRunConfigurations = runConfigurations.toSnakeCase();
 
-    return await JSONHttp.post<[IReleaseDetails]>(
+    return await JSONHttp.post<IDeploymentDetails>(
       Endpoints.searchViaLatest,
       parsedRunConfigurations
     ).then((res) => {
+      console.log(res.internationalapp);
+      console.log(res);
       return res;
     });
   }

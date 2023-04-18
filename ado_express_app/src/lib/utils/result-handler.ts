@@ -30,7 +30,6 @@ export class ResultHandler {
     }
 
     static sendRunResults(runResults: any) {
-        console.log(runResults)
         // Search via environment
         if (isISearchViaReleaseEnvironmentArray(runResults)) {
             for (let i = 0; i < runResults.length; i++) {

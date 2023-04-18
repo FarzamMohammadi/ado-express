@@ -1,8 +1,5 @@
+import type { IReleaseDetail } from './irelease-detail.interface';
+
 export interface IReleaseDetails {
-  releaseProjectName: string;
-  releaseDefinition: string;
-  releaseName: string;
-  releaseEnv: string;
-  isDeployed: boolean;
-  modifiedOn: string;
+    [releaseDefinition: string]: IReleaseDetail[];
 }

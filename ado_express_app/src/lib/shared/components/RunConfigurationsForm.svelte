@@ -1,6 +1,6 @@
 <script lang="ts">
   import { ADOExpressApi } from '../../core/services/api';
-  import type { DeploymentDetails } from '../../models/classes/deployment-details.model';
+  import type { DeploymentDetail } from '../../models/classes/deployment-detail.model';
   import { RunConfigurations } from '../../models/classes/run-configurations.model';
   import {
       RunType,
@@ -77,7 +77,7 @@
 
   // RunConfigurations
   let crucialReleaseDefinitions: '';
-  let deploymentDetails: DeploymentDetails[] = [];
+  let deploymentDetails: DeploymentDetail[] = [];
   let explicitReleaseValuesReleases = '';
   let explicitReleaseValuesType = '';
   let hasExplicitReleaseValues = false;

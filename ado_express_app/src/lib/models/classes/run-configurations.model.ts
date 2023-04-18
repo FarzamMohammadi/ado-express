@@ -1,5 +1,5 @@
 import { camelCaseToSnakeCase } from '../../utils/camel-to-snakecase';
-import type { IDeploymentDetails } from '../interfaces/ideployment-details.interface';
+import type { IDeploymentDetail } from '../interfaces/ideployment-detail.interface';
 import type { IDeserializable } from '../interfaces/ideserializable.interface';
 import type { IExplicitExclusion } from '../interfaces/iexplicit-exclusion.interface';
 import type { IExplicitInclusion } from '../interfaces/iexplicit-inclusion.interface';
@@ -34,7 +34,7 @@ export class RunConfigurations
 
   public viaEnvSourceName: string;
 
-  public deploymentDetails: IDeploymentDetails[];
+  public deploymentDetails: IDeploymentDetail[];
 
   constructor(
     explicitReleaseValues: IExplicitExclusion | IExplicitInclusion,
@@ -48,7 +48,7 @@ export class RunConfigurations
     viaEnv: boolean,
     viaEnvLatestRelease: boolean,
     viaEnvSourceName: string,
-    deploymentDetails: IDeploymentDetails[]
+    deploymentDetails: IDeploymentDetail[]
   ) {
     this.explicitReleaseValues = explicitReleaseValues;
     this.crucialReleaseDefinitions = crucialReleaseDefinitions;

@@ -1,4 +1,4 @@
-import type { IDeploymentDetails } from './ideployment-details.interface';
+import type { IDeploymentDetail } from './ideployment-detail.interface';
 import type { IExplicitExclusion } from './iexplicit-exclusion.interface';
 import type { IExplicitInclusion } from './iexplicit-inclusion.interface';
 
@@ -14,5 +14,5 @@ export interface IRunConfigurations {
   viaEnv?: boolean;
   viaEnvLatestRelease?: boolean;
   viaEnvSourceName?: string;
-  deploymentDetails?: IDeploymentDetails[];
+  deploymentDetails?: IDeploymentDetail[];
 }
