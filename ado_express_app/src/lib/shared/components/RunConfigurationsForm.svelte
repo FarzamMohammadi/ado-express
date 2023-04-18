@@ -159,7 +159,7 @@
     showToast(ToastType.Success, 'Successfully submitted run request');
 
     const results = await adoExpressApi.runADOExpress(runConfigurations);
-    console.log(results);
+    // console.log(results);
 
     ResultHandler.sendRunResults(results);
   }

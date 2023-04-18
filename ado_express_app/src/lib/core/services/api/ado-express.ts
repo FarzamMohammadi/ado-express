@@ -7,7 +7,7 @@ import { Endpoints } from './endpoints';
 
 export class ADOExpressApi {
 
-  public async runADOExpress(runConfigurations: RunConfigurations): Promise<IReleaseDetails[] | IReleaseDetails | IDeploymentDetails[] | IDeploymentDetails> {
+  public async runADOExpress(runConfigurations: RunConfigurations): Promise<IReleaseDetails | IDeploymentDetails> {
     if (runConfigurations.searchOnly) {
       if (runConfigurations.queries) {
         return await this.searchViaQuery(runConfigurations);
@@ -34,7 +34,6 @@ export class ADOExpressApi {
       Endpoints.searchViaEnvironment,
       parsedRunConfigurations
     ).then((res) => {
-      console.log(res.internationalapp);
       console.log(res);
       return res;
     });
@@ -48,40 +47,39 @@ export class ADOExpressApi {
       Endpoints.searchViaLatest,
       parsedRunConfigurations
     ).then((res) => {
-      console.log(res.internationalapp);
       console.log(res);
       return res;
     });
   }
 
-  private async searchViaNumber(runConfigurations: RunConfigurations) {
+  private async searchViaNumber(runConfigurations: RunConfigurations): Promise<IReleaseDetails> {
     const parsedRunConfigurations = runConfigurations.toSnakeCase();
 
     return await JSONHttp.post<IReleaseDetails>(
       Endpoints.searchViaNumber,
       parsedRunConfigurations
     ).then((res) => {
-      console.log(res.internationalapp);
       console.log(res);
       return res;
     });
   }
 
-  private async searchViaQuery(runConfigurations: RunConfigurations) {
+  private async searchViaQuery(runConfigurations: RunConfigurations): Promise<IDeploymentDetails> {
     const parsedRunConfigurations = runConfigurations.toSnakeCase();
 
-    return await JSONHttp.post<[IReleaseDetails]>(
+    return await JSONHttp.post<IDeploymentDetails>(
       Endpoints.searchViaQuery,
       parsedRunConfigurations
     ).then((res) => {
+      console.log(res);
       return res;
     });
   }
 
-  private async deploy(runConfigurations: RunConfigurations) {
+  private async deploy(runConfigurations: RunConfigurations): Promise<IDeploymentDetails> {
     const parsedRunConfigurations = runConfigurations.toSnakeCase();
 
-    return await JSONHttp.post<[IDeploymentDetails]>(
+    return await JSONHttp.post<IDeploymentDetails>(
       Endpoints.deploy,
       parsedRunConfigurations
     ).then((res) => {

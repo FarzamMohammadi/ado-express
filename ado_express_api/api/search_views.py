@@ -13,6 +13,10 @@ from .serializers import (DeploymentDetailsSerializer,
                           RunConfigurationsSerializer)
 
 
+def snake_to_camel(snake_str):
+    components = snake_str.split('_')
+    return ''.join(x.title() for x in components)
+
 @api_view(['POST'])
 def search_via_release_environment(request):
     deployment_details = DeploymentDetailsSerializer()
@@ -175,11 +179,13 @@ def search_via_query(request):
                                                serializer.validated_data['deployment_details'])
         
         startup_runners = Startup(run_configurations)
-        deployment_details = startup_runners.get_deployment_details_from_query()
-
-        if deployment_details:
-            return Response(status=status.HTTP_200_OK, data={'releases': json.dumps([ob.__dict__ for ob in deployment_details])})
-        else:
-            return Response(status=status.HTTP_200_OK, data={'releases': []})
+        deployment_details = dict()
+        deployment_details_list = startup_runners.get_deployment_details_from_query()
+        
+        for deployment in deployment_details_list:
+            deployment_details[deployment.release_name] = deployment.__dict__
+        
+        return Response(status=status.HTTP_200_OK, data=deployment_details)
     else:
         return Response(status=status.HTTP_400_BAD_REQUEST, data=f"Fields are invalid.\n{serializer.error_messages}")
+
