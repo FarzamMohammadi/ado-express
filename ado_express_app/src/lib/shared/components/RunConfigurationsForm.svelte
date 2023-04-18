@@ -212,6 +212,9 @@
 
         formInputRequirements.rse.required = false;
         formInputRequirements.rse.show = false;
+
+        formInputRequirements.rte.required = false;
+        formInputRequirements.rte.show = false;
       } else if (runMethod == SearchRunMethod.ViaQuery) {
         viaEnv = true;
         viaEnvLatestRelease = false;

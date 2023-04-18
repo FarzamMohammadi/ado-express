@@ -120,8 +120,6 @@ def search_via_release_number(request):
     serializer.fields['release_target_env'].allow_blank = True
     serializer.fields['via_env_source_name'].allow_blank = True
     
-    if not serializer.is_valid(): print(serializer.errors)
-
     if serializer.is_valid():
         run_configurations = RunConfigurations(None, # explicit_release_values
                                                None, # crucial_release_definitions
@@ -137,7 +135,7 @@ def search_via_release_number(request):
                                                serializer.validated_data['deployment_details'])
         
         startup_runners = Startup(run_configurations)
-        release_details = []
+        release_details = dict()
         
         #TODO Make concurrent
         for deployment in run_configurations.deployment_details:
@@ -145,12 +143,9 @@ def search_via_release_number(request):
             
             releases: list[ReleaseDetails] = startup_runners.search_and_log_details_only(converted_deployment_details)
             
-            if releases: release_details.append(dict({'release_definition': deployment['release_name'], 'release_name': deployment['release_number'], 'results': [release.__dict__ for release in releases]}))
+            if releases: release_details[deployment['release_name']] = [release.__dict__ for release in releases]
         
-        if release_details:
-            return Response(status=status.HTTP_200_OK, data={'releases': json.dumps(release_details, default=str)})
-        else:
-            return Response(status=status.HTTP_200_OK, data={'releases': []})
+        return Response(status=status.HTTP_200_OK, data=release_details)
     else:
         return Response(status=status.HTTP_400_BAD_REQUEST, data=f"Fields are invalid.\n{serializer.error_messages}")
                     

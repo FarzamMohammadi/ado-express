@@ -57,10 +57,12 @@ export class ADOExpressApi {
   private async searchViaNumber(runConfigurations: RunConfigurations) {
     const parsedRunConfigurations = runConfigurations.toSnakeCase();
 
-    return await JSONHttp.post<[IReleaseDetails]>(
+    return await JSONHttp.post<IReleaseDetails>(
       Endpoints.searchViaNumber,
       parsedRunConfigurations
     ).then((res) => {
+      console.log(res.internationalapp);
+      console.log(res);
       return res;
     });
   }
