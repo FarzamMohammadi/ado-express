@@ -1,15 +1,15 @@
-import json
 import status
-
-from rest_framework.response import Response
-from rest_framework.decorators import api_view
-
-from base.models.RunConfigurations import RunConfigurations
 from base.models.DeploymentDetails import DeploymentDetails
-
-from .serializers import RunConfigurationsSerializer, DeploymentDetailsSerializer
+from base.models.ReleaseDetails import ReleaseDetails
+from base.models.RunConfigurations import RunConfigurations
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
 
 from ado_express.main import Startup
+
+from .serializers import (DeploymentDetailsSerializer,
+                          RunConfigurationsSerializer)
+
 
 @api_view(['POST'])
 def deploy(request):
@@ -57,15 +57,21 @@ def deploy(request):
             deployment_details[:] = startup_runners.remove_crucial_deployments_from_deployment_details(deployment_details, crucial_release_definitions)
 
         #TODO Add clear rollback handling and return results to user - currently it's handled but user is not notified and will only know the deployment was unsuccessful 
-        crucial_deployment_results = []
-        regular_deployment_results = []
+        deployment_results = dict()
 
+        # In case we need to separate later
         if crucial_deployment_details:
-            crucial_deployment_results.append(startup_runners.run_release_deployments(crucial_deployment_details, True))
+            crucial_deployment_results = startup_runners.run_release_deployments(crucial_deployment_details, True)
+
+            for crucial_deployment_result in crucial_deployment_results:
+                deployment_results[crucial_deployment_result.release_definition] = crucial_deployment_result.__dict__
 
         if deployment_details:
-            regular_deployment_results.append(startup_runners.run_release_deployments(deployment_details, False, True))
+            regular_deployment_results = startup_runners.run_release_deployments(deployment_details, False, True)
 
-        return Response(status=status.HTTP_200_OK, data={'crucial_deployments': json.dumps([ob.__dict__ for ob in crucial_deployment_results], default=str), 'regular_deployments': json.dumps([ob.__dict__ for ob in regular_deployment_results], default=str)})
+            for deployment_result in regular_deployment_results:
+                deployment_results[deployment_result.release_definition] = deployment_result.__dict__
+
+        return Response(status=status.HTTP_200_OK, data=deployment_results)
     else:
         return Response(status=status.HTTP_400_BAD_REQUEST, data=f"Fields are invalid.\n{serializer.error_messages}")

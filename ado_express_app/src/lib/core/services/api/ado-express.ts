@@ -1,4 +1,3 @@
-import { camelCase, mapKeys } from 'lodash';
 import type { RunConfigurations } from '../../../models/classes/run-configurations.model';
 import type { IDeploymentDetails } from '../../../models/interfaces/ideployment-details.interface';
 import type { IReleaseDetails } from '../../../models/interfaces/irelease-details.interface';
@@ -83,22 +82,8 @@ export class ADOExpressApi {
       Endpoints.deploy,
       parsedRunConfigurations
     ).then((res) => {
+      console.log(res);
       return res;
     });
-  }
-
-  private toCamelCase(obj: any): any {
-    if (Array.isArray(obj)) {
-      return obj.map((item) => this.toCamelCase(item));
-    } else if (obj !== null && typeof obj === 'object') {
-      return mapKeys(
-        Object.fromEntries(
-          Object.entries(obj).map(([key, value]) => [camelCase(key), this.toCamelCase(value)])
-        ),
-        (_, key) => camelCase(key)
-      );
-    } else {
-      return obj;
-    }
   }
 }
