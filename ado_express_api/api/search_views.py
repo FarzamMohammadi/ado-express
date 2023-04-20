@@ -41,14 +41,14 @@ def search_via_release_environment(request):
                                                None,    #
                                                serializer.validated_data['deployment_details'])
         
-        startup_runners = Startup(run_configurations)
+        ado_express = Startup(run_configurations)
         release_details = dict()
 
         #TODO Make concurrent
         for deployment in run_configurations.deployment_details:
             converted_deployment_details = DeploymentDetail(deployment['release_project_name'], deployment['release_name'], None, None, False)
             
-            releases: list[ReleaseDetail] = startup_runners.search_and_log_details_only(converted_deployment_details)
+            releases: list[ReleaseDetail] = ado_express.search_and_log_details_only(converted_deployment_details)
 
             if releases: release_details[deployment['release_name']] = [release.__dict__ for release in releases]
 
@@ -87,14 +87,14 @@ def search_via_latest_release(request):
                                                serializer.validated_data['via_env_source_name'],
                                                serializer.validated_data['deployment_details'])
         
-        startup_runners = Startup(run_configurations)
+        ado_express = Startup(run_configurations)
         deployment_details = dict()
 
         #TODO Make concurrent
         for deployment in run_configurations.deployment_details:
             converted_deployment_details = DeploymentDetail(deployment['release_project_name'], deployment['release_name'], None, None, deployment['is_crucial'])
             
-            deployment_detail = startup_runners.get_deployment_detail_from_latest_release(converted_deployment_details)
+            deployment_detail = ado_express.get_deployment_detail_from_latest_release(converted_deployment_details)
             
             if deployment_detail: deployment_details[deployment['release_name']] = deployment_detail.__dict__
 
@@ -133,14 +133,14 @@ def search_via_release_number(request):
                                                None,    # via_env_source_name
                                                serializer.validated_data['deployment_details'])
         
-        startup_runners = Startup(run_configurations)
+        ado_express = Startup(run_configurations)
         release_details = dict()
         
         #TODO Make concurrent
         for deployment in run_configurations.deployment_details:
             converted_deployment_details = DeploymentDetail(deployment['release_project_name'], deployment['release_name'], deployment['release_number'], None, deployment['is_crucial'])
             
-            releases: list[ReleaseDetail] = startup_runners.search_and_log_details_only(converted_deployment_details)
+            releases: list[ReleaseDetail] = ado_express.search_and_log_details_only(converted_deployment_details)
             
             if releases: release_details[deployment['release_name']] = [release.__dict__ for release in releases]
         
@@ -173,9 +173,9 @@ def search_via_query(request):
                                                serializer.validated_data['via_env_source_name'],
                                                serializer.validated_data['deployment_details'])
         
-        startup_runners = Startup(run_configurations)
+        ado_express = Startup(run_configurations)
         deployment_details = dict()
-        deployment_details_list = startup_runners.get_deployment_details_from_query()
+        deployment_details_list = ado_express.get_deployment_details_from_query()
         
         for deployment in deployment_details_list:
             deployment_details[deployment.release_name] = deployment.__dict__
