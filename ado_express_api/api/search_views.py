@@ -1,9 +1,9 @@
 import json
 
 import status
-from base.models.DeploymentDetails import DeploymentDetails
-from base.models.ReleaseDetails import ReleaseDetails
-from base.models.RunConfigurations import RunConfigurations
+from base.models.DeploymentDetail import DeploymentDetail
+from base.models.ReleaseDetail import ReleaseDetail
+from base.models.RunConfiguration import RunConfiguration
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
@@ -33,7 +33,7 @@ def search_via_release_environment(request):
     serializer.fields['via_env_latest_release'].required = False
 
     if serializer.is_valid():
-        run_configurations = RunConfigurations(serializer.validated_data['explicit_release_values'], 
+        run_configurations = RunConfiguration(serializer.validated_data['explicit_release_values'], 
                                                serializer.validated_data['crucial_release_definitions'], 
                                                serializer.validated_data['organization_url'], 
                                                serializer.validated_data['personal_access_token'], 
@@ -51,9 +51,9 @@ def search_via_release_environment(request):
 
         #TODO Make concurrent
         for deployment in run_configurations.deployment_details:
-            converted_deployment_details = DeploymentDetails(deployment['release_project_name'], deployment['release_name'], None, None, False)
+            converted_deployment_details = DeploymentDetail(deployment['release_project_name'], deployment['release_name'], None, None, False)
             
-            releases: list[ReleaseDetails] = startup_runners.search_and_log_details_only(converted_deployment_details)
+            releases: list[ReleaseDetail] = startup_runners.search_and_log_details_only(converted_deployment_details)
 
             if releases: release_details[deployment['release_name']] = [release.__dict__ for release in releases]
 
@@ -79,7 +79,7 @@ def search_via_latest_release(request):
     serializer.fields['via_env_latest_release'].required = False
 
     if serializer.is_valid():
-        run_configurations = RunConfigurations(serializer.validated_data['explicit_release_values'], 
+        run_configurations = RunConfiguration(serializer.validated_data['explicit_release_values'], 
                                                serializer.validated_data['crucial_release_definitions'], 
                                                serializer.validated_data['organization_url'], 
                                                serializer.validated_data['personal_access_token'], 
@@ -97,7 +97,7 @@ def search_via_latest_release(request):
 
         #TODO Make concurrent
         for deployment in run_configurations.deployment_details:
-            converted_deployment_details = DeploymentDetails(deployment['release_project_name'], deployment['release_name'], None, None, deployment['is_crucial'])
+            converted_deployment_details = DeploymentDetail(deployment['release_project_name'], deployment['release_name'], None, None, deployment['is_crucial'])
             
             deployment_detail = startup_runners.get_deployment_detail_from_latest_release(converted_deployment_details)
             
@@ -125,7 +125,7 @@ def search_via_release_number(request):
     serializer.fields['via_env_source_name'].allow_blank = True
     
     if serializer.is_valid():
-        run_configurations = RunConfigurations(None, # explicit_release_values
+        run_configurations = RunConfiguration(None, # explicit_release_values
                                                None, # crucial_release_definitions
                                                serializer.validated_data['organization_url'], 
                                                serializer.validated_data['personal_access_token'], 
@@ -143,9 +143,9 @@ def search_via_release_number(request):
         
         #TODO Make concurrent
         for deployment in run_configurations.deployment_details:
-            converted_deployment_details = DeploymentDetails(deployment['release_project_name'], deployment['release_name'], deployment['release_number'], None, deployment['is_crucial'])
+            converted_deployment_details = DeploymentDetail(deployment['release_project_name'], deployment['release_name'], deployment['release_number'], None, deployment['is_crucial'])
             
-            releases: list[ReleaseDetails] = startup_runners.search_and_log_details_only(converted_deployment_details)
+            releases: list[ReleaseDetail] = startup_runners.search_and_log_details_only(converted_deployment_details)
             
             if releases: release_details[deployment['release_name']] = [release.__dict__ for release in releases]
         
@@ -165,7 +165,7 @@ def search_via_query(request):
     serializer.fields['search_only'].required = False
 
     if serializer.is_valid():
-        run_configurations = RunConfigurations(serializer.validated_data['explicit_release_values'], 
+        run_configurations = RunConfiguration(serializer.validated_data['explicit_release_values'], 
                                                serializer.validated_data['crucial_release_definitions'], 
                                                serializer.validated_data['organization_url'], 
                                                serializer.validated_data['personal_access_token'], 

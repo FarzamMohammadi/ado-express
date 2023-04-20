@@ -1,4 +1,4 @@
-class DeploymentDetails:
+class DeploymentDetail:
     """
     :param release_project_name:
     :type release_project_name: str

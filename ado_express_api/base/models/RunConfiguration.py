@@ -1,7 +1,7 @@
-from .DeploymentDetails import DeploymentDetails
+from .DeploymentDetail import DeploymentDetail
 
 
-class RunConfigurations:
+class RunConfiguration:
   """
   :param explicit_release_values:
   :type EXPLICIT_RELEASE_VALUES: dict
@@ -26,9 +26,9 @@ class RunConfigurations:
   :param via_env_source_name:
   :type VIA_ENV_SOURCE_NAME: str
   :param deployment_details:
-  :type deployment_details: list[DeploymentDetails]
+  :type deployment_details: list[DeploymentDetail]
   """
-  def __init__(self, explicit_release_values: dict, crucial_release_definitions: list[str], organization_url: str, personal_access_token: str, queries: list[str], release_name_format: str, release_target_env: str, search_only: bool, via_env: bool, via_env_latest_release: bool, via_env_source_name: str, deployment_details: list[DeploymentDetails]):
+  def __init__(self, explicit_release_values: dict, crucial_release_definitions: list[str], organization_url: str, personal_access_token: str, queries: list[str], release_name_format: str, release_target_env: str, search_only: bool, via_env: bool, via_env_latest_release: bool, via_env_source_name: str, deployment_details: list[DeploymentDetail]):
     self.EXPLICIT_RELEASE_VALUES = explicit_release_values
     self.CRUCIAL_RELEASE_DEFINITIONS = crucial_release_definitions
     self.ORGANIZATION_URL = organization_url

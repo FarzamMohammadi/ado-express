@@ -1,7 +1,7 @@
 import status
-from base.models.DeploymentDetails import DeploymentDetails
-from base.models.ReleaseDetails import ReleaseDetails
-from base.models.RunConfigurations import RunConfigurations
+from base.models.DeploymentDetail import DeploymentDetail
+from base.models.ReleaseDetail import ReleaseDetail
+from base.models.RunConfiguration import RunConfiguration
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
@@ -22,7 +22,7 @@ def deploy(request):
     serializer.fields['deployment_details'].allow_empty = False
 
     if serializer.is_valid():
-        run_configurations = RunConfigurations(serializer.validated_data['explicit_release_values'], 
+        run_configurations = RunConfiguration(serializer.validated_data['explicit_release_values'], 
                                                serializer.validated_data['crucial_release_definitions'], 
                                                serializer.validated_data['organization_url'], 
                                                serializer.validated_data['personal_access_token'], 
@@ -39,7 +39,7 @@ def deploy(request):
         deployment_details = []
         
         for deployment in run_configurations.deployment_details:
-            converted_deployment_details = DeploymentDetails(deployment['release_project_name'], deployment['release_name'], deployment['release_number'], deployment['release_rollback'], deployment['is_crucial'])
+            converted_deployment_details = DeploymentDetail(deployment['release_project_name'], deployment['release_name'], deployment['release_number'], deployment['release_rollback'], deployment['is_crucial'])
             deployment_details.append(converted_deployment_details)
         
         explicit_deployment_details = startup_runners.updated_deployment_details_based_on_explicit_inclusion_and_exclusion(deployment_details)
