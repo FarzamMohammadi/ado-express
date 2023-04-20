@@ -100,19 +100,6 @@
     ]);
   }
 
-  function sendResultData(results: any[], showIdleDots: boolean = false) {
-    results.forEach(resultItem => {
-      const parsedResult = JSON.stringify(resultItem);
-      runResultData.update((data) => [
-      ...data,
-      {
-        parsedResult,
-        showIdleDots,
-      },
-    ]);
-    });
-  }
-
   function getExplicitReleaseValues(): IExplicitInclusion | IExplicitExclusion {
     if (!hasExplicitReleaseValues) return null;
 

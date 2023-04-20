@@ -1,26 +1,107 @@
-<script>
-  export let runDetails = '';
-  let matrixTheme = true;
+<script lang="ts">
+  import { onMount } from 'svelte';
+  import type { IRunResultData } from '../models/interfaces/irun-result-data';
+  import { runResultData, running } from '../utils/stores/stores';
 
+  let matrixTheme = true;
+  let isMounted = false;
+  let localResultData: IRunResultData[] = [];
+  export let displayIdleDots = true;
+  let displayDataInputs: string[] = [];
+
+  function typeEffect(
+    dataInput: string,
+    i: number,
+    dataIndex: number,
+    speed = 50,
+    delay = 50
+  ) {
+    if (i < dataInput.length) {
+      displayDataInputs[dataIndex] =
+        (displayDataInputs[dataIndex] || '') + dataInput[i];
+      setTimeout(() => typeEffect(dataInput, i + 1, dataIndex, speed), delay);
+    }
+  }
+  // const hello: IRunResultData = {
+  //     text: 'HELLO!!!',
+  //     showIdleDots: false,
+  //   }
+  //   runResultData.update((data) => [...data, hello]);
+
+  function updateDots() {
+    if (dotText.length < 3) {
+      dotText += '.';
+    } else {
+      dotText = '';
+    }
+  }
   function toggleTheme() {
     matrixTheme = !matrixTheme;
   }
+
+  onMount(() => {
+    localResultData = $runResultData;
+    displayDataInputs = localResultData.map(() => '');
+
+    localResultData.forEach((dataInput, index) => {
+      typeEffect(dataInput.text || '', 0, index);
+    });
+
+    isMounted = true;
+  });
+
+  // Reactive statement to watch for changes in the $runResultData array
+  $: if (isMounted && localResultData.length !== $runResultData.length) {
+    const newIndex = $runResultData.length - 1;
+    localResultData = $runResultData;
+    displayIdleDots = !localResultData[newIndex].showIdleDots;
+
+    displayDataInputs = [...displayDataInputs, ''];
+    typeEffect(localResultData[newIndex].text || '', 0, newIndex);
+  }
+
+  let dotText = '';
+  setInterval(updateDots, 400);
 </script>
 
-<div class="terminal-container my-4">
-  <pre class="terminal-content" class:matrix={matrixTheme}>{runDetails}</pre>
+<div>
+  <div>
+    <div class="terminal-container my-4">
+      <div
+        class="terminal-content flex-col items-center justify-end ml-6 mr-6"
+        class:matrix={matrixTheme}
+      >
+        <div class="dataInput-container">
+          {#each displayDataInputs as dataInput, i}
+            <span>
+              {dataInput}
+              {#if localResultData[i].showIdleDots && i + 1 == displayDataInputs.length}{dotText}{/if}
+            </span>
+          {/each}
+        </div>
+        {#if $running && displayIdleDots}
+          <br />{dotText}
+        {/if}
+      </div>
+    </div>
+  </div>
+
+  {#if matrixTheme}
+    <button on:click={toggleTheme}> Matrix Theme: ON </button>
+  {:else}
+    <button on:click={toggleTheme}> Matrix Theme: OFF </button>
+  {/if}
 </div>
 
-{#if matrixTheme}
-  <button on:click={toggleTheme}> Matrix Theme On </button>
-{:else}
-  <button on:click={toggleTheme}> Matrix Theme Off </button>
-{/if}
+<style lang="scss">
+  .dataInput-container {
+    display: block;
+    word-break: break-all;
+  }
 
-<style>
   .terminal-container {
     background-color: black;
-    padding: 20px;
+    padding-block: 20px;
     border-radius: 8px;
     overflow-y: auto;
     width: 100%;
