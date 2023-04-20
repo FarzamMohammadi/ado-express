@@ -16,7 +16,7 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 
 # Adding these to enable project segregation
-p = Path(__file__).resolve().parent.parent.parent
+p = Path(__file__).resolve().parent.parent
 sys.path.append(str(p))
 sys.path.append(str(p)+'\\main')
 sys.path.append(str(p)+'\\packages')
