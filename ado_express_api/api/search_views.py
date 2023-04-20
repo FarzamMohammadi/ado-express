@@ -1,6 +1,5 @@
-import json
-
 import status
+from api.utils.snake_to_camel import SnakeToCamelCaseConverter
 from base.models.DeploymentDetail import DeploymentDetail
 from base.models.ReleaseDetail import ReleaseDetail
 from base.models.RunConfiguration import RunConfiguration
@@ -13,24 +12,20 @@ from .serializers import (DeploymentDetailsSerializer,
                           RunConfigurationsSerializer)
 
 
-def snake_to_camel(snake_str):
-    components = snake_str.split('_')
-    return ''.join(x.title() for x in components)
-
 @api_view(['POST'])
 def search_via_release_environment(request):
     deployment_details = DeploymentDetailsSerializer()
     deployment_details.set_required_fields_for_via_environment()
 
     serializer = RunConfigurationsSerializer(data=request.data)
-    serializer.fields['deployment_details'].child = deployment_details
+    serializer.fields['deploymentDetails'].child = deployment_details
 
     # Fields required for via environment run
-    serializer.fields['deployment_details'].allow_empty = False
+    serializer.fields['deploymentDetails'].allow_empty = False
     # Fields not required for via environment run
-    serializer.fields['search_only'].required = False
-    serializer.fields['via_env'].required = False
-    serializer.fields['via_env_latest_release'].required = False
+    serializer.fields['searchOnly'].required = False
+    serializer.fields['viaEnv'].required = False
+    serializer.fields['viaEnvLatestRelease'].required = False
 
     if serializer.is_valid():
         run_configurations = RunConfiguration(serializer.validated_data['explicit_release_values'], 
@@ -57,7 +52,7 @@ def search_via_release_environment(request):
 
             if releases: release_details[deployment['release_name']] = [release.__dict__ for release in releases]
 
-        return Response(status=status.HTTP_200_OK, data=release_details)
+        return Response(status=status.HTTP_200_OK, data=SnakeToCamelCaseConverter.convert(release_details))
     else:
         return Response(status=status.HTTP_400_BAD_REQUEST, data=f"Errors:\n{serializer.errors}")
 
@@ -67,16 +62,16 @@ def search_via_latest_release(request):
     deployment_details.set_required_fields_for_via_latest()
 
     serializer = RunConfigurationsSerializer(data=request.data)
-    serializer.fields['deployment_details'].child = deployment_details
+    serializer.fields['deploymentDetails'].child = deployment_details
 
     # Fields required for via latest run
-    serializer.fields['deployment_details'].allow_empty = True
-    serializer.fields['release_target_env'].required = True
-    serializer.fields['via_env_source_name'].required = True
+    serializer.fields['deploymentDetails'].allow_empty = True
+    serializer.fields['releaseTargetEnv'].required = True
+    serializer.fields['viaEnvSourceName'].required = True
     # Fields not required for via latest run
-    serializer.fields['search_only'].required = False
-    serializer.fields['via_env'].required = False
-    serializer.fields['via_env_latest_release'].required = False
+    serializer.fields['searchOnly'].required = False
+    serializer.fields['viaEnv'].required = False
+    serializer.fields['viaEnvLatestRelease'].required = False
 
     if serializer.is_valid():
         run_configurations = RunConfiguration(serializer.validated_data['explicit_release_values'], 
@@ -103,7 +98,7 @@ def search_via_latest_release(request):
             
             if deployment_detail: deployment_details[deployment['release_name']] = deployment_detail.__dict__
 
-        return Response(status=status.HTTP_200_OK, data=deployment_details)
+        return Response(status=status.HTTP_200_OK, data=SnakeToCamelCaseConverter.convert(deployment_details))
     else:
         return Response(status=status.HTTP_400_BAD_REQUEST, data=f"Errors:\n{serializer.errors}")
     
@@ -113,16 +108,16 @@ def search_via_release_number(request):
     deployment_details.set_required_fields_for_via_number()
 
     serializer = RunConfigurationsSerializer(data=request.data)
-    serializer.fields['deployment_details'].child = deployment_details
+    serializer.fields['deploymentDetails'].child = deployment_details
 
     # Fields required for via number run
-    serializer.fields['deployment_details'].allow_empty = True
+    serializer.fields['deploymentDetails'].allow_empty = True
     # Fields not required for via number run
-    serializer.fields['search_only'].required = False
-    serializer.fields['via_env'].required = False
-    serializer.fields['via_env_latest_release'].required = False
-    serializer.fields['release_target_env'].allow_blank = True
-    serializer.fields['via_env_source_name'].allow_blank = True
+    serializer.fields['searchOnly'].required = False
+    serializer.fields['viaEnv'].required = False
+    serializer.fields['viaEnvLatestRelease'].required = False
+    serializer.fields['releaseTargetEnv'].allow_blank = True
+    serializer.fields['viaEnvSourceName'].allow_blank = True
     
     if serializer.is_valid():
         run_configurations = RunConfiguration(None, # explicit_release_values
@@ -149,7 +144,7 @@ def search_via_release_number(request):
             
             if releases: release_details[deployment['release_name']] = [release.__dict__ for release in releases]
         
-        return Response(status=status.HTTP_200_OK, data=release_details)
+        return Response(status=status.HTTP_200_OK, data=SnakeToCamelCaseConverter.convert(release_details))
     else:
         return Response(status=status.HTTP_400_BAD_REQUEST, data=f"Fields are invalid.\n{serializer.error_messages}")
                     
@@ -159,10 +154,10 @@ def search_via_query(request):
 
     # Fields required for query run
     serializer.fields['queries'].required = True
-    serializer.fields['release_target_env'].required = True
-    serializer.fields['via_env'].required = True
+    serializer.fields['releaseTargetEnv'].required = True
+    serializer.fields['viaEnv'].required = True
     # Fields not required for query run
-    serializer.fields['search_only'].required = False
+    serializer.fields['searchOnly'].required = False
 
     if serializer.is_valid():
         run_configurations = RunConfiguration(serializer.validated_data['explicit_release_values'], 
@@ -185,7 +180,7 @@ def search_via_query(request):
         for deployment in deployment_details_list:
             deployment_details[deployment.release_name] = deployment.__dict__
         
-        return Response(status=status.HTTP_200_OK, data=deployment_details)
+        return Response(status=status.HTTP_200_OK, data=SnakeToCamelCaseConverter.convert(deployment_details))
     else:
         return Response(status=status.HTTP_400_BAD_REQUEST, data=f"Fields are invalid.\n{serializer.error_messages}")
 

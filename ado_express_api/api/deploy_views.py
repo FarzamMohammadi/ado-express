@@ -1,6 +1,6 @@
 import status
+from api.utils.snake_to_camel import SnakeToCamelCaseConverter
 from base.models.DeploymentDetail import DeploymentDetail
-from base.models.ReleaseDetail import ReleaseDetail
 from base.models.RunConfiguration import RunConfiguration
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -16,10 +16,10 @@ def deploy(request):
     deployment_details_serializer = DeploymentDetailsSerializer()
     serializer = RunConfigurationsSerializer(data=request.data)
 
-    serializer.fields['deployment_details'].child = deployment_details_serializer
+    serializer.fields['deploymentDetails'].child = deployment_details_serializer
 
     # Fields required for run
-    serializer.fields['deployment_details'].allow_empty = False
+    serializer.fields['deploymentDetails'].allow_empty = False
 
     if serializer.is_valid():
         run_configurations = RunConfiguration(serializer.validated_data['explicit_release_values'], 
@@ -33,7 +33,7 @@ def deploy(request):
                                                serializer.validated_data['via_env'], 
                                                serializer.validated_data['via_env_latest_release'],
                                                serializer.validated_data['via_env_source_name'],
-                                               serializer.validated_data['deployment_details'])
+                                               serializer.validated_data['deploymentDetails'])
         
         startup_runners = Startup(run_configurations)
         deployment_details = []
@@ -72,6 +72,6 @@ def deploy(request):
             for deployment_result in regular_deployment_results:
                 deployment_results[deployment_result.release_definition] = deployment_result.__dict__
 
-        return Response(status=status.HTTP_200_OK, data=deployment_results)
+        return Response(status=status.HTTP_200_OK, data=SnakeToCamelCaseConverter.convert(deployment_results))
     else:
         return Response(status=status.HTTP_400_BAD_REQUEST, data=f"Fields are invalid.\n{serializer.error_messages}")
