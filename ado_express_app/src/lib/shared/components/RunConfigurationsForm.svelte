@@ -10,9 +10,10 @@
   import type { IExplicitExclusion } from '../../models/interfaces/iexplicit-exclusion.interface';
   import type { IExplicitInclusion } from '../../models/interfaces/iexplicit-inclusion.interface';
   import type { IInputSettings } from '../../models/interfaces/input-settings.interface';
+  import { ResultHandler } from '../../utils/result-handler';
   import { runResultData } from '../../utils/stores';
-  import DeploymentDetailsSelector from './custom-form-components/deployment-details/DeploymentDetailsSelector.svelte';
   import ExplicitReleaseValuesInput from './custom-form-components/ExplicitReleaseValuesInput.svelte';
+  import DeploymentDetailsSelector from './custom-form-components/deployment-details/DeploymentDetailsSelector.svelte';
   import CustomPasswordInput from './custom-form-components/inputs/CustomPasswordInput.svelte';
   import CustomTextInput from './custom-form-components/inputs/CustomTextInput.svelte';
   import CustomUrlInput from './custom-form-components/inputs/CustomUrlInput.svelte';
@@ -68,8 +69,8 @@
     'Crucial',
   ];
   let formInputRequirements = structuredClone(defaultFormInputRequirements);
-  export let runMethod = null;
-  export let runType = null;
+  export let runMethod: string = null;
+  export let runType: string = null;
   export let running;
   let showSubmitButton = true;
   let submitButtonLabel = 'Run ADO Express';
@@ -82,18 +83,21 @@
   let hasExplicitReleaseValues = false;
   let organizationUrl = '';
   let personalAccessToken = '';
-  let queries: '';
+  let queries: string = null;
   let releaseNameFormat = 'Release-$(rev:r)';
   let releaseTargetEnv = '';
   let viaEnv = false;
   let viaEnvLatestRelease = false;
   let viaEnvSourceName = '';
 
-  function addStringToRunResults(str: string) {
-    runResultData.update((data) => {
-      data.push(str);
-      return data;
-    });
+  function sendMessage(text: string, showIdleDots: boolean = false) {
+    runResultData.update((data) => [
+      ...data,
+      {
+        text,
+        showIdleDots,
+      },
+    ]);
   }
 
   function getExplicitReleaseValues(): IExplicitInclusion | IExplicitExclusion {
@@ -120,9 +124,9 @@
     return explicitReleaseValues;
   }
 
-  function handleSubmit(): void { 
+  async function handleSubmit() {
     running = true;
-    addStringToRunResults('Running ADO Express...');
+    sendMessage(`Starting ${runType.toLowerCase()}`, true);
 
     if (isNullOrUndefined(runType) || isNullOrUndefined(runMethod)) {
       return showToast(
@@ -151,8 +155,13 @@
 
     const adoExpressApi = new ADOExpressApi();
     console.log(runConfigurations);
-    console.log(adoExpressApi.runADOExpress(runConfigurations));
+
     showToast(ToastType.Success, 'Successfully submitted run request');
+
+    const results = await adoExpressApi.runADOExpress(runConfigurations);
+    console.log(results);
+
+    ResultHandler.sendRunResults(results);
   }
 
   function isNullOrUndefined(variable: any): Boolean {
@@ -165,7 +174,7 @@
   function isSearchOnly(): boolean {
     if (runType && runType === 'Search') {
       return true;
-    } else if (runType && runType === 'Deploy') {
+    } else if (runType && runType === 'Deployment') {
       return false;
     }
   }
@@ -189,14 +198,14 @@
       } else if (runMethod == SearchRunMethod.ViaLatestInEnvironment) {
         viaEnv = true;
         viaEnvLatestRelease = true;
-        queries = '';
+        queries = null;
 
         formInputRequirements.queries.required = false;
         formInputRequirements.queries.show = false;
       } else if (runMethod == SearchRunMethod.ViaNumber) {
         viaEnv = false;
         viaEnvLatestRelease = false;
-        queries = '';
+        queries = null;
 
         formInputRequirements.queries.required = false;
         formInputRequirements.queries.show = false;
@@ -210,18 +219,18 @@
         formInputRequirements.dd.required = false;
         formInputRequirements.dd.show = false;
       }
-    } else if (runType === RunType.Deploy) {
+    } else if (runType === RunType.Deployment) {
       if (runMethod == SearchRunMethod.ViaLatestInEnvironment) {
         viaEnv = true;
         viaEnvLatestRelease = true;
-        queries = '';
+        queries = null;
 
         formInputRequirements.queries.required = false;
         formInputRequirements.queries.show = false;
       } else if (runMethod == SearchRunMethod.ViaNumber) {
         viaEnv = false;
         viaEnvLatestRelease = false;
-        queries = '';
+        queries = null;
         formInputRequirements.queries.required = false;
         formInputRequirements.queries.show = false;
 
@@ -234,7 +243,7 @@
   function onRunTypeSelection(runType): void {
     if (runType === RunType.Search) {
       submitButtonLabel = 'Run the Search';
-    } else if (runType === RunType.Deploy) {
+    } else if (runType === RunType.Deployment) {
       submitButtonLabel = 'Run the Deployment';
     }
   }
@@ -244,28 +253,28 @@
       if (runMethod == SearchRunMethod.ViaEnvironment) {
         viaEnv = true;
         viaEnvLatestRelease = false;
-        queries = '';
+        queries = null;
       } else if (runMethod == SearchRunMethod.ViaLatestInEnvironment) {
         viaEnv = true;
         viaEnvLatestRelease = true;
-        queries = '';
+        queries = null;
       } else if (runMethod == SearchRunMethod.ViaNumber) {
         viaEnv = false;
         viaEnvLatestRelease = false;
-        queries = '';
+        queries = null;
       } else if (runMethod == SearchRunMethod.ViaQuery) {
         viaEnv = true;
         viaEnvLatestRelease = false;
       }
-    } else if (runType === RunType.Deploy) {
+    } else if (runType === RunType.Deployment) {
       if (runMethod == SearchRunMethod.ViaLatestInEnvironment) {
         viaEnv = true;
         viaEnvLatestRelease = true;
-        queries = '';
+        queries = null;
       } else if (runMethod == SearchRunMethod.ViaNumber) {
         viaEnv = false;
         viaEnvLatestRelease = false;
-        queries = '';
+        queries = null;
       }
     }
   }
