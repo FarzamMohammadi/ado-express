@@ -1,6 +1,6 @@
 <script lang="ts">
   import { ADOExpressApi } from '../../core/services/api';
-  import { RunConfigurations } from '../../models/classes/run-configurations.model';
+  import { RunConfiguration } from '../../models/classes/run-configuration.model';
   import {
       RunType,
       SearchRunMethod,
@@ -10,7 +10,7 @@
   import type { IExplicitInclusion } from '../../models/interfaces/iexplicit-inclusion.interface';
   import type { IInputSettings } from '../../models/interfaces/input-settings.interface';
   import { ResultHandler } from '../../utils/result-handler';
-  import { deploymentDetails, runResultData } from '../../utils/stores';
+  import { deploymentDetails, displayedRunResultData } from '../../utils/stores';
   import ExplicitReleaseValuesInput from './custom-form-components/ExplicitReleaseValuesInput.svelte';
   import DeploymentDetailsSelector from './custom-form-components/deployment-details/DeploymentDetailsSelector.svelte';
   import CustomPasswordInput from './custom-form-components/inputs/CustomPasswordInput.svelte';
@@ -72,7 +72,7 @@
   let showSubmitButton = true;
   let submitButtonLabel = 'Run ADO Express';
 
-  // RunConfigurations
+  // RunConfiguration
   let crucialReleaseDefinitions: '';
   let explicitReleaseValuesReleases = '';
   let explicitReleaseValuesType = '';
@@ -87,7 +87,7 @@
   let viaEnvSourceName = '';
 
   function sendMessage(text: string, showIdleDots: boolean = false) {
-    runResultData.update((data) => [
+    displayedRunResultData.update((data) => [
       ...data,
       {
         text,
@@ -134,7 +134,7 @@
     //TODO: within this or run method validator set a variable to be levered for finding out whether we need deployment details or not
     setupRunConfigurationRunTypeVariables();
 
-    const runConfigurations = new RunConfigurations(
+    const runConfigurations = new RunConfiguration(
       getExplicitReleaseValues(),
       crucialReleaseDefinitions?.split(',').map((s) => s.trim()) ?? null,
       organizationUrl.trim(),
@@ -157,7 +157,7 @@
     const results = await adoExpressApi.runADOExpress(runConfigurations);
     // console.log(results);
 
-    ResultHandler.sendRunResults(results);
+    ResultHandler.sendRunResults(runConfigurations, results);
   }
 
   function isNullOrUndefined(variable: any): Boolean {

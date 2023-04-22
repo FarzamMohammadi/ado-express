@@ -8,16 +8,15 @@ from rest_framework.response import Response
 
 from ado_express.main import Startup
 
-from .serializers import (DeploymentDetailsSerializer,
-                          RunConfigurationsSerializer)
+from .serializers import DeploymentDetailSerializer, RunConfigurationSerializer
 
 
 @api_view(['POST'])
 def search_via_release_environment(request):
-    deployment_details = DeploymentDetailsSerializer()
+    deployment_details = DeploymentDetailSerializer()
     deployment_details.set_required_fields_for_via_environment()
 
-    serializer = RunConfigurationsSerializer(data=request.data)
+    serializer = RunConfigurationSerializer(data=request.data)
     serializer.fields['deploymentDetails'].child = deployment_details
 
     # Fields required for via environment run
@@ -58,10 +57,10 @@ def search_via_release_environment(request):
 
 @api_view(['POST'])
 def search_via_latest_release(request):
-    deployment_details = DeploymentDetailsSerializer()
+    deployment_details = DeploymentDetailSerializer()
     deployment_details.set_required_fields_for_via_latest()
 
-    serializer = RunConfigurationsSerializer(data=request.data)
+    serializer = RunConfigurationSerializer(data=request.data)
     serializer.fields['deploymentDetails'].child = deployment_details
 
     # Fields required for via latest run
@@ -104,10 +103,10 @@ def search_via_latest_release(request):
     
 @api_view(['POST'])
 def search_via_release_number(request):
-    deployment_details = DeploymentDetailsSerializer()
+    deployment_details = DeploymentDetailSerializer()
     deployment_details.set_required_fields_for_via_number()
 
-    serializer = RunConfigurationsSerializer(data=request.data)
+    serializer = RunConfigurationSerializer(data=request.data)
     serializer.fields['deploymentDetails'].child = deployment_details
 
     # Fields required for via number run
@@ -150,7 +149,7 @@ def search_via_release_number(request):
                     
 @api_view(['POST'])
 def search_via_query(request):
-    serializer = RunConfigurationsSerializer(data=request.data)
+    serializer = RunConfigurationSerializer(data=request.data)
 
     # Fields required for query run
     serializer.fields['queries'].required = True

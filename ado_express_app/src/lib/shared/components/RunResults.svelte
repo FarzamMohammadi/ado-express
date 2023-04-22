@@ -1,10 +1,10 @@
 <script lang="ts">
   import { onDestroy, onMount } from 'svelte';
-  import type { IRunResultData } from '../../models/interfaces/irun-result-data';
-  import { runResultData, running } from '../../utils/stores/stores';
+  import type { IdisplayedRunResultData } from '../../models/interfaces/irun-result-data';
+  import { displayedRunResultData, running } from '../../utils/stores/stores';
 
   let matrixTheme = true;
-  let localResultData: IRunResultData[] = [];
+  let localResultData: IdisplayedRunResultData[] = [];
   export let displayIdleDots = false;
   let displayDataInputs: string[] = [];
 
@@ -33,21 +33,21 @@
     matrixTheme = !matrixTheme;
   }
 
-  let unsubscribeRunResultData;
+  let unsubscribedisplayedRunResultData;
 
   onMount(() => {
-    localResultData = $runResultData;
+    localResultData = $displayedRunResultData;
     displayDataInputs = localResultData.map(() => '');
 
     localResultData.forEach((dataInput, index) => {
       typeEffect(dataInput.text || '', 0, index);
     });
 
-    // Subscribe to runResultData store
-    unsubscribeRunResultData = runResultData.subscribe(($runResultData) => {
-      if (localResultData.length !== $runResultData.length) {
-        const newIndex = $runResultData.length - 1;
-        localResultData = $runResultData;
+    // Subscribe to displayedRunResultData store
+    unsubscribedisplayedRunResultData = displayedRunResultData.subscribe(($displayedRunResultData) => {
+      if (localResultData.length !== $displayedRunResultData.length) {
+        const newIndex = $displayedRunResultData.length - 1;
+        localResultData = $displayedRunResultData;
         
         displayIdleDots = false; // Might adjust later but for now, never show idling dots
         //displayIdleDots = !localResultData[newIndex].showIdleDots;
@@ -59,8 +59,8 @@
   });
 
   onDestroy(() => {
-    // Unsubscribe from runResultData store
-    unsubscribeRunResultData();
+    // Unsubscribe from displayedRunResultData store
+    unsubscribedisplayedRunResultData();
   });
 
   let dotText = '';

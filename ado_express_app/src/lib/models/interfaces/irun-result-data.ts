@@ -1,4 +1,4 @@
-export interface IRunResultData {
+export interface IdisplayedRunResultData {
   text?: string;
   showIdleDots?: boolean;
 }

@@ -7,14 +7,13 @@ from rest_framework.response import Response
 
 from ado_express.main import Startup
 
-from .serializers import (DeploymentDetailsSerializer,
-                          RunConfigurationsSerializer)
+from .serializers import DeploymentDetailSerializer, RunConfigurationSerializer
 
 
 @api_view(['POST'])
 def deploy(request):
-    deployment_details_serializer = DeploymentDetailsSerializer()
-    serializer = RunConfigurationsSerializer(data=request.data)
+    deployment_details_serializer = DeploymentDetailSerializer()
+    serializer = RunConfigurationSerializer(data=request.data)
 
     serializer.fields['deploymentDetails'].child = deployment_details_serializer
 
