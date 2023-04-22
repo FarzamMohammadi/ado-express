@@ -1,6 +1,5 @@
 <script lang="ts">
   import { ADOExpressApi } from '../../core/services/api';
-  import type { DeploymentDetail } from '../../models/classes/deployment-detail.model';
   import { RunConfigurations } from '../../models/classes/run-configurations.model';
   import {
       RunType,
@@ -11,7 +10,7 @@
   import type { IExplicitInclusion } from '../../models/interfaces/iexplicit-inclusion.interface';
   import type { IInputSettings } from '../../models/interfaces/input-settings.interface';
   import { ResultHandler } from '../../utils/result-handler';
-  import { runResultData } from '../../utils/stores';
+  import { deploymentDetails, runResultData } from '../../utils/stores';
   import ExplicitReleaseValuesInput from './custom-form-components/ExplicitReleaseValuesInput.svelte';
   import DeploymentDetailsSelector from './custom-form-components/deployment-details/DeploymentDetailsSelector.svelte';
   import CustomPasswordInput from './custom-form-components/inputs/CustomPasswordInput.svelte';
@@ -19,7 +18,6 @@
   import CustomUrlInput from './custom-form-components/inputs/CustomUrlInput.svelte';
   import Toast from './utils/Toast.svelte';
 
-  let customDeploymentDetailsSelector;
   const defaultFormInputRequirements = {
     dd: {
       required: true,
@@ -59,7 +57,6 @@
     } as IInputSettings,
   };
 
-  let deploymentDetailsType = '';
   let deploymentSelectorHeaders = [
     '',
     'Project Name',
@@ -77,7 +74,6 @@
 
   // RunConfigurations
   let crucialReleaseDefinitions: '';
-  let deploymentDetails: DeploymentDetail[] = [];
   let explicitReleaseValuesReleases = '';
   let explicitReleaseValuesType = '';
   let hasExplicitReleaseValues = false;
@@ -150,7 +146,7 @@
       viaEnv,
       viaEnvLatestRelease,
       viaEnvSourceName.trim(),
-      deploymentDetails
+      $deploymentDetails
     );
 
     const adoExpressApi = new ADOExpressApi();
@@ -311,10 +307,7 @@
 <div class="flex flex-col max-w-3xl items-center justify-center">
   <DeploymentDetailsSelector
     {deploymentSelectorHeaders}
-    bind:deploymentDetailsType
-    bind:deploymentDetails
     bind:showInput={formInputRequirements.dd.show}
-    bind:customDeploymentDetailsSelector
   />
 
   <form class="w-96" on:submit|preventDefault={handleSubmit}>

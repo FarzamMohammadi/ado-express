@@ -1,18 +1,17 @@
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
-  import type { DeploymentDetail } from '../../../../models/classes/deployment-detail.model';
+  import { deploymentDetails } from '../../../../utils/stores';
 
   const dispatch = createEventDispatcher();
 
-  export let deploymentDetails: DeploymentDetail[];
-  export let showResults;
+  export let showingDeploymentDetailsReadOnlySelection: boolean;
 
   function removeDeploymentDetails() {
     dispatch('removeDeploymentDetails');
   }
 </script>
 
-{#if showResults}
+{#if showingDeploymentDetailsReadOnlySelection}
   <div class="flex flex-col items-center border-2 rounded border-gray-500 m-2">
     <div class="overflow-x-auto sm:-mx-6 lg:-mx-8">
       <div class="inline-block min-w-full py-2 sm:px-6 lg:px-8">
@@ -31,7 +30,7 @@
               </tr>
             </thead>
             <tbody>
-              {#each deploymentDetails as row, i}
+              {#each $deploymentDetails as row, i}
                 <tr class="border-b">
                   <td class="whitespace-nowrap px-6 py-4 font-medium"
                     >{i + 1}</td

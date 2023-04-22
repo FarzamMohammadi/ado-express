@@ -1,7 +1,8 @@
 <script lang="ts">
-  import type { DeploymentDetail } from '../../../../models/classes/deployment-detail.model';
+	import { onMount } from 'svelte';
+	import { deploymentDetails } from '../../../../utils/stores';
+	import { DeploymentDetail } from './../../../../models/classes/deployment-detail.model.ts';
 
-  export let deploymentDetails: DeploymentDetail[];
   export let disabledColumns: number[] = [];
   export let headers: String[];
   export let rows: number;
@@ -11,58 +12,11 @@
 
   function addRow() {
     rows += 1;
+    updateDeploymentDetails();
   }
 
   function cellId(row, col) {
     return `${row}-${col}`;
-  }
-
-  export function getDeploymentDetails() {
-    let rowsToExclude: number[] = [];
-    let userInputValues = [];
-    const rowNumberCol = 0;
-    const isCrucialCol = 5;
-
-    for (let r = 0; r < rows; r++) {
-      let rowData = [];
-
-      for (let c = 0; c < columns; c++) {
-        if (c != rowNumberCol) {
-          let rowColValue = cells[cellId(r, c)] ?? '';
-          console.log(rowColValue);
-          if (
-            rowColValue === '' &&
-            c !== isCrucialCol &&
-            !disabledColumns.includes(c)
-          ) {
-            rowsToExclude.push(r);
-            continue;
-          } else {
-            rowData.push(rowColValue);
-          }
-        }
-      }
-      userInputValues.push(rowData);
-    }
-    let newDeploymentDetails: DeploymentDetail[] = [];
-
-    for (let row = 0; row < userInputValues.length; row++) {
-      if (!rowsToExclude.includes(row)) {
-        newDeploymentDetails.push(
-          new DeploymentDetail(
-            userInputValues[row][0],
-            userInputValues[row][1],
-            userInputValues[row][2],
-            userInputValues[row][3],
-            userInputValues[row][4] == true
-          )
-        );
-      }
-    }
-
-    deploymentDetails = newDeploymentDetails;
-
-    return deploymentDetails;
   }
 
   function handleInput(row, col, event) {
@@ -72,11 +26,63 @@
     } else {
       cells[id] = event.target.value;
     }
+    updateDeploymentDetails();
   }
 
-  function RemoveRow() {
+  function removeRow() {
+    if (rows > 0) {
     rows -= 1;
+
+    for (let col = 1; col <= columns; col++) {
+      const id = cellId(rows, col);
+      delete cells[id];
+    }
+
+    updateDeploymentDetails();
   }
+  }
+
+  export function setDeploymentDetailsValuesToTable() {
+    if ($deploymentDetails.length) {
+      rows = $deploymentDetails.length;
+
+      for (let r = 0; r < rows; r++) {
+        const deploymentDetail = $deploymentDetails[r];
+        cells[cellId(r, 1)] = deploymentDetail.releaseProjectName;
+        cells[cellId(r, 2)] = deploymentDetail.releaseName;
+        cells[cellId(r, 3)] = deploymentDetail.releaseNumber;
+        cells[cellId(r, 4)] = deploymentDetail.releaseRollback;
+        cells[cellId(r, 5)] = deploymentDetail.isCrucial;
+      }
+    }
+  }
+
+  function updateDeploymentDetails() {
+  $deploymentDetails = Array(rows)
+    .fill(null)
+    .map((_, row) => {
+      return new DeploymentDetail(
+        cells[cellId(row, 1)],
+        cells[cellId(row, 2)],
+        cells[cellId(row, 3)],
+        cells[cellId(row, 4)],
+        cells[cellId(row, 5)]
+      );
+    })
+      .filter((deploymentDetail) => {
+        // Check if deploymentDetail has valid data
+        return (
+          deploymentDetail.releaseProjectName &&
+          deploymentDetail.releaseName &&
+          deploymentDetail.releaseNumber &&
+          deploymentDetail.releaseRollback
+        );
+      });
+  }
+
+  onMount(() => {
+    setDeploymentDetailsValuesToTable();
+  });
 </script>
 
 <div class="flex flex-row mb-2 items-center justify-end">
@@ -94,7 +100,7 @@
 
   <button
     disabled={rows <= 0}
-    on:click={RemoveRow}
+    on:click={removeRow}
     type="button"
     class="text-gray-900 bg-gradient-to-r focus:ring-2 focus:outline-none shadow-lg dark:shadow-lg font-semibold rounded-full text-3xl w-10 h-10 flex items-center justify-center m-1 {rows <=
     0
@@ -105,7 +111,7 @@
   </button>
 </div>
 
-<div class="grid grid-cols-[repeat(6,minmax(0,auto))] gap-1">
+<div class="grid grid-cols-[repeat(6,minmax(0,auto))] gap-1 mb-3">
   {#each headers as header, col}
     <input
       class="read-only text-center font-bold h-8 px-2 text-md border border-gray-800 rounded-md focus:outline-none focus:border-blue-500 disabled:bg-gray-900 dark:disabled:bg-gray-800 {col ===
@@ -134,21 +140,31 @@
       {:else if col === 5}
         <input
           type="checkbox"
+          bind:checked={cells[cellId(row, col)]}
           disabled={disabledColumns.includes(col)}
           class="text-center text-sm border border-gray-800 rounded-md focus:outline-none focus:border-blue-500 'w-24'"
           on:input={(event) => handleInput(row, col, event)}
         />
+      {:else if col === 3 || col === 4}
+        <input
+          bind:value={cells[cellId(row, col)]}
+          disabled={disabledColumns.includes(col)}
+          type="number"
+          class="text-center h-8 px-2 py-1 text-sm border bg-gray-700 border-gray-800 rounded-md focus:outline-none focus:border-blue-500 w-24 {disabledColumns.includes(
+            col
+          )
+            ? 'bg-transparent border-none'
+            : 'bg-gray-700'}"
+          on:input={(event) => handleInput(row, col, event)}
+        />
       {:else}
         <input
+          bind:value={cells[cellId(row, col)]}
           disabled={disabledColumns.includes(col)}
-          type={col === 3 || col === 4 ? 'number' : 'text'}
-          class="text-center h-8 px-2 py-1 text-sm border bg-gray-700 border-gray-800 rounded-md focus:outline-none focus:border-blue-500 {col ===
-            3 ||
-          col === 3 ||
-          col === 4
-            ? 'w-24'
-            : 'w-full'}
-            {disabledColumns.includes(col)
+          type="text"
+          class="text-center h-8 px-2 py-1 text-sm border bg-gray-700 border-gray-800 rounded-md focus:outline-none focus:border-blue-500 w-full {disabledColumns.includes(
+            col
+          )
             ? 'bg-transparent border-none'
             : 'bg-gray-700'}"
           on:input={(event) => handleInput(row, col, event)}
@@ -156,13 +172,4 @@
       {/if}
     {/each}
   {/each}
-</div>
-<div class="flex justify-center mt-4 mb-2">
-  <button
-    on:click={() => getDeploymentDetails()}
-    type="button"
-    class="bg-transparent hover:bg-blue-700 text-blue-900 dark:text-blue-500 font-semibold hover:text-white dark:hover:text-white border border-blue-800 hover:border-transparent rounded-lg shadow-lg"
-  >
-    Submit
-  </button>
 </div>
