@@ -110,30 +110,41 @@
   });
 </script>
 
-<div class="flex flex-row mb-2 items-center justify-end">
-  <button
-    disabled={rows >= 25}
-    on:click={addRow}
-    type="button"
-    class="text-gray-900 bg-gradient-to-r hover:bg-gradient-to-br focus:ring-2 focus:outline-none font-semibold rounded-full text-3xl w-10 h-10 flex items-center justify-center m-1 {rows >=
-    25
-      ? 'from-gray-500 via-gray-600 to-gray-700 focus:ring-gray-300 dark:focus:ring-gray-800 shadow-lg shadow-gray-500/50 dark:shadow-lg dark:shadow-gray-800/80 cursor-not-allowed'
-      : 'from-blue-500 via-blue-600 to-blue-700 focus:ring-blue-300 dark:focus:ring-blue-800 shadow-lg shadow-blue-500/50 dark:shadow-lg dark:shadow-blue-800/80'}"
-  >
-    +
-  </button>
+<div class="flex flex-row mb-2 justify-between">
+  <div class="flex items-center">
+    <a href="/Deployment-Details-Template.xlsx"  
+    class="bg-transparent hover:bg-purple-700 text-purple-900 dark:text-purple-500 font-semibold hover:text-white dark:hover:text-white py-2 px-4 border border-purple-800 hover:border-transparent rounded-lg shadow-lg"
+    >
+      Download Excel Template
+    </a>
+  </div>
+  <div class="flex items-center">
+    <button
+  disabled={rows >= 25}
+  on:click={addRow}
+  type="button"
+  class="text-gray-900 leading-none bg-gradient-to-r hover:bg-gradient-to-br focus:ring-2 focus:outline-none font-semibold rounded-full text-3xl w-10 h-10 flex items-center justify-center m-1 {rows >=
+  25
+    ? 'from-gray-500 via-gray-600 to-gray-700 focus:ring-gray-300 dark:focus:ring-gray-800 shadow-lg shadow-gray-500/50 dark:shadow-lg dark:shadow-gray-800/80 cursor-not-allowed'
+    : 'from-blue-500 via-blue-600 to-blue-700 focus:ring-blue-300 dark:focus:ring-blue-800 shadow-lg shadow-blue-500/50 dark:shadow-lg dark:shadow-blue-800/80'}"
+>
+  +
+</button>
 
-  <button
-    disabled={rows <= 0}
-    on:click={removeRow}
-    type="button"
-    class="text-gray-900 bg-gradient-to-r focus:ring-2 focus:outline-none shadow-lg dark:shadow-lg font-semibold rounded-full text-3xl w-10 h-10 flex items-center justify-center m-1 {rows <=
-    0
-      ? 'from-gray-500 via-gray-600 to-gray-700 focus:ring-gray-300 dark:focus:ring-gray-800 shadow-lg shadow-gray-500/50 dark:shadow-lg dark:shadow-gray-800/80 cursor-not-allowed'
-      : 'from-red-400 via-red-500 to-red-600 hover:bg-gradient-to-br focus:ring-red-300 dark:focus:ring-red-800 shadow-red-500/50 dark:shadow-red-800/80 '}"
-  >
-    -
-  </button>
+<button
+  disabled={rows <= 0}
+  on:click={removeRow}
+  type="button"
+  class="text-gray-900 leading-none bg-gradient-to-r focus:ring-2 focus:outline-none shadow-lg dark:shadow-lg font-semibold rounded-full text-3xl w-10 h-10 flex items-center justify-center m-1 {rows <=
+  0
+    ? 'from-gray-500 via-gray-600 to-gray-700 focus:ring-gray-300 dark:focus:ring-gray-800 shadow-lg shadow-gray-500/50 dark:shadow-lg dark:shadow-gray-800/80 cursor-not-allowed'
+    : 'from-red-400 via-red-500 to-red-600 hover:bg-gradient-to-br focus:ring-red-300 dark:focus:ring-red-800 shadow-red-500/50 dark:shadow-red-800/80 '}"
+>
+  -
+</button>
+
+  </div>
+  
 </div>
 
 <div class="grid grid-cols-[repeat(6,minmax(0,auto))] gap-1 mb-3">
