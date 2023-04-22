@@ -112,12 +112,12 @@
       {#if matrixTheme}
         <button 
         class="bg-transparent hover:bg-green-700 text-green-900 dark:text-green-500 font-semibold hover:text-white dark:hover:text-white py-2 px-4 border border-green-800 hover:border-transparent rounded-lg shadow-lg"
-        on:click={toggleTheme}> Matrix Theme: ON </button>
+        on:click={toggleTheme}>Retro Theme: -ON-</button>
         {:else}
         <button 
         class="bg-transparent hover:bg-purple-700 text-purple-900 dark:text-purple-500 font-semibold hover:text-white dark:hover:text-white py-2 px-4 border border-purple-800 hover:border-transparent rounded-lg shadow-lg"
 
-        on:click={toggleTheme}> Matrix Theme: OFF </button>
+        on:click={toggleTheme}>Retro Theme: -OFF-</button>
       {/if}
     </div>
     <div>

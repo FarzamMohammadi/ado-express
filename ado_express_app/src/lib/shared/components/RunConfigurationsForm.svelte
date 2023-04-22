@@ -69,7 +69,6 @@
   export let runMethod: string = null;
   export let runType: string = null;
   export let running;
-  let showSubmitButton = true;
   let submitButtonLabel = 'Run ADO Express';
   let isSubmitting = false;
   // RunConfiguration
@@ -114,7 +113,7 @@
     running = true;
     isSubmitting = true;
 
-    ResultHandler.sendMessage(`Running ${runType.toLowerCase()}`, true);
+    ResultHandler.sendMessage(`\nRunning ${runType.toLowerCase()}`, true);
 
     if (isNullOrUndefined(runType) || isNullOrUndefined(runMethod)) {
       return showToast(
@@ -149,6 +148,7 @@
     $runResultData = await adoExpressApi.runADOExpress(runConfigurations);
 
     ResultHandler.sendRunResults(runConfigurations);
+    
     isSubmitting = false;
   }
 
@@ -233,9 +233,9 @@
 
   function onRunTypeSelection(runType): void {
     if (runType === RunType.Search) {
-      submitButtonLabel = 'Run the Search';
+      submitButtonLabel = 'Run New Search';
     } else if (runType === RunType.Deployment) {
-      submitButtonLabel = 'Run the Deployment';
+      submitButtonLabel = 'Run New Deployment';
     }
   }
 
@@ -287,6 +287,7 @@
 
   $: onRunTypeSelection(runType);
   $: onRunMethodSelection(runMethod);
+
 </script>
 
 <svelte:head>
@@ -362,16 +363,14 @@
       />
     </div>
 
-    {#if showSubmitButton}
-      <div class="flex justify-center pt-4">
-        <button
-          disabled={isSubmitting}
-          type="submit"
-          class="bg-transparent hover:bg-blue-700 text-blue-900 dark:text-blue-500 font-semibold hover:text-white dark:hover:text-white border border-blue-800 hover:border-transparent rounded-lg shadow-lg"
-        >
-          {submitButtonLabel}
-        </button>
-      </div>
-    {/if}
+    <div class="flex justify-center pt-4">
+      <button
+        disabled={isSubmitting}
+        type="submit"
+        class="bg-transparent hover:bg-blue-700 text-blue-900 dark:text-blue-500 font-semibold hover:text-white dark:hover:text-white border border-blue-800 hover:border-transparent rounded-lg shadow-lg"
+      >
+        {submitButtonLabel}
+      </button>
+    </div>
   </form>
 </div>
