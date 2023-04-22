@@ -33,21 +33,23 @@
   </div>
 
   <div class="flex flex-col items-center justify-center to-gray-600 pb-8">
-    <div class="z-50">
+    <div class="z-50 mb-5">
       <h1
-        class="text-6xl font-bold uppercase text-gray-900 dark:text-white mb-2 z-50"
+        class="text-4xl font-bold text-gray-900 dark:text-white z-50 max-w-4xl"
       >
-        ADO EXPRESS
+        Effortlessly Manage ADO Releases & Deployments
       </h1>
+    </div>
 
-      <p class="text-md text-gray-900 dark:text-white mb-4">
-        A release management tool designed to streamline the Azure DevOps
-        release deployment process.
-      </p>
+    <div class="z-50">
+      <h6 class="text-md text-gray-900 dark:text-white mb-4 max-w-3xl">
+        ADO Express is a meticulously crafted release management tool, tailored
+        to simplify and enhance the Azure DevOps release deployment process.
+      </h6>
+    </div>
 
-      <div class="z-50 mb-12">
-        <DarkToggle />
-      </div>
+    <div class="z-50 mb-12">
+      <DarkToggle />
     </div>
 
     <div class="w-[500px] mb-12 z-40">
