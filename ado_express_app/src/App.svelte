@@ -6,10 +6,6 @@
   import DarkToggle from './lib/shared/components/utils/DarkToggle.svelte';
   import { running } from './lib/utils/stores';
 
-  // function setRunStatus() {
-  //   $running = !$running;
-  // }
-
   let runType;
   let runMethod;
 </script>
@@ -26,8 +22,6 @@
 </svelte:head>
 
 <main class="min-w-full min-h-screen">
-  <!-- <button on:click={setRunStatus}>asdfsadf</button> -->
-
   <div>
     <Navbar />
   </div>

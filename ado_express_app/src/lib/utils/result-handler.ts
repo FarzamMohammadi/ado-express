@@ -1,8 +1,9 @@
+import { get } from 'svelte/store';
 import type { RunConfiguration } from '../models/classes/run-configuration.model';
 import type { IDeploymentDetails } from '../models/interfaces/ideployment-details.interface';
 import type { IReleaseDetail } from '../models/interfaces/irelease-detail.interface';
 import type { IReleaseDetails } from '../models/interfaces/irelease-details.interface';
-import { displayedRunResultData } from './stores';
+import { displayedRunResultData, runResultData } from './stores';
 
 export class ResultHandler {
 
@@ -67,15 +68,15 @@ export class ResultHandler {
         }
     }
 
-    static sendRunResults(runConfiguration: RunConfiguration, runResults: IReleaseDetails | IDeploymentDetails) {
+    static sendRunResults(runConfiguration: RunConfiguration) {
         if (runConfiguration.searchOnly
             && !runConfiguration.queries
             && (!runConfiguration.viaEnv && !runConfiguration.viaEnvLatestRelease
                 || runConfiguration.viaEnv && !runConfiguration.viaEnvLatestRelease)) {
-            this.showReleaseDetailsToUser(runResults as IReleaseDetails);
+            this.showReleaseDetailsToUser(get(runResultData) as IReleaseDetails);
         }
         else {
-            this.showDeploymentDetailsToUser(runResults as IDeploymentDetails);
+            this.showDeploymentDetailsToUser(get(runResultData) as IDeploymentDetails);
         }
     }
 }

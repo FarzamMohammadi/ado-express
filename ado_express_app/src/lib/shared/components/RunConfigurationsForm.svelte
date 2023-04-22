@@ -10,7 +10,7 @@
   import type { IExplicitInclusion } from '../../models/interfaces/iexplicit-inclusion.interface';
   import type { IInputSettings } from '../../models/interfaces/input-settings.interface';
   import { ResultHandler } from '../../utils/result-handler';
-  import { deploymentDetails, displayedRunResultData } from '../../utils/stores';
+  import { deploymentDetails, runResultData } from '../../utils/stores';
   import ExplicitReleaseValuesInput from './custom-form-components/ExplicitReleaseValuesInput.svelte';
   import DeploymentDetailsSelector from './custom-form-components/deployment-details/DeploymentDetailsSelector.svelte';
   import CustomPasswordInput from './custom-form-components/inputs/CustomPasswordInput.svelte';
@@ -86,16 +86,6 @@
   let viaEnvLatestRelease = false;
   let viaEnvSourceName = '';
 
-  function sendMessage(text: string, showIdleDots: boolean = false) {
-    displayedRunResultData.update((data) => [
-      ...data,
-      {
-        text,
-        showIdleDots,
-      },
-    ]);
-  }
-
   function getExplicitReleaseValues(): IExplicitInclusion | IExplicitExclusion {
     if (!hasExplicitReleaseValues) return null;
 
@@ -122,7 +112,7 @@
 
   async function handleSubmit() {
     running = true;
-    sendMessage(`Starting ${runType.toLowerCase()}`, true);
+    ResultHandler.sendMessage(`Running ${runType.toLowerCase()}`, true);
 
     if (isNullOrUndefined(runType) || isNullOrUndefined(runMethod)) {
       return showToast(
@@ -154,10 +144,9 @@
 
     showToast(ToastType.Success, 'Successfully submitted run request');
 
-    const results = await adoExpressApi.runADOExpress(runConfigurations);
-    // console.log(results);
+    $runResultData = await adoExpressApi.runADOExpress(runConfigurations);
 
-    ResultHandler.sendRunResults(runConfigurations, results);
+    ResultHandler.sendRunResults(runConfigurations);
   }
 
   function isNullOrUndefined(variable: any): Boolean {
