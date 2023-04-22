@@ -71,7 +71,7 @@
   export let running;
   let showSubmitButton = true;
   let submitButtonLabel = 'Run ADO Express';
-
+  let isSubmitting = false;
   // RunConfiguration
   let crucialReleaseDefinitions: '';
   let explicitReleaseValuesReleases = '';
@@ -112,6 +112,8 @@
 
   async function handleSubmit() {
     running = true;
+    isSubmitting = true;
+
     ResultHandler.sendMessage(`Running ${runType.toLowerCase()}`, true);
 
     if (isNullOrUndefined(runType) || isNullOrUndefined(runMethod)) {
@@ -147,6 +149,7 @@
     $runResultData = await adoExpressApi.runADOExpress(runConfigurations);
 
     ResultHandler.sendRunResults(runConfigurations);
+    isSubmitting = false;
   }
 
   function isNullOrUndefined(variable: any): Boolean {
@@ -362,6 +365,7 @@
     {#if showSubmitButton}
       <div class="flex justify-center pt-4">
         <button
+          disabled={isSubmitting}
           type="submit"
           class="bg-transparent hover:bg-blue-700 text-blue-900 dark:text-blue-500 font-semibold hover:text-white dark:hover:text-white border border-blue-800 hover:border-transparent rounded-lg shadow-lg"
         >

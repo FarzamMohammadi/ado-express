@@ -70,7 +70,7 @@
       </div>
 
       <div
-        class="overflow-hidden smooth-transition items-center"
+        class="overflow-hidden smooth-transition items-center z-30"
         style="
           width: {$running ? '50%' : '0'};
           transform: {$running ? 'translateX(25%)' : 'translateX(0)'};
