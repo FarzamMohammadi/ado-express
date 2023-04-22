@@ -92,6 +92,6 @@
 
 <style>
   .smooth-transition {
-    transition: all 3s ease;
+    transition: all 2s ease;
   }
 </style>
