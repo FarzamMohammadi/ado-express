@@ -1,7 +1,7 @@
 <script>
   import { onMount } from 'svelte';
   import {
-      DeployRunMethod,
+      DeploymentRunMethod,
       RunType,
       SearchRunMethod,
   } from '../../../models/enums/enums';
@@ -21,8 +21,9 @@
     {
       name: RunType.Deployment,
       tasks: [
-        DeployRunMethod.ViaLatestInEnvironment,
-        DeployRunMethod.ViaNumber,
+        DeploymentRunMethod.ViaLatestInEnvironment,
+        DeploymentRunMethod.ViaNumber,
+        DeploymentRunMethod.ViaQuery,
       ],
     },
   ];

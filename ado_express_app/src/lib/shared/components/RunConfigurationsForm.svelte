@@ -2,6 +2,7 @@
   import { ADOExpressApi } from '../../core/services/api';
   import { RunConfiguration } from '../../models/classes/run-configuration.model';
   import {
+      DeploymentRunMethod,
       RunType,
       SearchRunMethod,
       ToastType,
@@ -258,14 +259,18 @@
         viaEnvLatestRelease = false;
       }
     } else if (runType === RunType.Deployment) {
-      if (runMethod == SearchRunMethod.ViaLatestInEnvironment) {
+      if (runMethod == DeploymentRunMethod.ViaLatestInEnvironment) {
         viaEnv = true;
         viaEnvLatestRelease = true;
         queries = null;
-      } else if (runMethod == SearchRunMethod.ViaNumber) {
+      } else if (runMethod == DeploymentRunMethod.ViaNumber) {
         viaEnv = false;
         viaEnvLatestRelease = false;
         queries = null;
+      }
+      else if (runMethod == DeploymentRunMethod.ViaQuery) {
+        viaEnv = true;
+        viaEnvLatestRelease = false;
       }
     }
   }

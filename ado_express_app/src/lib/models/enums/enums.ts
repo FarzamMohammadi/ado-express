@@ -17,7 +17,8 @@ export enum SearchRunMethod {
     ViaQuery = "Via ADO Query"
 }
 
-export enum DeployRunMethod {
+export enum DeploymentRunMethod {
     ViaLatestInEnvironment = 'Via Latest in Environment',
     ViaNumber = "Via Release Number",
+    ViaQuery = "Via ADO Query"
 }
