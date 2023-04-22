@@ -1,7 +1,9 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
-	import { deploymentDetails } from '../../../../utils/stores';
-	import { DeploymentDetail } from './../../../../models/classes/deployment-detail.model.ts';
+  import { onMount } from 'svelte';
+  import { DeploymentDetail } from '../../../../models/classes/deployment-detail.model';
+  import { ToastType } from '../../../../models/enums/enums';
+  import { deploymentDetails } from '../../../../utils/stores';
+  import Toast from '../../utils/Toast.svelte';
 
   export let disabledColumns: number[] = [];
   export let headers: String[];
@@ -31,15 +33,15 @@
 
   function removeRow() {
     if (rows > 0) {
-    rows -= 1;
+      rows -= 1;
 
-    for (let col = 1; col <= columns; col++) {
-      const id = cellId(rows, col);
-      delete cells[id];
+      for (let col = 1; col <= columns; col++) {
+        const id = cellId(rows, col);
+        delete cells[id];
+      }
+
+      updateDeploymentDetails();
     }
-
-    updateDeploymentDetails();
-  }
   }
 
   export function setDeploymentDetailsValuesToTable() {
@@ -58,26 +60,49 @@
   }
 
   function updateDeploymentDetails() {
-  $deploymentDetails = Array(rows)
-    .fill(null)
-    .map((_, row) => {
-      return new DeploymentDetail(
-        cells[cellId(row, 1)],
-        cells[cellId(row, 2)],
-        cells[cellId(row, 3)],
-        cells[cellId(row, 4)],
-        cells[cellId(row, 5)]
-      );
-    })
-      .filter((deploymentDetail) => {
-        // Check if deploymentDetail has valid data
-        return (
-          deploymentDetail.releaseProjectName &&
-          deploymentDetail.releaseName &&
-          deploymentDetail.releaseNumber &&
-          deploymentDetail.releaseRollback
+    $deploymentDetails = Array(rows)
+      .fill(null)
+      .map((_, row) => {
+        return new DeploymentDetail(
+          cells[cellId(row, 1)],
+          cells[cellId(row, 2)],
+          cells[cellId(row, 3)],
+          cells[cellId(row, 4)],
+          cells[cellId(row, 5)]
         );
+      })
+      .filter((deploymentDetail) => {
+        if (deploymentDetail.releaseNumber < deploymentDetail.releaseRollback) {
+          return showToast(
+            ToastType.Error,
+            deploymentDetail.releaseName
+              ? `Release number cannot be less than rollback number: Release: ${deploymentDetail.releaseName}`
+              : `Release number cannot be less than rollback number`
+          );
+        } else {
+          return (
+            deploymentDetail.releaseProjectName &&
+            deploymentDetail.releaseName &&
+            deploymentDetail.releaseNumber &&
+            deploymentDetail.releaseRollback
+          );
+        }
       });
+  }
+
+  function showToast(
+    type: ToastType,
+    message: string,
+    duration?: number
+  ): void {
+    new Toast({
+      target: document.body,
+      props: {
+        type,
+        message,
+        duration,
+      },
+    });
   }
 
   onMount(() => {

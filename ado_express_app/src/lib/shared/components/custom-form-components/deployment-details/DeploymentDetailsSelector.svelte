@@ -50,41 +50,43 @@
       </Tooltip>
     </div>
 
-    {#if showCustomSelector}
-      <div class="p-2 mt-2 read-only">
-        <ExcelFileInput
-          on:onDeploymentDetailsUpload={handleExcelDeploymentDetailsUpload}
-        />
-      </div>
-      <div class="p-2">
-        <ExcelPatternSelector
-          rows={4}
-          headers={deploymentSelectorHeaders}
-          bind:this={customDeploymentDetailsSelector}
-        />
-      </div>
-    {:else}
-      <div class="my-3">
-        <button
-          class="bg-transparent hover:bg-green-700 text-green-900 dark:text-green-500 font-semibold hover:text-white dark:hover:text-white py-2 px-4 border border-green-800 hover:border-transparent rounded-lg shadow-lg"
-          >Manage Deployment Details</button
-        >
-      </div>
+    {#if !$running}
+      {#if showCustomSelector}
+        <div class="p-2 mt-2 read-only">
+          <ExcelFileInput
+            on:onDeploymentDetailsUpload={handleExcelDeploymentDetailsUpload}
+          />
+        </div>
+        <div class="p-2">
+          <ExcelPatternSelector
+            rows={4}
+            headers={deploymentSelectorHeaders}
+            bind:this={customDeploymentDetailsSelector}
+          />
+        </div>
+      {:else}
+        <div class="my-3">
+          <button
+            class="bg-transparent hover:bg-green-700 text-green-900 dark:text-green-500 font-semibold hover:text-white dark:hover:text-white py-2 px-4 border border-green-800 hover:border-transparent rounded-lg shadow-lg"
+            >Manage Selection</button
+          >
+        </div>
+      {/if}
     {/if}
 
     {#if $running}
       {#if $deploymentDetails.length}
         <DeploymentDetailSelectionResults
           bind:showingDeploymentDetailsReadOnlySelection
-          on:removeDeploymentDetails={() => ($deploymentDetails = [])}
         />
-      {/if}
-
-      {#if !showingDeploymentDetailsReadOnlySelection && $deploymentDetails.length}
-        <button
-          class="bg-transparent hover:bg-green-700 text-green-900 dark:text-green-500 font-semibold hover:text-white dark:hover:text-white py-2 px-4 border border-green-800 hover:border-transparent rounded-lg shadow-lg"
-          >Show Selection</button
-        >
+        {#if !showingDeploymentDetailsReadOnlySelection}
+          <div class="my-3">
+            <button
+              class="bg-transparent hover:bg-green-700 text-green-900 dark:text-green-500 font-semibold hover:text-white dark:hover:text-white py-2 px-4 border border-green-800 hover:border-transparent rounded-lg shadow-lg"
+              >Show Selection</button
+            >
+          </div>
+        {/if}
       {/if}
     {/if}
   </div>

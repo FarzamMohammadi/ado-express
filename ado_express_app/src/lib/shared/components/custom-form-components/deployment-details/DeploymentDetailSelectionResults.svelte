@@ -1,14 +1,6 @@
 <script lang="ts">
-  import { createEventDispatcher } from 'svelte';
   import { deploymentDetails } from '../../../../utils/stores';
-
-  const dispatch = createEventDispatcher();
-
   export let showingDeploymentDetailsReadOnlySelection: boolean;
-
-  function removeDeploymentDetails() {
-    dispatch('removeDeploymentDetails');
-  }
 </script>
 
 {#if showingDeploymentDetailsReadOnlySelection}
@@ -45,21 +37,11 @@
                   <td class="whitespace-nowrap px-6 py-4"
                     >{row.releaseRollback}</td
                   >
-                  <td class="whitespace-nowrap px-6 py-4">{row.isCrucial}</td>
+                  <td class=" px-6 py-4">{row.isCrucial}</td>
                 </tr>
               {/each}
             </tbody>
           </table>
-          <div class="flex flex-col justify-start mt-4">
-            <p class="text-gray-900 dark:text-gray-200 font-bold mb-2">
-              Something missing?
-            </p>
-            <button
-              on:click={() => removeDeploymentDetails()}
-              class="bg-transparent hover:bg-red-700 text-red-900 dark:text-red-500 font-semibold hover:text-white dark:hover:text-white py-2 px-4 border border-red-800 hover:border-transparent rounded-lg shadow-lg"
-              >Remove Values</button
-            >
-          </div>
         </div>
       </div>
     </div>
