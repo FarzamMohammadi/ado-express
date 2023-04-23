@@ -1,5 +1,6 @@
 <script lang="ts">
   import { ADOExpressApi } from '../../core/services/api';
+  import type { DeploymentDetail } from '../../models/classes/deployment-detail.model';
   import { RunConfiguration } from '../../models/classes/run-configuration.model';
   import {
       DeploymentRunMethod,
@@ -25,7 +26,7 @@
       show: true,
     } as IInputSettings,
     crd: {
-      required: true,
+      required: false,
       show: true,
     } as IInputSettings,
     org_url: {
@@ -53,7 +54,7 @@
       show: true,
     } as IInputSettings,
     erv: {
-      required: true,
+      required: false,
       show: true,
     } as IInputSettings,
   };
@@ -86,6 +87,7 @@
   let viaEnv = false;
   let viaEnvLatestRelease = false;
   let viaEnvSourceName = '';
+  let runResultDataIsValid = false;
 
   function getExplicitReleaseValues(): IExplicitInclusion | IExplicitExclusion {
     if (!hasExplicitReleaseValues) return null;
@@ -115,8 +117,12 @@
     showSubmitButton = false;
     running = true;
     isSubmitting = true;
-
-    ResultHandler.sendMessage(`\nRunning ${runType.toLowerCase()}`, true);
+    ResultHandler.sendMessage(
+      running
+        ? `\n\nRunning ${runType}`
+        : `\nRunning ${runType}`,
+      true
+    );
 
     if (isNullOrUndefined(runType) || isNullOrUndefined(runMethod)) {
       return showToast(
@@ -175,10 +181,10 @@
 
     if (runType === RunType.Search) {
       // Don't allow more than one run search
-      if (running){
+      if (running) {
         showSubmitButton = false;
       }
-      
+
       formInputRequirements.crd.required = false;
       formInputRequirements.crd.show = false;
 
@@ -218,12 +224,15 @@
         formInputRequirements.dd.required = false;
         formInputRequirements.dd.show = false;
       }
-    } else if (runType === RunType.Deployment && runMethod === DeploymentRunMethod.ViaNumber) {
+    } else if (
+      runType === RunType.Deployment &&
+      runMethod === DeploymentRunMethod.ViaNumber
+    ) {
       // Allow deployment after search
-      if (running){
+      if (running) {
         showSubmitButton = true;
       }
-      
+
       viaEnv = false;
       viaEnvLatestRelease = false;
       queries = null;
@@ -286,8 +295,26 @@
     });
   }
 
+  function deploySearchResults() {
+    runType = RunType.Deployment;
+    runMethod = DeploymentRunMethod.ViaNumber;
+
+    deploymentDetails.set([]);
+
+    for (let key in $runResultData) {
+      deploymentDetails.update((deploymentDetails) => [
+        ...deploymentDetails,
+        $runResultData[key] as DeploymentDetail,
+      ]);
+    }
+  }
+
   $: onRunTypeSelection(runType);
   $: onRunMethodSelection(runMethod);
+  $: runResultDataIsValid =
+    $runResultData !== null &&
+    $runResultData !== undefined &&
+    Object.keys($runResultData).length > 0;
 </script>
 
 <svelte:head>
@@ -373,5 +400,13 @@
         </button>
       </div>
     {/if}
+    <div class="flex flex-row items-center justify-center">
+      {#if !showSubmitButton && runResultDataIsValid && runType === RunType.Search && (runMethod === SearchRunMethod.ViaLatestInEnvironment || runMethod === SearchRunMethod.ViaQuery)}
+        <button
+          class="bg-transparent hover:bg-blue-700 text-blue-900 dark:text-blue-500 font-semibold hover:text-white dark:hover:text-white border border-blue-800 hover:border-transparent rounded-lg shadow-lg"
+          on:click={deploySearchResults}>Deploy Search Results</button
+        >
+      {/if}
+    </div>
   </form>
 </div>

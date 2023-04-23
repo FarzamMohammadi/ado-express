@@ -1,5 +1,6 @@
 import { get } from 'svelte/store';
 import type { RunConfiguration } from '../models/classes/run-configuration.model';
+import type { IDeploymentDetail } from '../models/interfaces/ideployment-detail.interface';
 import type { IDeploymentDetails } from '../models/interfaces/ideployment-details.interface';
 import type { IReleaseDetail } from '../models/interfaces/irelease-detail.interface';
 import type { IReleaseDetails } from '../models/interfaces/irelease-details.interface';
@@ -34,13 +35,18 @@ export class ResultHandler {
         ]);
     }
 
-    static showReleaseDetailsToUser(runResults: IReleaseDetails) {
+    static showReleaseDetailsToUser(runResults: IReleaseDetails, isSearchOnly: boolean = false) {
         if (runResults === undefined || runResults === null) {
             this.sendMessage('\nNo results found');
             return;
         }
 
-        this.sendMessage('\n\nGathered Results:');
+        if (isSearchOnly) {
+            this.sendMessage('\n\nSearch Results:');
+        }
+        else {
+            this.sendMessage('\n\nDeployment Results:');
+        }
 
         for (let key in runResults) {
             const releaseDetails: IReleaseDetail[] = runResults[key];
@@ -48,7 +54,7 @@ export class ResultHandler {
             this.sendMessage(`\n\nRelease Definition: ${releaseDetails[0].releaseDefinition}\nProject: ${releaseDetails[0].releaseProjectName}\n`);
 
             for (let releaseDetail of releaseDetails) {
-                this.sendMessage(`\nRelease: ${releaseDetail.releaseName}\nEnv: ${releaseDetail.releaseEnv}\nDeployed: ${releaseDetail.isDeployed}\nModified On: ${this.formatDateTime(releaseDetail.modifiedOn)}\n`);
+                this.sendMessage(`\nRelease: ${releaseDetail.releaseName}\nEnv: ${releaseDetail.releaseEnv}${isSearchOnly ? `\nDeployed: ${releaseDetail.isDeployed}` : `\nDeployment: ${releaseDetail.isDeployed ? 'Successful' : 'Failed'}`}\nModified On: ${this.formatDateTime(releaseDetail.modifiedOn)}\n`);
             }
         }
     }
@@ -59,21 +65,22 @@ export class ResultHandler {
             return;
         }
 
-        this.sendMessage('\n\nGathered Results:');
+        this.sendMessage('\n\nSearch Results:');
 
         for (let key in runResults) {
-            const deploymentDetail = runResults[key];
+            const deploymentDetail = runResults[key] as IDeploymentDetail;
 
             this.sendMessage(`\n\nRelease Definition: ${deploymentDetail.releaseName}\nProject: ${deploymentDetail.releaseProjectName}\nRelease: ${deploymentDetail.releaseNumber}\nRollback: ${deploymentDetail.releaseRollback}`);
         }
     }
 
     static sendRunResults(runConfiguration: RunConfiguration) {
-        if (runConfiguration.searchOnly
-            && !runConfiguration.queries
-            && (!runConfiguration.viaEnv && !runConfiguration.viaEnvLatestRelease
-                || runConfiguration.viaEnv && !runConfiguration.viaEnvLatestRelease)) {
-            this.showReleaseDetailsToUser(get(runResultData) as IReleaseDetails);
+        if (runConfiguration.searchOnly === false ||
+            (runConfiguration.searchOnly
+                && !runConfiguration.queries
+                && (!runConfiguration.viaEnv && !runConfiguration.viaEnvLatestRelease
+                    || runConfiguration.viaEnv && !runConfiguration.viaEnvLatestRelease))) {
+            this.showReleaseDetailsToUser(get(runResultData) as IReleaseDetails, runConfiguration.searchOnly);
         }
         else {
             this.showDeploymentDetailsToUser(get(runResultData) as IDeploymentDetails);

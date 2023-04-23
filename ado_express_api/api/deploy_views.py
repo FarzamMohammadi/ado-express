@@ -73,7 +73,7 @@ def deploy(request):
             regular_deployment_results = ado_express.run_release_deployments(deployment_details, False, True)
 
             for deployment_result in regular_deployment_results:
-                deployment_results[deployment_result.release_definition] = deployment_result.__dict__
+                deployment_results[deployment_result.release_definition] = [deployment_result.__dict__]
 
         return Response(status=status.HTTP_200_OK, data=SnakeToCamelCaseConverter.convert(deployment_results))
     else:
