@@ -68,6 +68,15 @@
       }
     };
   });
+
+   $: {
+    // Update the selectedCategory when the category is changed from outside the component
+    if (selectedCategoryName) {
+      console.log(selectedCategoryName)
+      selectedCategory = categories.find(category => category.name === selectedCategoryName);
+      console.log(selectedCategory)
+    }
+  }
 </script>
 
 <div class="relative" use:clickOutside on:click_outside={handleClickOutside}>

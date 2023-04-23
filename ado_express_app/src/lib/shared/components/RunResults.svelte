@@ -1,11 +1,15 @@
 <script lang="ts">
   import { onDestroy, onMount } from 'svelte';
+  import { DeploymentRunMethod, RunType } from '../../models/enums/enums';
   import type { IDisplayedRunResultData } from '../../models/interfaces/irun-result-data';
   import {
       displayedRunResultData,
       runResultData,
       running,
   } from '../../utils/stores/stores';
+
+  export let runMethod: string = null;
+  export let runType: string = null;
 
   let matrixTheme = true;
   let localResultData: IDisplayedRunResultData[] = [];
@@ -90,7 +94,8 @@
 
 
     function deploySearchResults(event: MouseEvent & { currentTarget: EventTarget & HTMLButtonElement; }) {
-        console.log($runResultData)
+      runType = RunType.Deployment;
+      runMethod = DeploymentRunMethod.ViaNumber;
     }
 </script>
 

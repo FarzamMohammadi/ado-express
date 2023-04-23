@@ -54,8 +54,11 @@
     </div>
 
     {#if $running}
-      <a class="my-4 bg-transparent hover:bg-purple-700 text-purple-900 dark:text-purple-500 font-semibold hover:text-white dark:hover:text-white py-2 px-4 border border-purple-800 hover:border-transparent rounded-lg shadow-lg"
-      data-sveltekit-preload-data="tap" href="/">
+      <a
+        class="my-4 bg-transparent hover:bg-purple-700 text-purple-900 dark:text-purple-500 font-semibold hover:text-white dark:hover:text-white py-2 px-4 border border-purple-800 hover:border-transparent rounded-lg shadow-lg"
+        data-sveltekit-preload-data="tap"
+        href="/"
+      >
         Clear Form & Results
       </a>
     {/if}
@@ -85,7 +88,7 @@
           min-width: {$running ? '35vw' : '0'};
         "
       >
-        <RunResults />
+        <RunResults bind:runType bind:runMethod />
       </div>
     </div>
   </div>
