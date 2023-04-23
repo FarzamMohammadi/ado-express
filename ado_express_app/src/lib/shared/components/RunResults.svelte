@@ -1,8 +1,14 @@
 <script lang="ts">
   import { onDestroy, onMount } from 'svelte';
-  import { DeploymentRunMethod, RunType } from '../../models/enums/enums';
+  import { DeploymentDetail } from '../../models/classes/deployment-detail.model';
+  import {
+      DeploymentRunMethod,
+      RunType,
+      SearchRunMethod,
+  } from '../../models/enums/enums';
   import type { IDisplayedRunResultData } from '../../models/interfaces/irun-result-data';
   import {
+      deploymentDetails,
       displayedRunResultData,
       runResultData,
       running,
@@ -14,6 +20,7 @@
   let matrixTheme = true;
   let localResultData: IDisplayedRunResultData[] = [];
   export let displayIdleDots = false;
+  let runResultDataIsValid = false;
   let displayDataInputs: string[] = [];
 
   function downloadResultsAsJSONFile(): void {
@@ -92,11 +99,24 @@
   let dotText = '';
   setInterval(updateDots, 400);
 
+  function deploySearchResults() {
+    runType = RunType.Deployment;
+    runMethod = DeploymentRunMethod.ViaNumber;
 
-    function deploySearchResults(event: MouseEvent & { currentTarget: EventTarget & HTMLButtonElement; }) {
-      runType = RunType.Deployment;
-      runMethod = DeploymentRunMethod.ViaNumber;
+    deploymentDetails.set([]);
+
+    for (let key in $runResultData) {
+      deploymentDetails.update((deploymentDetails) => [
+        ...deploymentDetails,
+        $runResultData[key] as DeploymentDetail,
+      ]);
     }
+  }
+
+  $: runResultDataIsValid =
+    $runResultData !== null &&
+    $runResultData !== undefined &&
+    Object.keys($runResultData).length > 0;
 </script>
 
 <div>
@@ -148,16 +168,14 @@
         >
       {/if}
     </div>
-    <div>
-      {#if $runResultData}
-        <button
-          class="bg-transparent hover:bg-blue-700 text-blue-900 dark:text-blue-500 font-semibold hover:text-white dark:hover:text-white border border-blue-800 hover:border-transparent rounded-lg shadow-lg"
-          on:click={deploySearchResults}
-          >Deploy Search Results</button
-        >
-
-      {/if}
-    </div>
+  </div>
+  <div class="flex flex-row items-center justify-center">
+    {#if runResultDataIsValid && runType === RunType.Search && (runMethod === SearchRunMethod.ViaLatestInEnvironment || runMethod === SearchRunMethod.ViaQuery)}
+      <button
+        class="bg-transparent hover:bg-blue-700 text-blue-900 dark:text-blue-500 font-semibold hover:text-white dark:hover:text-white border border-blue-800 hover:border-transparent rounded-lg shadow-lg"
+        on:click={deploySearchResults}>Deploy Search Results</button
+      >
+    {/if}
   </div>
 </div>
 

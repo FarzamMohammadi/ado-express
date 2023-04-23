@@ -72,6 +72,7 @@
   export let running;
   let submitButtonLabel = 'Run ADO Express';
   let isSubmitting = false;
+  let showSubmitButton = true;
   // RunConfiguration
   let crucialReleaseDefinitions: '';
   let explicitReleaseValuesReleases = '';
@@ -111,6 +112,7 @@
   }
 
   async function handleSubmit() {
+    showSubmitButton = false;
     running = true;
     isSubmitting = true;
 
@@ -172,6 +174,11 @@
     formInputRequirements = structuredClone(defaultFormInputRequirements);
 
     if (runType === RunType.Search) {
+      // Don't allow more than one run search
+      if (running){
+        showSubmitButton = false;
+      }
+      
       formInputRequirements.crd.required = false;
       formInputRequirements.crd.show = false;
 
@@ -211,32 +218,28 @@
         formInputRequirements.dd.required = false;
         formInputRequirements.dd.show = false;
       }
-    } else if (runType === RunType.Deployment) {
-      if (runMethod == SearchRunMethod.ViaLatestInEnvironment) {
-        viaEnv = true;
-        viaEnvLatestRelease = true;
-        queries = null;
-
-        formInputRequirements.queries.required = false;
-        formInputRequirements.queries.show = false;
-      } else if (runMethod == SearchRunMethod.ViaNumber) {
-        viaEnv = false;
-        viaEnvLatestRelease = false;
-        queries = null;
-        formInputRequirements.queries.required = false;
-        formInputRequirements.queries.show = false;
-
-        formInputRequirements.rse.required = false;
-        formInputRequirements.rse.show = false;
+    } else if (runType === RunType.Deployment && runMethod === DeploymentRunMethod.ViaNumber) {
+      // Allow deployment after search
+      if (running){
+        showSubmitButton = true;
       }
+      
+      viaEnv = false;
+      viaEnvLatestRelease = false;
+      queries = null;
+      formInputRequirements.queries.required = false;
+      formInputRequirements.queries.show = false;
+
+      formInputRequirements.rse.required = false;
+      formInputRequirements.rse.show = false;
     }
   }
 
   function onRunTypeSelection(runType): void {
     if (runType === RunType.Search) {
-      submitButtonLabel = 'Run New Search';
+      submitButtonLabel = 'Initiate Search';
     } else if (runType === RunType.Deployment) {
-      submitButtonLabel = 'Run New Deployment';
+      submitButtonLabel = 'Execute Deployment';
     }
   }
 
@@ -359,15 +362,16 @@
         bind:showInput={formInputRequirements.erv.show}
       />
     </div>
-
-    <div class="flex justify-center pt-4">
-      <button
-        disabled={isSubmitting}
-        type="submit"
-        class="bg-transparent hover:bg-blue-700 text-blue-900 dark:text-blue-500 font-semibold hover:text-white dark:hover:text-white border border-blue-800 hover:border-transparent rounded-lg shadow-lg"
-      >
-        {submitButtonLabel}
-      </button>
-    </div>
+    {#if showSubmitButton}
+      <div class="flex justify-center pt-4">
+        <button
+          disabled={isSubmitting}
+          type="submit"
+          class="bg-transparent hover:bg-blue-700 text-blue-900 dark:text-blue-500 font-semibold hover:text-white dark:hover:text-white border border-blue-800 hover:border-transparent rounded-lg shadow-lg"
+        >
+          {submitButtonLabel}
+        </button>
+      </div>
+    {/if}
   </form>
 </div>
