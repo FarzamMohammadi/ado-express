@@ -1,7 +1,5 @@
+import type { IDeploymentDetail } from './ideployment-detail.interface';
+
 export interface IDeploymentDetails {
-  releaseProjectName: string;
-  releaseName: string;
-  releaseNumber?: number;
-  releaseRollback?: number;
-  isCrucial?: boolean;
+    [releaseDefinition: string]: IDeploymentDetail;
 }

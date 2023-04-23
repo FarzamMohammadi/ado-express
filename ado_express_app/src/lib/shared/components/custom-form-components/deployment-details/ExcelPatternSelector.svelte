@@ -1,11 +1,11 @@
 <script lang="ts">
-  import { DeploymentDetails } from '../../../../models/classes/deployment-details.model';
+  import type { DeploymentDetail } from '../../../../models/classes/deployment-detail.model';
 
-  export let deploymentDetails: DeploymentDetails[];
+  export let deploymentDetails: DeploymentDetail[];
   export let disabledColumns: number[] = [];
   export let headers: String[];
   export let rows: number;
-  
+
   let cells = {};
   let columns = 6;
 
@@ -29,7 +29,7 @@
       for (let c = 0; c < columns; c++) {
         if (c != rowNumberCol) {
           let rowColValue = cells[cellId(r, c)] ?? '';
-          console.log(rowColValue)
+          console.log(rowColValue);
           if (
             rowColValue === '' &&
             c !== isCrucialCol &&
@@ -37,19 +37,26 @@
           ) {
             rowsToExclude.push(r);
             continue;
-          }
-          else{
+          } else {
             rowData.push(rowColValue);
           }
         }
       }
       userInputValues.push(rowData);
-    }   
-    let newDeploymentDetails: DeploymentDetails[] = [];
+    }
+    let newDeploymentDetails: DeploymentDetail[] = [];
 
-    for(let row = 0; row < userInputValues.length; row++){
-      if (!rowsToExclude.includes(row)){
-        newDeploymentDetails.push(new DeploymentDetails(userInputValues[row][0], userInputValues[row][1], userInputValues[row][2], userInputValues[row][3], userInputValues[row][4] == true));
+    for (let row = 0; row < userInputValues.length; row++) {
+      if (!rowsToExclude.includes(row)) {
+        newDeploymentDetails.push(
+          new DeploymentDetail(
+            userInputValues[row][0],
+            userInputValues[row][1],
+            userInputValues[row][2],
+            userInputValues[row][3],
+            userInputValues[row][4] == true
+          )
+        );
       }
     }
 
@@ -59,13 +66,13 @@
   }
 
   function handleInput(row, col, event) {
-  const id = cellId(row, col);
-  if (col === 5) {
-    cells[id] = event.target.checked;
-  } else {
-    cells[id] = event.target.value;
+    const id = cellId(row, col);
+    if (col === 5) {
+      cells[id] = event.target.checked;
+    } else {
+      cells[id] = event.target.value;
+    }
   }
-}
 
   function RemoveRow() {
     rows -= 1;
@@ -141,7 +148,9 @@
           col === 4
             ? 'w-24'
             : 'w-full'}
-            {disabledColumns.includes(col) ? 'bg-transparent border-none' : 'bg-gray-700'}"
+            {disabledColumns.includes(col)
+            ? 'bg-transparent border-none'
+            : 'bg-gray-700'}"
           on:input={(event) => handleInput(row, col, event)}
         />
       {/if}
@@ -153,7 +162,7 @@
     on:click={() => getDeploymentDetails()}
     type="button"
     class="bg-transparent hover:bg-blue-700 text-blue-900 dark:text-blue-500 font-semibold hover:text-white dark:hover:text-white border border-blue-800 hover:border-transparent rounded-lg shadow-lg"
-    >
+  >
     Submit
   </button>
 </div>

@@ -1,10 +1,10 @@
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
-  import type { DeploymentDetails } from '../../../../models/classes/deployment-details.model';
+  import type { DeploymentDetail } from '../../../../models/classes/deployment-detail.model';
 
   const dispatch = createEventDispatcher();
 
-  export let deploymentDetails: DeploymentDetails[];
+  export let deploymentDetails: DeploymentDetail[];
   export let showResults;
 
   function removeDeploymentDetails() {
