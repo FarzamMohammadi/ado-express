@@ -149,7 +149,7 @@
     $runResultData = await adoExpressApi.runADOExpress(runConfigurations);
 
     ResultHandler.sendRunResults(runConfigurations);
-    
+
     isSubmitting = false;
   }
 
@@ -258,20 +258,13 @@
         viaEnv = true;
         viaEnvLatestRelease = false;
       }
-    } else if (runType === RunType.Deployment) {
-      if (runMethod == DeploymentRunMethod.ViaLatestInEnvironment) {
-        viaEnv = true;
-        viaEnvLatestRelease = true;
-        queries = null;
-      } else if (runMethod == DeploymentRunMethod.ViaNumber) {
-        viaEnv = false;
-        viaEnvLatestRelease = false;
-        queries = null;
-      }
-      else if (runMethod == DeploymentRunMethod.ViaQuery) {
-        viaEnv = true;
-        viaEnvLatestRelease = false;
-      }
+    } else if (
+      runType === RunType.Deployment &&
+      runMethod == DeploymentRunMethod.ViaNumber
+    ) {
+      viaEnv = false;
+      viaEnvLatestRelease = false;
+      queries = null;
     }
   }
 
@@ -292,7 +285,6 @@
 
   $: onRunTypeSelection(runType);
   $: onRunMethodSelection(runMethod);
-
 </script>
 
 <svelte:head>

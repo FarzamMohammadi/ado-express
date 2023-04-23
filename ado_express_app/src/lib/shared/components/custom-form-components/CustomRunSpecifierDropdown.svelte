@@ -21,9 +21,7 @@
     {
       name: RunType.Deployment,
       tasks: [
-        DeploymentRunMethod.ViaLatestInEnvironment,
         DeploymentRunMethod.ViaNumber,
-        DeploymentRunMethod.ViaQuery,
       ],
     },
   ];

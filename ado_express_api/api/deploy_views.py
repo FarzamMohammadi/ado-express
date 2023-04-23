@@ -10,6 +10,10 @@ from ado_express.main import Startup
 from .serializers import DeploymentDetailSerializer, RunConfigurationSerializer
 
 
+# -Deployment via number-
+# This method does not run a search 
+# Deployment details must be provided in the request body
+# If a search is required, it must be done beforehand
 @api_view(['POST'])
 def deploy(request):
     deployment_details_serializer = DeploymentDetailSerializer()

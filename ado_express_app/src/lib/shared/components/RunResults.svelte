@@ -1,7 +1,11 @@
 <script lang="ts">
   import { onDestroy, onMount } from 'svelte';
   import type { IDisplayedRunResultData } from '../../models/interfaces/irun-result-data';
-  import { displayedRunResultData, runResultData, running } from '../../utils/stores/stores';
+  import {
+      displayedRunResultData,
+      runResultData,
+      running,
+  } from '../../utils/stores/stores';
 
   let matrixTheme = true;
   let localResultData: IDisplayedRunResultData[] = [];
@@ -83,6 +87,11 @@
 
   let dotText = '';
   setInterval(updateDots, 400);
+
+
+    function deploySearchResults(event: MouseEvent & { currentTarget: EventTarget & HTMLButtonElement; }) {
+        console.log($runResultData)
+    }
 </script>
 
 <div>
@@ -110,29 +119,40 @@
   <div class="flex flex-row items-center justify-between">
     <div>
       {#if matrixTheme}
-        <button 
-        class="bg-transparent hover:bg-green-700 text-green-900 dark:text-green-500 font-semibold hover:text-white dark:hover:text-white py-2 px-4 border border-green-800 hover:border-transparent rounded-lg shadow-lg"
-        on:click={toggleTheme}>Retro Theme: -ON-</button>
-        {:else}
-        <button 
-        class="bg-transparent hover:bg-purple-700 text-purple-900 dark:text-purple-500 font-semibold hover:text-white dark:hover:text-white py-2 px-4 border border-purple-800 hover:border-transparent rounded-lg shadow-lg"
-
-        on:click={toggleTheme}>Retro Theme: -OFF-</button>
+        <button
+          class="bg-transparent hover:bg-green-700 text-green-900 dark:text-green-500 font-semibold hover:text-white dark:hover:text-white py-2 px-4 border border-green-800 hover:border-transparent rounded-lg shadow-lg"
+          on:click={toggleTheme}>Retro Theme: -ON-</button
+        >
+      {:else}
+        <button
+          class="bg-transparent hover:bg-purple-700 text-purple-900 dark:text-purple-500 font-semibold hover:text-white dark:hover:text-white py-2 px-4 border border-purple-800 hover:border-transparent rounded-lg shadow-lg"
+          on:click={toggleTheme}>Retro Theme: -OFF-</button
+        >
       {/if}
     </div>
     <div>
-    {#if matrixTheme}
-    
-      <button
-        class="bg-transparent hover:bg-green-700 text-green-900 dark:text-green-500 font-semibold hover:text-white dark:hover:text-white py-2 px-4 border border-green-800 hover:border-transparent rounded-lg shadow-lg"
-        on:click={downloadResultsAsJSONFile}>Download Results JSON</button
-      >
-    {:else}
-    <button 
-    class="bg-transparent hover:bg-purple-700 text-purple-900 dark:text-purple-500 font-semibold hover:text-white dark:hover:text-white py-2 px-4 border border-purple-800 hover:border-transparent rounded-lg shadow-lg"
-    on:click={downloadResultsAsJSONFile}>Download Results JSON</button>
-    {/if}
-  </div>
+      {#if matrixTheme}
+        <button
+          class="bg-transparent hover:bg-green-700 text-green-900 dark:text-green-500 font-semibold hover:text-white dark:hover:text-white py-2 px-4 border border-green-800 hover:border-transparent rounded-lg shadow-lg"
+          on:click={downloadResultsAsJSONFile}>Download Results JSON</button
+        >
+      {:else}
+        <button
+          class="bg-transparent hover:bg-purple-700 text-purple-900 dark:text-purple-500 font-semibold hover:text-white dark:hover:text-white py-2 px-4 border border-purple-800 hover:border-transparent rounded-lg shadow-lg"
+          on:click={downloadResultsAsJSONFile}>Download Results JSON</button
+        >
+      {/if}
+    </div>
+    <div>
+      {#if $runResultData}
+        <button
+          class="bg-transparent hover:bg-blue-700 text-blue-900 dark:text-blue-500 font-semibold hover:text-white dark:hover:text-white border border-blue-800 hover:border-transparent rounded-lg shadow-lg"
+          on:click={deploySearchResults}
+          >Deploy Search Results</button
+        >
+
+      {/if}
+    </div>
   </div>
 </div>
 
