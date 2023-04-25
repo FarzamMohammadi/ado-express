@@ -8,9 +8,9 @@ from django.test.client import RequestFactory
 from django.contrib.auth.models import AnonymousUser
 
 from api.deploy_views import deploy
-from base.models.DeploymentDetails import DeploymentDetails
-from base.models.ReleaseDetails import ReleaseDetails
-from base.models.RunConfigurations import RunConfigurations
+from base.models.DeploymentDetail import DeploymentDetail
+from base.models.ReleaseDetail import ReleaseDetail
+from base.models.RunConfiguration import RunConfiguration
 
 class Empty:
     pass
@@ -31,10 +31,10 @@ class SearchViaLatestRelease(unittest.TestCase):
     @patch('ado_express.main.Startup.updated_deployment_details_based_on_explicit_inclusion_and_exclusion', return_value=None)
     def test_api_call(self, explicit_release_method_mock, get_crucial_defs_mock, get_crucial_deployments_mock, remove_crucial_deployments_mock, initialize_logging_mock, load_dependencies_mock, run_release_deployments_mock):
             # Arrange
-            regular_release_details = DeploymentDetails(self.fake.name(), self.fake.name(), 123, 132, False)
-            crucial_release_details = DeploymentDetails(self.fake.name(), self.fake.name(), 123, 132, True)
-            run_configurations = RunConfigurations({},[],self.fake.name(),self.fake.name(),[self.fake.name()],self.fake.name(),self.fake.name(),True,True,True,self.fake.name(), [crucial_release_details, regular_release_details])
-            deployed_release = ReleaseDetails(self.fake.name(), self.fake.name(), self.fake.name(), self.fake.name(), bool(random.getrandbits(1)), datetime.now())
+            regular_release_details = DeploymentDetail(self.fake.name(), self.fake.name(), 123, 132, False)
+            crucial_release_details = DeploymentDetail(self.fake.name(), self.fake.name(), 123, 132, True)
+            run_configurations = RunConfiguration({},[],self.fake.name(),self.fake.name(),[self.fake.name()],self.fake.name(),self.fake.name(),True,True,True,self.fake.name(), [crucial_release_details, regular_release_details])
+            deployed_release = ReleaseDetail(self.fake.name(), self.fake.name(), self.fake.name(), self.fake.name(), bool(random.getrandbits(1)), datetime.now())
 
             get_crucial_defs_mock.return_value = [self.fake.name()]
             get_crucial_deployments_mock.return_value = [self.fake.name()] #Doesn't actually matter as long as it's not None
@@ -53,7 +53,7 @@ class SearchViaLatestRelease(unittest.TestCase):
 
     def test_api_call_with_missing_field(self):
             # Arrange
-            run_configurations = RunConfigurations({},[],self.fake.name(),self.fake.name(),[self.fake.name()],self.fake.name(),self.fake.name(),True,True,False,self.fake.name(), []) # Missing release_details
+            run_configurations = RunConfiguration({},[],self.fake.name(),self.fake.name(),[self.fake.name()],self.fake.name(),self.fake.name(),True,True,False,self.fake.name(), []) # Missing release_details
 
             request = self.factory.post('/deploy', json.dumps(run_configurations.to_dict_with_lowercase_keys()), content_type='application/json')
             request.user = AnonymousUser()

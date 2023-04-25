@@ -1,35 +1,36 @@
+from base.models.ReleaseDetail import ReleaseDetail
 from rest_framework import serializers
 
 
 class DeploymentDetailsSerializer(serializers.Serializer):
-    release_project_name = serializers.CharField(max_length=200, required=True)
-    release_name = serializers.CharField(max_length=200, required=True)
-    release_number = serializers.IntegerField(min_value=0, required=False, allow_null=True)
-    release_rollback = serializers.IntegerField(min_value=0, required=False, allow_null=True)
-    is_crucial = serializers.BooleanField(default=False, required=False)
-    
+    releaseProjectName = serializers.CharField(max_length=200, required=True, source='release_project_name')
+    releaseName = serializers.CharField(max_length=200, required=True, source='release_name')
+    releaseNumber = serializers.IntegerField(min_value=0, required=False, allow_null=True, source='release_number')
+    releaseRollback = serializers.IntegerField(min_value=0, required=False, allow_null=True, source='release_rollback')
+    isCrucial = serializers.BooleanField(default=False, required=False, source='is_crucial')
+
     def set_required_fields_for_via_latest(self):
-        self.fields['release_number'].required = False
-        self.fields['release_rollback'].required = False
+        self.fields['releaseNumber'].required = False
+        self.fields['releaseRollback'].required = False
 
     def set_required_fields_for_via_number(self):
-        self.fields['release_rollback'].required = False
+        self.fields['releaseRollback'].required = False
 
     def set_required_fields_for_via_environment(self):
-        self.fields['release_number'].required = False
-        self.fields['release_rollback'].required = False
+        self.fields['releaseNumber'].required = False
+        self.fields['releaseRollback'].required = False
 
 class RunConfigurationsSerializer(serializers.Serializer):
-    explicit_release_values = serializers.DictField(allow_empty=True, allow_null=True)
-    crucial_release_definitions = serializers.ListField(child = serializers.CharField(max_length=200), allow_empty=True, allow_null=True)
-    organization_url = serializers.CharField(max_length=200, required=True)
-    personal_access_token = serializers.CharField(max_length=200, required=True)
-    queries = serializers.ListField(child = serializers.CharField(max_length=200), allow_empty=True, allow_null=True)
-    release_name_format = serializers.CharField(max_length=200, required=True)
-    release_target_env = serializers.CharField(max_length=200)
-    search_only = serializers.BooleanField()
-    via_env = serializers.BooleanField()
-    via_env_source_name = serializers.CharField(max_length=200, allow_null=True, allow_blank=True, required=False)
-    via_env_latest_release = serializers.BooleanField()
-    
-    deployment_details = serializers.ListSerializer(child=DeploymentDetailsSerializer(), allow_empty=True, allow_null=True)
+    explicitReleaseValues = serializers.DictField(allow_empty=True, allow_null=True, source='explicit_release_values')
+    crucialReleaseDefinitions = serializers.ListField(child=serializers.CharField(max_length=200), allow_empty=True, allow_null=True, source='crucial_release_definitions')
+    organizationUrl = serializers.CharField(max_length=200, required=True, source='organization_url')
+    personalAccessToken = serializers.CharField(max_length=200, required=True, source='personal_access_token')
+    queries = serializers.ListField(child=serializers.CharField(max_length=200), allow_empty=True, allow_null=True)
+    releaseNameFormat = serializers.CharField(max_length=200, required=True, source='release_name_format')
+    releaseTargetEnv = serializers.CharField(max_length=200, source='release_target_env')
+    searchOnly = serializers.BooleanField(source='search_only')
+    viaEnv = serializers.BooleanField(source='via_env')
+    viaEnvSourceName = serializers.CharField(max_length=200, allow_null=True, allow_blank=True, required=False, source='via_env_source_name')
+    viaEnvLatestRelease = serializers.BooleanField(source='via_env_latest_release')
+
+    deploymentDetails = serializers.ListSerializer(child=DeploymentDetailsSerializer(), allow_empty=True, allow_null=True, source='deployment_details')

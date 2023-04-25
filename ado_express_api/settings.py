@@ -10,13 +10,13 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
-from pathlib import Path
 import sys
+from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 
 # Adding these to enable project segregation
-p = Path(__file__).resolve().parent.parent.parent
+p = Path(__file__).resolve().parent.parent
 sys.path.append(str(p))
 sys.path.append(str(p)+'\\main')
 sys.path.append(str(p)+'\\packages')
@@ -69,7 +69,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
 ]
 
-ROOT_URLCONF = 'ado_express_api.urls'
+ROOT_URLCONF = 'urls'
 
 TEMPLATES = [
     {
@@ -87,7 +87,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'ado_express_api.wsgi.application'
+WSGI_APPLICATION = 'wsgi.application'
 
 
 # Database

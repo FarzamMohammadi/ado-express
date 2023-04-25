@@ -1,13 +1,6 @@
 from django.urls import path
+
 from . import deploy_views, search_views
-
-'''
-/deploy
-
-/search/query
-/search/via_latest
-/search/via_numbers
-'''
 
 urlpatterns = [
     path('deploy', deploy_views.deploy),

@@ -27,11 +27,9 @@ export class ADOExpressApi {
   }
 
   private async searchViaEnvironment(runConfigurations: RunConfigurations): Promise<IReleaseDetails> {
-    const parsedRunConfigurations = runConfigurations.toSnakeCase();
-
     return await JSONHttp.post<IReleaseDetails>(
       Endpoints.searchViaEnvironment,
-      parsedRunConfigurations
+      runConfigurations
     ).then((res) => {
       console.log(res);
       return res;
@@ -40,11 +38,9 @@ export class ADOExpressApi {
 
 
   private async searchViaLatest(runConfigurations: RunConfigurations): Promise<IDeploymentDetails> {
-    const parsedRunConfigurations = runConfigurations.toSnakeCase();
-
     return await JSONHttp.post<IDeploymentDetails>(
       Endpoints.searchViaLatest,
-      parsedRunConfigurations
+      runConfigurations
     ).then((res) => {
       console.log(res);
       return res;
@@ -52,11 +48,9 @@ export class ADOExpressApi {
   }
 
   private async searchViaNumber(runConfigurations: RunConfigurations): Promise<IReleaseDetails> {
-    const parsedRunConfigurations = runConfigurations.toSnakeCase();
-
     return await JSONHttp.post<IReleaseDetails>(
       Endpoints.searchViaNumber,
-      parsedRunConfigurations
+      runConfigurations
     ).then((res) => {
       console.log(res);
       return res;
@@ -64,11 +58,9 @@ export class ADOExpressApi {
   }
 
   private async searchViaQuery(runConfigurations: RunConfigurations): Promise<IDeploymentDetails> {
-    const parsedRunConfigurations = runConfigurations.toSnakeCase();
-
     return await JSONHttp.post<IDeploymentDetails>(
       Endpoints.searchViaQuery,
-      parsedRunConfigurations
+      runConfigurations
     ).then((res) => {
       console.log(res);
       return res;
@@ -76,11 +68,9 @@ export class ADOExpressApi {
   }
 
   private async deploy(runConfigurations: RunConfigurations): Promise<IDeploymentDetails> {
-    const parsedRunConfigurations = runConfigurations.toSnakeCase();
-
     return await JSONHttp.post<IDeploymentDetails>(
       Endpoints.deploy,
-      parsedRunConfigurations
+      runConfigurations
     ).then((res) => {
       console.log(res);
       return res;
