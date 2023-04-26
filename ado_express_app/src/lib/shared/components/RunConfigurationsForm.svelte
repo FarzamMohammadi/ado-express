@@ -20,40 +20,64 @@
   import CustomUrlInput from './custom-form-components/inputs/CustomUrlInput.svelte';
   import Toast from './utils/Toast.svelte';
 
+    // RunConfiguration
+  let crucialReleaseDefinitions: '';
+  let explicitReleaseValuesReleases = '';
+  let explicitReleaseValuesType = '';
+  let hasExplicitReleaseValues = false;
+  let organizationUrl = '';
+  let personalAccessToken = '';
+  let queries: string = null;
+  let releaseNameFormat = 'Release-$(rev:r)';
+  let releaseTargetEnv = '';
+  let viaEnv = false;
+  let viaEnvLatestRelease = false;
+  let viaEnvSourceName = '';
+  let runResultDataIsValid = false;
+
   const defaultFormInputRequirements = {
     dd: {
-      required: true,
+      bindValue: null,
+      required: false,
       show: true,
     } as IInputSettings,
     crd: {
+      bindValue: '',
       required: false,
       show: true,
     } as IInputSettings,
     org_url: {
-      required: true,
+      bindValue: '',
+      required: false,
       show: true,
     } as IInputSettings,
     pat: {
-      required: true,
+      bindValue: '',
+      required: false,
       show: true,
     } as IInputSettings,
     queries: {
-      required: true,
+      bindValue: '',
+      required: false,
       show: true,
     } as IInputSettings,
     rnf: {
-      required: true,
+      bindValue: 'Release-$(rev:r)',
+      required: false,
       show: true,
     } as IInputSettings,
     rte: {
-      required: true,
+      bindValue: '',
+      required: false,
       show: true,
     } as IInputSettings,
     rse: {
-      required: true,
+      bindValue: '',
+      required: false,
       show: true,
     } as IInputSettings,
     erv: {
+      bindValue: '',
       required: false,
       show: true,
     } as IInputSettings,
@@ -74,20 +98,7 @@
   let submitButtonLabel = 'Run ADO Express';
   let isSubmitting = false;
   let showSubmitButton = true;
-  // RunConfiguration
-  let crucialReleaseDefinitions: '';
-  let explicitReleaseValuesReleases = '';
-  let explicitReleaseValuesType = '';
-  let hasExplicitReleaseValues = false;
-  let organizationUrl = '';
-  let personalAccessToken = '';
-  let queries: string = null;
-  let releaseNameFormat = 'Release-$(rev:r)';
-  let releaseTargetEnv = '';
-  let viaEnv = false;
-  let viaEnvLatestRelease = false;
-  let viaEnvSourceName = '';
-  let runResultDataIsValid = false;
+
 
   function getExplicitReleaseValues(): IExplicitInclusion | IExplicitExclusion {
     if (!hasExplicitReleaseValues) return null;
@@ -113,14 +124,47 @@
     return explicitReleaseValues;
   }
 
+  function isFormValid() {
+    // Replace 'formInputRequirements' with the actual required inputs
+    const requiredInputs = [
+      formInputRequirements.dd,
+      formInputRequirements.org_url,
+      formInputRequirements.pat,
+      formInputRequirements.queries,
+      formInputRequirements.rnf,
+      formInputRequirements.rte,
+      formInputRequirements.rse,
+    ];
+    
+    if (!runMethod || !runType) return false;
+
+    for (const input of requiredInputs) {
+      if (input.required && input.show && !input.bindValue) {
+        console.log(input)
+        return false;
+      }
+    }
+
+
+    return true;
+  }
+
   async function handleSubmit() {
+    if (!isFormValid()) {
+      isSubmitting = true;
+      showToast(
+        ToastType.Warning,
+        'Please complete all required fields before submitting'
+      );
+      isSubmitting = false;
+      return;
+    }
+
     showSubmitButton = false;
     running = true;
     isSubmitting = true;
     ResultHandler.sendMessage(
-      running
-        ? `\n\nRunning ${runType}`
-        : `\nRunning ${runType}`,
+      running ? `\n\nRunning ${runType}` : `\nRunning ${runType}`,
       true
     );
 
@@ -136,16 +180,16 @@
 
     const runConfigurations = new RunConfiguration(
       getExplicitReleaseValues(),
-      crucialReleaseDefinitions?.split(',').map((s) => s.trim()) ?? null,
-      organizationUrl.trim(),
-      personalAccessToken.trim(),
-      queries?.split(',').map((s) => s.trim()) ?? null,
-      releaseNameFormat.trim(),
-      releaseTargetEnv.trim(),
+      formInputRequirements.crd.bindValue?.split(',').map((s) => s.trim()) ?? null,
+      formInputRequirements.org_url.bindValue.trim(),
+      formInputRequirements.pat.bindValue.trim(),
+      formInputRequirements.queries.bindValue?.split(',').map((s) => s.trim()) ?? null,
+      formInputRequirements.rnf.bindValue.releaseNameFormat.trim(),
+      formInputRequirements.rte.formInputRequirements.trim(),
       isSearchOnly(),
       viaEnv,
       viaEnvLatestRelease,
-      viaEnvSourceName.trim(),
+      formInputRequirements.rse.trim(),
       $deploymentDetails
     );
 
@@ -330,56 +374,61 @@
     bind:showInput={formInputRequirements.dd.show}
   />
 
-  <form class="w-96" on:submit|preventDefault={handleSubmit}>
+  <form class="w-96">
     <div class="relative flex flex-col text-gray-900 dark:text-white">
       <CustomTextInput
         label="Crucial Release Definitions"
         id="crucialReleaseDefinitions"
         bind:required={formInputRequirements.crd.required}
         bind:showInput={formInputRequirements.crd.show}
-        bind:bindValue={crucialReleaseDefinitions}
+        bind:bindValue={formInputRequirements.crd.bindValue}
+        bind:isSubmitting
       />
       <CustomUrlInput
         label="Organization Url"
         id="organizationUrl"
         bind:required={formInputRequirements.org_url.required}
         bind:showInput={formInputRequirements.org_url.show}
-        bind:bindValue={organizationUrl}
+        bind:bindValue={formInputRequirements.org_url.bindValue}
       />
       <CustomPasswordInput
         label="Personal Access Token"
         id="personalAccessToken"
         bind:required={formInputRequirements.pat.required}
         bind:showInput={formInputRequirements.pat.show}
-        bind:bindValue={personalAccessToken}
+        bind:bindValue={formInputRequirements.pat.bindValue}
       />
       <CustomTextInput
         label="Queries"
         id="queries"
         bind:required={formInputRequirements.queries.required}
         bind:showInput={formInputRequirements.queries.show}
-        bind:bindValue={queries}
+        bind:bindValue={formInputRequirements.queries.bindValue}
+        bind:isSubmitting
       />
       <CustomTextInput
         label="Release Name Format"
         id="releaseNameFormat"
         bind:required={formInputRequirements.rnf.required}
         bind:showInput={formInputRequirements.rnf.show}
-        bind:bindValue={releaseNameFormat}
+        bind:bindValue={formInputRequirements.rnf.bindValue}
+        bind:isSubmitting
       />
       <CustomTextInput
         label="Release Target Environment"
         id="releaseTargetEnv"
         bind:required={formInputRequirements.rte.required}
         bind:showInput={formInputRequirements.rte.show}
-        bind:bindValue={releaseTargetEnv}
+        bind:bindValue={formInputRequirements.rte.bindValue}
+        bind:isSubmitting
       />
       <CustomTextInput
         label="Release Source Environment"
         id="viaEnvSourceName"
         bind:required={formInputRequirements.rse.required}
         bind:showInput={formInputRequirements.rse.show}
-        bind:bindValue={viaEnvSourceName}
+        bind:bindValue={formInputRequirements.rse.bindValue}
+        bind:isSubmitting
       />
 
       <ExplicitReleaseValuesInput
@@ -393,7 +442,8 @@
       <div class="flex justify-center pt-4">
         <button
           disabled={isSubmitting}
-          type="submit"
+          type="button"
+          on:click={handleSubmit}
           class="bg-transparent hover:bg-blue-700 text-blue-900 dark:text-blue-500 font-semibold hover:text-white dark:hover:text-white border border-blue-800 hover:border-transparent rounded-lg shadow-lg"
         >
           {submitButtonLabel}
