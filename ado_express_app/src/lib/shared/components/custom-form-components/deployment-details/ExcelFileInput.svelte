@@ -1,8 +1,10 @@
 <script lang="ts">
-  import * as XLSX from 'xlsx';
-  import { DeploymentDetail } from '../../../../models/classes/deployment-detail.model';
-
-  export let deploymentDetails: DeploymentDetail[] = [];
+	import { createEventDispatcher } from 'svelte';
+	import * as XLSX from 'xlsx';
+	import { DeploymentDetail } from '../../../../models/classes/deployment-detail.model';
+	import { deploymentDetails } from '../../../../utils/stores';
+  
+	const dispatch = createEventDispatcher();
 
   function getBooleanValue(isCrucialUserInput: String) {
     const trueValues = ['t', 'true', 'y', 'yes', '1'];
@@ -37,7 +39,7 @@
         excelData.push(rowData);
       }
 
-      deploymentDetails = excelData.map(
+      $deploymentDetails = excelData.map(
         (item: any) =>
           new DeploymentDetail(
             item[0],
@@ -47,6 +49,8 @@
             getBooleanValue(item[4])
           )
       );
+      
+      dispatch('onDeploymentDetailsUpload');
     };
 
     reader.readAsArrayBuffer(file);
