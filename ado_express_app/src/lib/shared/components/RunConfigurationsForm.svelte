@@ -402,6 +402,7 @@
         bind:required={formInputRequirements.pat.required}
         bind:showInput={formInputRequirements.pat.show}
         bind:bindValue={formInputRequirements.pat.bindValue}
+        bind:isSubmitting
       />
       <CustomTextInput
         label="Queries"

@@ -26,9 +26,6 @@
   $: if (isSubmitting) {
     checkInputValidity();
   }
-  $: if (bindValue){
-    checkInputValidity();
-  }
 </script>
 
 {#if showInput}
