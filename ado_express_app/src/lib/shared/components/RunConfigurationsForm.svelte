@@ -20,40 +20,59 @@
   import CustomUrlInput from './custom-form-components/inputs/CustomUrlInput.svelte';
   import Toast from './utils/Toast.svelte';
 
+  // RunConfiguration
+  let explicitReleaseValuesReleases = '';
+  let explicitReleaseValuesType = '';
+  let hasExplicitReleaseValues = false;
+  let queries: string = null;
+  let viaEnv = false;
+  let viaEnvLatestRelease = false;
+
+  let runResultDataIsValid = false;
+
   const defaultFormInputRequirements = {
     dd: {
+      bindValue: null,
       required: true,
       show: true,
     } as IInputSettings,
     crd: {
+      bindValue: '',
       required: false,
       show: true,
     } as IInputSettings,
     org_url: {
+      bindValue: '',
       required: true,
       show: true,
     } as IInputSettings,
     pat: {
+      bindValue: '',
       required: true,
       show: true,
     } as IInputSettings,
     queries: {
+      bindValue: '',
       required: true,
       show: true,
     } as IInputSettings,
     rnf: {
+      bindValue: 'Release-$(rev:r)',
       required: true,
       show: true,
     } as IInputSettings,
     rte: {
+      bindValue: '',
       required: true,
       show: true,
     } as IInputSettings,
     rse: {
+      bindValue: '',
       required: true,
       show: true,
     } as IInputSettings,
     erv: {
+      bindValue: '',
       required: false,
       show: true,
     } as IInputSettings,
@@ -72,22 +91,9 @@
   export let runType: string = null;
   export let running;
   let submitButtonLabel = 'Run ADO Express';
-  let isSubmitting = false;
+  export let isSubmitting = false;
   let showSubmitButton = true;
-  // RunConfiguration
-  let crucialReleaseDefinitions: '';
-  let explicitReleaseValuesReleases = '';
-  let explicitReleaseValuesType = '';
-  let hasExplicitReleaseValues = false;
-  let organizationUrl = '';
-  let personalAccessToken = '';
-  let queries: string = null;
-  let releaseNameFormat = 'Release-$(rev:r)';
-  let releaseTargetEnv = '';
-  let viaEnv = false;
-  let viaEnvLatestRelease = false;
-  let viaEnvSourceName = '';
-  let runResultDataIsValid = false;
+  let disableSubmitButton = false;
 
   function getExplicitReleaseValues(): IExplicitInclusion | IExplicitExclusion {
     if (!hasExplicitReleaseValues) return null;
@@ -113,14 +119,59 @@
     return explicitReleaseValues;
   }
 
+  function isFormValid() {   
+    formInputRequirements.dd.bindValue = $deploymentDetails;
+    
+    const requiredInputs = [
+      formInputRequirements.dd,
+      formInputRequirements.org_url,
+      formInputRequirements.pat,
+      formInputRequirements.queries,
+      formInputRequirements.rnf,
+      formInputRequirements.rte,
+      formInputRequirements.rse,
+    ];
+
+    for (const input of requiredInputs) {
+      if (Array.isArray(input.bindValue)){
+        console.log(input.bindValue)
+      }
+      if (input.required && input.show && (!input.bindValue || (Array.isArray(input.bindValue) && input.bindValue.length <= 0))) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  function runMethodSelectionIsIncomplete() {
+    return !runMethod || !runType;
+  }
+
   async function handleSubmit() {
+    isSubmitting = true;
+
+    if (runMethodSelectionIsIncomplete()) {
+      showToast(
+        ToastType.Warning,
+        'Please complete the run method selection at the top'
+      );
+      return;
+    }
+
+    if (!isFormValid()) {
+      showToast(
+        ToastType.Warning,
+        'Please complete all required fields before submitting'
+      );
+      return;
+    }
+
+    disableSubmitButton = true;
     showSubmitButton = false;
     running = true;
-    isSubmitting = true;
     ResultHandler.sendMessage(
-      running
-        ? `\n\nRunning ${runType}`
-        : `\nRunning ${runType}`,
+      running ? `\n\nRunning ${runType}` : `\nRunning ${runType}`,
       true
     );
 
@@ -136,17 +187,20 @@
 
     const runConfigurations = new RunConfiguration(
       getExplicitReleaseValues(),
-      crucialReleaseDefinitions?.split(',').map((s) => s.trim()) ?? null,
-      organizationUrl.trim(),
-      personalAccessToken.trim(),
-      queries?.split(',').map((s) => s.trim()) ?? null,
-      releaseNameFormat.trim(),
-      releaseTargetEnv.trim(),
+      formInputRequirements.crd.bindValue?.split(',').map((s) => s.trim()) ??
+        null,
+      formInputRequirements.org_url.bindValue.trim(),
+      formInputRequirements.pat.bindValue.trim(),
+      formInputRequirements.queries.bindValue
+        ?.split(',')
+        .map((s) => s.trim()) ?? null,
+      formInputRequirements.rnf.bindValue.releaseNameFormat.trim(),
+      formInputRequirements.rte.formInputRequirements.trim(),
       isSearchOnly(),
       viaEnv,
       viaEnvLatestRelease,
-      viaEnvSourceName.trim(),
-      $deploymentDetails
+      formInputRequirements.rse.trim(),
+      formInputRequirements.dd.bindValue
     );
 
     const adoExpressApi = new ADOExpressApi();
@@ -159,6 +213,7 @@
     ResultHandler.sendRunResults(runConfigurations);
 
     isSubmitting = false;
+    disableSubmitButton = false;
   }
 
   function isNullOrUndefined(variable: any): Boolean {
@@ -185,11 +240,9 @@
         showSubmitButton = false;
       }
 
-      formInputRequirements.crd.required = false;
       formInputRequirements.crd.show = false;
 
       // Currently works on deployment only
-      formInputRequirements.erv.required = false;
       formInputRequirements.erv.show = false;
       if (runMethod == SearchRunMethod.ViaEnvironment) {
         formInputRequirements.queries.required = false;
@@ -200,14 +253,12 @@
       } else if (runMethod == SearchRunMethod.ViaLatestInEnvironment) {
         viaEnv = true;
         viaEnvLatestRelease = true;
-        queries = null;
 
         formInputRequirements.queries.required = false;
         formInputRequirements.queries.show = false;
       } else if (runMethod == SearchRunMethod.ViaNumber) {
         viaEnv = false;
         viaEnvLatestRelease = false;
-        queries = null;
 
         formInputRequirements.queries.required = false;
         formInputRequirements.queries.show = false;
@@ -232,10 +283,6 @@
       if (running) {
         showSubmitButton = true;
       }
-
-      viaEnv = false;
-      viaEnvLatestRelease = false;
-      queries = null;
       formInputRequirements.queries.required = false;
       formInputRequirements.queries.show = false;
 
@@ -257,15 +304,15 @@
       if (runMethod == SearchRunMethod.ViaEnvironment) {
         viaEnv = true;
         viaEnvLatestRelease = false;
-        queries = null;
+        formInputRequirements.queries.bindValue = null;
       } else if (runMethod == SearchRunMethod.ViaLatestInEnvironment) {
         viaEnv = true;
         viaEnvLatestRelease = true;
-        queries = null;
+        formInputRequirements.queries.bindValue = null;
       } else if (runMethod == SearchRunMethod.ViaNumber) {
         viaEnv = false;
         viaEnvLatestRelease = false;
-        queries = null;
+        formInputRequirements.queries.bindValue = null;
       } else if (runMethod == SearchRunMethod.ViaQuery) {
         viaEnv = true;
         viaEnvLatestRelease = false;
@@ -276,7 +323,7 @@
     ) {
       viaEnv = false;
       viaEnvLatestRelease = false;
-      queries = null;
+      formInputRequirements.queries.bindValue = null;
     }
   }
 
@@ -328,58 +375,66 @@
   <DeploymentDetailsSelector
     {deploymentSelectorHeaders}
     bind:showInput={formInputRequirements.dd.show}
+    bind:isSubmitting
   />
 
-  <form class="w-96" on:submit|preventDefault={handleSubmit}>
+  <form class="w-96">
     <div class="relative flex flex-col text-gray-900 dark:text-white">
       <CustomTextInput
         label="Crucial Release Definitions"
         id="crucialReleaseDefinitions"
         bind:required={formInputRequirements.crd.required}
         bind:showInput={formInputRequirements.crd.show}
-        bind:bindValue={crucialReleaseDefinitions}
+        bind:bindValue={formInputRequirements.crd.bindValue}
+        bind:isSubmitting
       />
       <CustomUrlInput
         label="Organization Url"
         id="organizationUrl"
         bind:required={formInputRequirements.org_url.required}
         bind:showInput={formInputRequirements.org_url.show}
-        bind:bindValue={organizationUrl}
+        bind:bindValue={formInputRequirements.org_url.bindValue}
+        bind:isSubmitting
       />
       <CustomPasswordInput
         label="Personal Access Token"
         id="personalAccessToken"
         bind:required={formInputRequirements.pat.required}
         bind:showInput={formInputRequirements.pat.show}
-        bind:bindValue={personalAccessToken}
+        bind:bindValue={formInputRequirements.pat.bindValue}
+        bind:isSubmitting
       />
       <CustomTextInput
         label="Queries"
         id="queries"
         bind:required={formInputRequirements.queries.required}
         bind:showInput={formInputRequirements.queries.show}
-        bind:bindValue={queries}
+        bind:bindValue={formInputRequirements.queries.bindValue}
+        bind:isSubmitting
       />
       <CustomTextInput
         label="Release Name Format"
         id="releaseNameFormat"
         bind:required={formInputRequirements.rnf.required}
         bind:showInput={formInputRequirements.rnf.show}
-        bind:bindValue={releaseNameFormat}
+        bind:bindValue={formInputRequirements.rnf.bindValue}
+        bind:isSubmitting
       />
       <CustomTextInput
         label="Release Target Environment"
         id="releaseTargetEnv"
         bind:required={formInputRequirements.rte.required}
         bind:showInput={formInputRequirements.rte.show}
-        bind:bindValue={releaseTargetEnv}
+        bind:bindValue={formInputRequirements.rte.bindValue}
+        bind:isSubmitting
       />
       <CustomTextInput
         label="Release Source Environment"
         id="viaEnvSourceName"
         bind:required={formInputRequirements.rse.required}
         bind:showInput={formInputRequirements.rse.show}
-        bind:bindValue={viaEnvSourceName}
+        bind:bindValue={formInputRequirements.rse.bindValue}
+        bind:isSubmitting
       />
 
       <ExplicitReleaseValuesInput
@@ -392,8 +447,9 @@
     {#if showSubmitButton}
       <div class="flex justify-center pt-4">
         <button
-          disabled={isSubmitting}
-          type="submit"
+          disabled={disableSubmitButton}
+          type="button"
+          on:click={handleSubmit}
           class="bg-transparent hover:bg-blue-700 text-blue-900 dark:text-blue-500 font-semibold hover:text-white dark:hover:text-white border border-blue-800 hover:border-transparent rounded-lg shadow-lg"
         >
           {submitButtonLabel}

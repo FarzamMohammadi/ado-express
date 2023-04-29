@@ -29,15 +29,22 @@
   let selectedCategory = null;
   export let selectedCategoryName = null;
   export let selectedTask = null;
+  export let isSubmitting;
 
   let dropdownButton;
   let dropdownList;
+  let invalid = false;
 
   let dropdownOpen = false;
 
   const closeDropdown = () => {
     dropdownOpen = false;
+    checkSelectionValidity();
   };
+
+  const checkSelectionValidity = () => {
+    invalid = !selectedCategoryName || !selectedTask;
+  }
 
   const handleClickOutside = () => {
     if (dropdownOpen) {
@@ -58,13 +65,14 @@
     selectedCategoryName = selectedCategory.name;
     selectedTask = task;
     closeDropdown();
+    checkSelectionValidity();
   };
 
   onMount(() => {
     // destroy popper instance if dropdown is closed on component unmount
     return () => {
       if (dropdownOpen) {
-        dropdownOpen = !dropdownOpen;
+        closeDropdown();
       }
     };
   });
@@ -72,31 +80,33 @@
    $: {
     // Update the selectedCategory when the category is changed from outside the component
     if (selectedCategoryName) {
-      console.log(selectedCategoryName)
       selectedCategory = categories.find(category => category.name === selectedCategoryName);
-      console.log(selectedCategory)
+    }
+
+    if (isSubmitting){
+      checkSelectionValidity();
     }
   }
 </script>
 
 <div class="relative" use:clickOutside on:click_outside={handleClickOutside}>
   <button
-    class="w-full px-4 text-left text-gray-800 dark:text-white bg-white dark:bg-gray-700 border border-gray-500 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-indigo-500 flex items-center justify-between"
+    class="w-full px-4 text-left text-gray-800 dark:text-white bg-white dark:bg-gray-700 border border-gray-500 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-indigo-500 flex items-center justify-between {invalid ? 'invalid' : ''}"
     on:click={toggleDropdown}
     aria-haspopup="true"
     aria-expanded={dropdownOpen ? 'true' : 'false'}
     bind:this={dropdownButton}
   >
-    <div>
+    <div class="{invalid ? 'text-red-500' : ''}">
       {#if selectedCategory}
         {selectedCategory.name}
         {#if selectedTask} &raquo; {selectedTask} {/if}
       {:else}
-        Select run type
+        Select run type {invalid ? '*' : ''}
       {/if}
     </div>
 
-    <div class="relative flex flex-row items-center">
+    <div class="relative flex flex-row items-center {invalid ? 'text-red-500' : ''}">
       <Tooltip text="Top tooltip" position="right">
         <i class="mi mi-circle-information"
           ><span class="sr-only">Circle information</span></i
@@ -184,3 +194,31 @@
     </div>
   {/if}
 </div>
+
+<style lang="scss">
+  .invalid {
+    border-color: red;
+    animation: shake 0.82s cubic-bezier(.36,.07,.19,.97) both;
+    transform: translate3d(0, 0, 0);
+    backface-visibility: hidden;
+    perspective: 1000px;
+  }
+
+  @keyframes shake {
+    10%, 90% {
+      transform: translate3d(-1px, 0, 0);
+    }
+    
+    20%, 80% {
+      transform: translate3d(2px, 0, 0);
+    }
+
+    30%, 50%, 70% {
+      transform: translate3d(-4px, 0, 0);
+    }
+
+    40%, 60% {
+      transform: translate3d(4px, 0, 0);
+    }
+  }
+</style>
