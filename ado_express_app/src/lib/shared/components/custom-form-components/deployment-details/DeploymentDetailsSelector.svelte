@@ -69,22 +69,5 @@
           >
         </div>
       {/if}
-    <!-- {/if} -->
-
-    <!-- {#if $running}
-      {#if $deploymentDetails.length}
-        <DeploymentDetailSelectionResults
-          bind:showingDeploymentDetailsReadOnlySelection
-        />
-        {#if !showingDeploymentDetailsReadOnlySelection}
-          <div class="my-3">
-            <button
-              class="bg-transparent hover:bg-green-700 text-green-900 dark:text-green-500 font-semibold hover:text-white dark:hover:text-white py-2 px-4 border border-green-800 hover:border-transparent rounded-lg shadow-lg"
-              >Show Selection</button
-            >
-          </div>
-        {/if}
-      {/if}
-    {/if} -->
   </div>
 {/if}

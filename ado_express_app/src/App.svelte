@@ -8,6 +8,7 @@
 
   let runType;
   let runMethod;
+  let isSubmitting;
 </script>
 
 <svelte:head>
@@ -50,6 +51,7 @@
       <CustomRunSpecifierDropdown
         bind:selectedCategoryName={runType}
         bind:selectedTask={runMethod}
+        bind:isSubmitting
       />
     </div>
 
@@ -76,6 +78,7 @@
           bind:running={$running}
           bind:runType
           bind:runMethod
+          bind:isSubmitting
         />
       </div>
 

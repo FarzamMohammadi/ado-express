@@ -38,47 +38,47 @@
   const defaultFormInputRequirements = {
     dd: {
       bindValue: null,
-      required: false,
+      required: true,
       show: true,
     } as IInputSettings,
     crd: {
       bindValue: '',
-      required: false,
+      required: true,
       show: true,
     } as IInputSettings,
     org_url: {
       bindValue: '',
-      required: false,
+      required: true,
       show: true,
     } as IInputSettings,
     pat: {
       bindValue: '',
-      required: false,
+      required: true,
       show: true,
     } as IInputSettings,
     queries: {
       bindValue: '',
-      required: false,
+      required: true,
       show: true,
     } as IInputSettings,
     rnf: {
       bindValue: 'Release-$(rev:r)',
-      required: false,
+      required: true,
       show: true,
     } as IInputSettings,
     rte: {
       bindValue: '',
-      required: false,
+      required: true,
       show: true,
     } as IInputSettings,
     rse: {
       bindValue: '',
-      required: false,
+      required: true,
       show: true,
     } as IInputSettings,
     erv: {
       bindValue: '',
-      required: false,
+      required: true,
       show: true,
     } as IInputSettings,
   };
@@ -96,9 +96,9 @@
   export let runType: string = null;
   export let running;
   let submitButtonLabel = 'Run ADO Express';
-  let isSubmitting = false;
+  export let isSubmitting = false;
   let showSubmitButton = true;
-
+  let disableSubmitButton = false;
 
   function getExplicitReleaseValues(): IExplicitInclusion | IExplicitExclusion {
     if (!hasExplicitReleaseValues) return null;
@@ -125,7 +125,6 @@
   }
 
   function isFormValid() {
-    // Replace 'formInputRequirements' with the actual required inputs
     const requiredInputs = [
       formInputRequirements.dd,
       formInputRequirements.org_url,
@@ -135,8 +134,6 @@
       formInputRequirements.rte,
       formInputRequirements.rse,
     ];
-    
-    if (!runMethod || !runType) return false;
 
     for (const input of requiredInputs) {
       if (input.required && input.show && !input.bindValue) {
@@ -145,24 +142,36 @@
       }
     }
 
-
     return true;
   }
 
+  function runMethodSelectionIsIncomplete() {
+    return (!runMethod || !runType);
+  }
+
   async function handleSubmit() {
+    isSubmitting = true;
+
+    if (runMethodSelectionIsIncomplete()){
+
+      showToast(
+        ToastType.Warning,
+        'Please complete the run method selection at the top'
+      );
+      return;
+    }
+
     if (!isFormValid()) {
-      isSubmitting = true;
       showToast(
         ToastType.Warning,
         'Please complete all required fields before submitting'
       );
-      isSubmitting = false;
       return;
     }
 
+    disableSubmitButton = true;
     showSubmitButton = false;
     running = true;
-    isSubmitting = true;
     ResultHandler.sendMessage(
       running ? `\n\nRunning ${runType}` : `\nRunning ${runType}`,
       true
@@ -203,6 +212,7 @@
     ResultHandler.sendRunResults(runConfigurations);
 
     isSubmitting = false;
+    disableSubmitButton = false;
   }
 
   function isNullOrUndefined(variable: any): Boolean {
@@ -276,15 +286,15 @@
       if (running) {
         showSubmitButton = true;
       }
+      formInputRequirements.crd.required = false;
 
-      viaEnv = false;
-      viaEnvLatestRelease = false;
-      queries = null;
       formInputRequirements.queries.required = false;
       formInputRequirements.queries.show = false;
 
       formInputRequirements.rse.required = false;
       formInputRequirements.rse.show = false;
+
+      formInputRequirements.erv.required = false;
     }
   }
 
@@ -441,7 +451,7 @@
     {#if showSubmitButton}
       <div class="flex justify-center pt-4">
         <button
-          disabled={isSubmitting}
+          disabled={disableSubmitButton}
           type="button"
           on:click={handleSubmit}
           class="bg-transparent hover:bg-blue-700 text-blue-900 dark:text-blue-500 font-semibold hover:text-white dark:hover:text-white border border-blue-800 hover:border-transparent rounded-lg shadow-lg"
