@@ -5,7 +5,7 @@
   export let label;
   export let id;
   export let bindValue;
-  export let required = true;
+  export let required;
   export let showInput = true;
   export let isSubmitting = false;
 
@@ -49,7 +49,7 @@
 {#if showInput}
 <div class="input-field mb-4">
   <div class="flex items-center justify-between">
-    <label for={id} class="font-bold mb-2 {invalid ? 'text-red-600' : ''}">{label} {invalid ? '*' : ''} </label>
+    <label for={id} class="font-bold mb-2 {invalid ? 'text-red-600' : ''}">{label} {invalid ? '*' : ''}</label>
     <Tooltip text="Top tooltip" position="right">
       <i class="mi mi-circle-information"><span class="sr-only">Circle information</span></i>
     </Tooltip>

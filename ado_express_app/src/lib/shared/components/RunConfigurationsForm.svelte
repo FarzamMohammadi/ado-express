@@ -394,6 +394,7 @@
         bind:required={formInputRequirements.org_url.required}
         bind:showInput={formInputRequirements.org_url.show}
         bind:bindValue={formInputRequirements.org_url.bindValue}
+        bind:isSubmitting
       />
       <CustomPasswordInput
         label="Personal Access Token"
