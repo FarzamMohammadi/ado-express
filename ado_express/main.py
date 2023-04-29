@@ -1,26 +1,37 @@
 import os
 import sys
+
+from ado_express.packages.utils.release_manager.update_progress_retriever.update_progress_retriever import \
+    UpdateProgressRetriever
+
 # Needed to enable segregation of projects
 sys.path.append(os.path.abspath("."))
 
 import concurrent.futures
-from itertools import repeat
 import logging
 import sys
 import time
-from pytz import timezone
 from datetime import datetime
+from itertools import repeat
+
+from pytz import timezone
 
 from ado_express.packages.authentication import MSAuthentication
 from ado_express.packages.common.constants import Constants
-from ado_express.packages.common.enums.explicit_release_types import ExplicitReleaseTypes
-from ado_express.packages.common.environment_variables import EnvironmentVariables
-from ado_express.packages.common.models import DeploymentDetails, ReleaseDetails
+from ado_express.packages.common.enums.explicit_release_types import \
+    ExplicitReleaseTypes
+from ado_express.packages.common.environment_variables import \
+    EnvironmentVariables
+from ado_express.packages.common.models import (DeploymentDetails,
+                                                ReleaseDetails)
 from ado_express.packages.utils import DeploymentPlan
-from ado_express.packages.utils.asset_retrievers.release_finder import ReleaseFinder
-from ado_express.packages.utils.asset_retrievers.work_item_manager.work_item_manager import WorkItemManager
+from ado_express.packages.utils.asset_retrievers.release_finder import \
+    ReleaseFinder
+from ado_express.packages.utils.asset_retrievers.work_item_manager.work_item_manager import \
+    WorkItemManager
 from ado_express.packages.utils.excel_manager import ExcelManager
-from ado_express.packages.utils.release_manager.update_release import UpdateRelease
+from ado_express.packages.utils.release_manager.update_release import \
+    UpdateRelease
 from ado_express.packages.utils.release_note_helpers import needs_deployment
 
 logging.basicConfig(filename=Constants.LOG_FILE_PATH, encoding='utf-8', level=logging.INFO,
@@ -158,9 +169,12 @@ class Startup:
                 release_to_update = self.release_finder.get_release(deployment_detail, self.via_env, False, self.via_latest)
                 update_manager = UpdateRelease(constants, self.ms_authentication, self.environment_variables, self.release_finder)
 
-                update_attempt = update_manager.update_release(deployment_detail, release_to_update)
+                update_attempt, updating_release_environment = update_manager.update_release(deployment_detail, release_to_update)
                 update_attempt_successful = update_attempt[0]
                 update_comment = update_attempt[1]
+
+                release_progress = UpdateProgressRetriever(self.ms_authentication, self.environment_variables)
+                release_progress.monitor_release_progress(deployment_detail.release_project_name, release_to_update, updating_release_environment.id)
 
                 if update_attempt_successful:
                     # Check the status of release update
