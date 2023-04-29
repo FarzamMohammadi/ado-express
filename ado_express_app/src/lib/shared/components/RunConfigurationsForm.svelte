@@ -24,7 +24,6 @@
   let explicitReleaseValuesReleases = '';
   let explicitReleaseValuesType = '';
   let hasExplicitReleaseValues = false;
-  let queries: string = null;
   let viaEnv = false;
   let viaEnvLatestRelease = false;
 
@@ -119,9 +118,9 @@
     return explicitReleaseValues;
   }
 
-  function isFormValid() {   
+  function isFormValid() {
     formInputRequirements.dd.bindValue = $deploymentDetails;
-    
+
     const requiredInputs = [
       formInputRequirements.dd,
       formInputRequirements.org_url,
@@ -133,10 +132,15 @@
     ];
 
     for (const input of requiredInputs) {
-      if (Array.isArray(input.bindValue)){
-        console.log(input.bindValue)
+      if (Array.isArray(input.bindValue)) {
+        console.log(input.bindValue);
       }
-      if (input.required && input.show && (!input.bindValue || (Array.isArray(input.bindValue) && input.bindValue.length <= 0))) {
+      if (
+        input.required &&
+        input.show &&
+        (!input.bindValue ||
+          (Array.isArray(input.bindValue) && input.bindValue.length <= 0))
+      ) {
         return false;
       }
     }
@@ -187,19 +191,22 @@
 
     const runConfigurations = new RunConfiguration(
       getExplicitReleaseValues(),
-      formInputRequirements.crd.bindValue?.split(',').map((s) => s.trim()) ??
-        null,
+      formInputRequirements.crd.bindValue
+        .trim()
+        .split(',')
+        .map((s) => s.trim()) ?? null,
       formInputRequirements.org_url.bindValue.trim(),
       formInputRequirements.pat.bindValue.trim(),
       formInputRequirements.queries.bindValue
-        ?.split(',')
+        .trim()
+        .split(',')
         .map((s) => s.trim()) ?? null,
-      formInputRequirements.rnf.bindValue.releaseNameFormat.trim(),
-      formInputRequirements.rte.formInputRequirements.trim(),
+      formInputRequirements.rnf.bindValue.trim(),
+      formInputRequirements.rte.bindValue.trim(),
       isSearchOnly(),
       viaEnv,
       viaEnvLatestRelease,
-      formInputRequirements.rse.trim(),
+      formInputRequirements.rse.bindValue.trim(),
       formInputRequirements.dd.bindValue
     );
 

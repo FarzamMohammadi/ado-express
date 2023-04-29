@@ -1,11 +1,10 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import type { IRunResultData } from '../models/interfaces/irun-result-data';
   import { runResultData, running } from '../utils/stores/stores';
 
   let matrixTheme = true;
   let isMounted = false;
-  let localResultData: IRunResultData[] = [];
+  let localResultData[];
   export let displayIdleDots = true;
   let displayDataInputs: string[] = [];
 
@@ -22,12 +21,7 @@
       setTimeout(() => typeEffect(dataInput, i + 1, dataIndex, speed), delay);
     }
   }
-  // const hello: IRunResultData = {
-  //     text: 'HELLO!!!',
-  //     showIdleDots: false,
-  //   }
-  //   runResultData.update((data) => [...data, hello]);
-
+  
   function updateDots() {
     if (dotText.length < 3) {
       dotText += '.';
