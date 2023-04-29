@@ -33,7 +33,7 @@
 
 
   $ : {
-    if (isSubmitting && showInput) {
+    if (isSubmitting && showInput || $deploymentDetails.length) {
       checkSelectionValidity();
     }
   }

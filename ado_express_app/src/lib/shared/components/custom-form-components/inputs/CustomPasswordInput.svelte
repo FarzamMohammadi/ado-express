@@ -15,7 +15,7 @@
     invalid = required && !bindValue;
   }
 
-  $: if (isSubmitting) {
+  $: if (isSubmitting || bindValue) {
     checkInputValidity();
   }
 </script>

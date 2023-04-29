@@ -23,9 +23,11 @@
     invalid = false;
   }
 
-  $: if (isSubmitting) {
+  $: if (isSubmitting || bindValue) {
     checkInputValidity();
   }
+
+
 </script>
 
 {#if showInput}
