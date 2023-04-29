@@ -20,19 +20,14 @@
   import CustomUrlInput from './custom-form-components/inputs/CustomUrlInput.svelte';
   import Toast from './utils/Toast.svelte';
 
-    // RunConfiguration
-  let crucialReleaseDefinitions: '';
+  // RunConfiguration
   let explicitReleaseValuesReleases = '';
   let explicitReleaseValuesType = '';
   let hasExplicitReleaseValues = false;
-  let organizationUrl = '';
-  let personalAccessToken = '';
   let queries: string = null;
-  let releaseNameFormat = 'Release-$(rev:r)';
-  let releaseTargetEnv = '';
   let viaEnv = false;
   let viaEnvLatestRelease = false;
-  let viaEnvSourceName = '';
+
   let runResultDataIsValid = false;
 
   const defaultFormInputRequirements = {
@@ -43,7 +38,7 @@
     } as IInputSettings,
     crd: {
       bindValue: '',
-      required: true,
+      required: false,
       show: true,
     } as IInputSettings,
     org_url: {
@@ -78,7 +73,7 @@
     } as IInputSettings,
     erv: {
       bindValue: '',
-      required: true,
+      required: false,
       show: true,
     } as IInputSettings,
   };
@@ -124,7 +119,9 @@
     return explicitReleaseValues;
   }
 
-  function isFormValid() {
+  function isFormValid() {   
+    formInputRequirements.dd.bindValue = $deploymentDetails;
+    
     const requiredInputs = [
       formInputRequirements.dd,
       formInputRequirements.org_url,
@@ -136,8 +133,10 @@
     ];
 
     for (const input of requiredInputs) {
-      if (input.required && input.show && !input.bindValue) {
-        console.log(input)
+      if (Array.isArray(input.bindValue)){
+        console.log(input.bindValue)
+      }
+      if (input.required && input.show && (!input.bindValue || (Array.isArray(input.bindValue) && input.bindValue.length <= 0))) {
         return false;
       }
     }
@@ -146,14 +145,13 @@
   }
 
   function runMethodSelectionIsIncomplete() {
-    return (!runMethod || !runType);
+    return !runMethod || !runType;
   }
 
   async function handleSubmit() {
     isSubmitting = true;
 
-    if (runMethodSelectionIsIncomplete()){
-
+    if (runMethodSelectionIsIncomplete()) {
       showToast(
         ToastType.Warning,
         'Please complete the run method selection at the top'
@@ -189,17 +187,20 @@
 
     const runConfigurations = new RunConfiguration(
       getExplicitReleaseValues(),
-      formInputRequirements.crd.bindValue?.split(',').map((s) => s.trim()) ?? null,
+      formInputRequirements.crd.bindValue?.split(',').map((s) => s.trim()) ??
+        null,
       formInputRequirements.org_url.bindValue.trim(),
       formInputRequirements.pat.bindValue.trim(),
-      formInputRequirements.queries.bindValue?.split(',').map((s) => s.trim()) ?? null,
+      formInputRequirements.queries.bindValue
+        ?.split(',')
+        .map((s) => s.trim()) ?? null,
       formInputRequirements.rnf.bindValue.releaseNameFormat.trim(),
       formInputRequirements.rte.formInputRequirements.trim(),
       isSearchOnly(),
       viaEnv,
       viaEnvLatestRelease,
       formInputRequirements.rse.trim(),
-      $deploymentDetails
+      formInputRequirements.dd.bindValue
     );
 
     const adoExpressApi = new ADOExpressApi();
@@ -239,11 +240,9 @@
         showSubmitButton = false;
       }
 
-      formInputRequirements.crd.required = false;
       formInputRequirements.crd.show = false;
 
       // Currently works on deployment only
-      formInputRequirements.erv.required = false;
       formInputRequirements.erv.show = false;
       if (runMethod == SearchRunMethod.ViaEnvironment) {
         formInputRequirements.queries.required = false;
@@ -254,14 +253,12 @@
       } else if (runMethod == SearchRunMethod.ViaLatestInEnvironment) {
         viaEnv = true;
         viaEnvLatestRelease = true;
-        queries = null;
 
         formInputRequirements.queries.required = false;
         formInputRequirements.queries.show = false;
       } else if (runMethod == SearchRunMethod.ViaNumber) {
         viaEnv = false;
         viaEnvLatestRelease = false;
-        queries = null;
 
         formInputRequirements.queries.required = false;
         formInputRequirements.queries.show = false;
@@ -286,15 +283,11 @@
       if (running) {
         showSubmitButton = true;
       }
-      formInputRequirements.crd.required = false;
-
       formInputRequirements.queries.required = false;
       formInputRequirements.queries.show = false;
 
       formInputRequirements.rse.required = false;
       formInputRequirements.rse.show = false;
-
-      formInputRequirements.erv.required = false;
     }
   }
 
@@ -311,15 +304,15 @@
       if (runMethod == SearchRunMethod.ViaEnvironment) {
         viaEnv = true;
         viaEnvLatestRelease = false;
-        queries = null;
+        formInputRequirements.queries.bindValue = null;
       } else if (runMethod == SearchRunMethod.ViaLatestInEnvironment) {
         viaEnv = true;
         viaEnvLatestRelease = true;
-        queries = null;
+        formInputRequirements.queries.bindValue = null;
       } else if (runMethod == SearchRunMethod.ViaNumber) {
         viaEnv = false;
         viaEnvLatestRelease = false;
-        queries = null;
+        formInputRequirements.queries.bindValue = null;
       } else if (runMethod == SearchRunMethod.ViaQuery) {
         viaEnv = true;
         viaEnvLatestRelease = false;
@@ -330,7 +323,7 @@
     ) {
       viaEnv = false;
       viaEnvLatestRelease = false;
-      queries = null;
+      formInputRequirements.queries.bindValue = null;
     }
   }
 
@@ -382,6 +375,7 @@
   <DeploymentDetailsSelector
     {deploymentSelectorHeaders}
     bind:showInput={formInputRequirements.dd.show}
+    bind:isSubmitting
   />
 
   <form class="w-96">

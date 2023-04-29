@@ -39,10 +39,10 @@
 
   const closeDropdown = () => {
     dropdownOpen = false;
-    checkValidity();
+    checkSelectionValidity();
   };
 
-  const checkValidity = () => {
+  const checkSelectionValidity = () => {
     invalid = !selectedCategoryName || !selectedTask;
   }
 
@@ -65,7 +65,7 @@
     selectedCategoryName = selectedCategory.name;
     selectedTask = task;
     closeDropdown();
-    checkValidity();
+    checkSelectionValidity();
   };
 
   onMount(() => {
@@ -84,7 +84,7 @@
     }
 
     if (isSubmitting){
-      checkValidity();
+      checkSelectionValidity();
     }
   }
 </script>
@@ -93,7 +93,6 @@
   <button
     class="w-full px-4 text-left text-gray-800 dark:text-white bg-white dark:bg-gray-700 border border-gray-500 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-indigo-500 flex items-center justify-between {invalid ? 'invalid' : ''}"
     on:click={toggleDropdown}
-    on:blur={checkValidity}
     aria-haspopup="true"
     aria-expanded={dropdownOpen ? 'true' : 'false'}
     bind:this={dropdownButton}
