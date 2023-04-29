@@ -97,7 +97,7 @@
     aria-expanded={dropdownOpen ? 'true' : 'false'}
     bind:this={dropdownButton}
   >
-    <div class="{invalid ? 'text-red-600' : ''}">
+    <div class="{invalid ? 'text-red-500' : ''}">
       {#if selectedCategory}
         {selectedCategory.name}
         {#if selectedTask} &raquo; {selectedTask} {/if}
@@ -106,7 +106,7 @@
       {/if}
     </div>
 
-    <div class="relative flex flex-row items-center {invalid ? 'text-red-600' : ''}">
+    <div class="relative flex flex-row items-center {invalid ? 'text-red-500' : ''}">
       <Tooltip text="Top tooltip" position="right">
         <i class="mi mi-circle-information"
           ><span class="sr-only">Circle information</span></i

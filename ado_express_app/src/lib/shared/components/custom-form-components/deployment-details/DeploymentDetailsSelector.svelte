@@ -50,12 +50,12 @@
     <div class="flex justify-center ml-3">
       <label
         for="$deploymentDetails"
-        class="font-bold text-gray-900 dark:text-white mt-2 mr-1 {invalid ? 'text-red-600' : ''}"
+        class="font-bold text-gray-900 dark:text-white mt-2 mr-1 {invalid ? 'text-red-500' : ''}"
         >Deployment Details {invalid ? '*' : ''} </label
       >
 
       <Tooltip text="Top tooltip" position="right">
-        <i class="mi mi-circle-information text-gray-900 dark:text-white {invalid ? 'text-red-600' : ''}"
+        <i class="mi mi-circle-information text-gray-900 dark:text-white {invalid ? 'text-red-500' : ''}"
           ><span class="sr-only">Circle information</span></i
         >
       </Tooltip>
