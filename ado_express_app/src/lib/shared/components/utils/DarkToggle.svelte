@@ -238,7 +238,7 @@
     --day-line: #3bb6c3;
     --moon: #fdd47e;
     --moon-stars: #ddeafb;
-    --night-background: #121820;
+    --night-background: #1a1e24;
     --night-line: #73a1bb;
     --sun-lines: 1;
     --sun-lines-r: 0deg;

@@ -16,7 +16,7 @@
       background-color: #eeeeee;
     }
     .dark body {
-      background-color: #121820;
+      background-color: #1a1e24;
     }
   </style>
 </svelte:head>
