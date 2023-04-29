@@ -202,11 +202,11 @@
         .split(',')
         .map((s) => s.trim()) ?? null,
       formInputRequirements.rnf.bindValue.trim(),
-      formInputRequirements.rte.bindValue.trim(),
+      formInputRequirements.rte.bindValue.trim().toLowerCase(),
       isSearchOnly(),
       viaEnv,
       viaEnvLatestRelease,
-      formInputRequirements.rse.bindValue.trim(),
+      formInputRequirements.rse.bindValue.trim().toLowerCase(),
       formInputRequirements.dd.bindValue
     );
 
@@ -238,8 +238,27 @@
     }
   }
 
+  function clonedDefaultFormInputsWithUserValues() {
+    let newFormInputRequirements = JSON.parse(
+      JSON.stringify(defaultFormInputRequirements)
+    );
+
+    for (const key in newFormInputRequirements) {
+      if (newFormInputRequirements.hasOwnProperty(key)) {
+        const element = newFormInputRequirements[key];
+
+        // Maintain user input values
+        if (formInputRequirements.hasOwnProperty(key)) {
+          element.bindValue = formInputRequirements[key].bindValue;
+        }
+      }
+    }
+
+    return newFormInputRequirements;
+  }
+
   function onRunMethodSelection(runMethod) {
-    formInputRequirements = structuredClone(defaultFormInputRequirements);
+    formInputRequirements = clonedDefaultFormInputsWithUserValues();
 
     if (runType === RunType.Search) {
       // Don't allow more than one run search
