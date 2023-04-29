@@ -1,7 +1,7 @@
 <script>
   import { onMount } from 'svelte';
   import {
-      DeployRunMethod,
+      DeploymentRunMethod,
       RunType,
       SearchRunMethod,
   } from '../../../models/enums/enums';
@@ -21,8 +21,7 @@
     {
       name: RunType.Deployment,
       tasks: [
-        DeployRunMethod.ViaLatestInEnvironment,
-        DeployRunMethod.ViaNumber,
+        DeploymentRunMethod.ViaNumber,
       ],
     },
   ];
@@ -69,6 +68,15 @@
       }
     };
   });
+
+   $: {
+    // Update the selectedCategory when the category is changed from outside the component
+    if (selectedCategoryName) {
+      console.log(selectedCategoryName)
+      selectedCategory = categories.find(category => category.name === selectedCategoryName);
+      console.log(selectedCategory)
+    }
+  }
 </script>
 
 <div class="relative" use:clickOutside on:click_outside={handleClickOutside}>

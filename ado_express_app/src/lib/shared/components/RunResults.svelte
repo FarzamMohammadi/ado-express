@@ -1,12 +1,35 @@
 <script lang="ts">
   import { onDestroy, onMount } from 'svelte';
-  import type { IRunResultData } from '../../models/interfaces/irun-result-data';
-  import { runResultData, running } from '../../utils/stores/stores';
+  import type { IDisplayedRunResultData } from '../../models/interfaces/irun-result-data';
+  import {
+      displayedRunResultData,
+      runResultData,
+      running
+  } from '../../utils/stores/stores';
+
+  export let runMethod: string = null;
+  export let runType: string = null;
 
   let matrixTheme = true;
-  let localResultData: IRunResultData[] = [];
+  let localResultData: IDisplayedRunResultData[] = [];
   export let displayIdleDots = false;
   let displayDataInputs: string[] = [];
+
+  function downloadResultsAsJSONFile(): void {
+    const jsonString = JSON.stringify($runResultData);
+    const blob = new Blob([jsonString], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = 'results.json';
+    anchor.click();
+
+    setTimeout(() => {
+      URL.revokeObjectURL(url);
+      anchor.remove();
+    }, 0);
+  }
 
   function typeEffect(
     dataInput: string,
@@ -33,34 +56,36 @@
     matrixTheme = !matrixTheme;
   }
 
-  let unsubscribeRunResultData;
+  let unsubscribeDisplayedRunResultData;
 
   onMount(() => {
-    localResultData = $runResultData;
+    localResultData = $displayedRunResultData;
     displayDataInputs = localResultData.map(() => '');
 
     localResultData.forEach((dataInput, index) => {
       typeEffect(dataInput.text || '', 0, index);
     });
 
-    // Subscribe to runResultData store
-    unsubscribeRunResultData = runResultData.subscribe(($runResultData) => {
-      if (localResultData.length !== $runResultData.length) {
-        const newIndex = $runResultData.length - 1;
-        localResultData = $runResultData;
-        
-        displayIdleDots = false; // Might adjust later but for now, never show idling dots
-        //displayIdleDots = !localResultData[newIndex].showIdleDots;
+    // Subscribe to displayedRunResultData store
+    unsubscribeDisplayedRunResultData = displayedRunResultData.subscribe(
+      ($displayedRunResultData) => {
+        if (localResultData.length !== $displayedRunResultData.length) {
+          const newIndex = $displayedRunResultData.length - 1;
+          localResultData = $displayedRunResultData;
 
-        displayDataInputs = [...displayDataInputs, ''];
-        typeEffect(localResultData[newIndex].text || '', 0, newIndex);
+          displayIdleDots = false; // Might adjust later but for now, never show idling dots
+          //displayIdleDots = !localResultData[newIndex].showIdleDots;
+
+          displayDataInputs = [...displayDataInputs, ''];
+          typeEffect(localResultData[newIndex].text || '', 0, newIndex);
+        }
       }
-    });
+    );
   });
 
   onDestroy(() => {
-    // Unsubscribe from runResultData store
-    unsubscribeRunResultData();
+    // Unsubscribe from displayedRunResultData store
+    unsubscribeDisplayedRunResultData();
   });
 
   let dotText = '';
@@ -89,11 +114,34 @@
     </div>
   </div>
 
-  {#if matrixTheme}
-    <button on:click={toggleTheme}> Matrix Theme: ON </button>
-  {:else}
-    <button on:click={toggleTheme}> Matrix Theme: OFF </button>
-  {/if}
+  <div class="flex flex-row items-center justify-between">
+    <div>
+      {#if matrixTheme}
+        <button
+          class="bg-transparent hover:bg-green-700 text-green-900 dark:text-green-500 font-semibold hover:text-white dark:hover:text-white py-2 px-4 border border-green-800 hover:border-transparent rounded-lg shadow-lg"
+          on:click={toggleTheme}>Retro Theme: -ON-</button
+        >
+      {:else}
+        <button
+          class="bg-transparent hover:bg-purple-700 text-purple-900 dark:text-purple-500 font-semibold hover:text-white dark:hover:text-white py-2 px-4 border border-purple-800 hover:border-transparent rounded-lg shadow-lg"
+          on:click={toggleTheme}>Retro Theme: -OFF-</button
+        >
+      {/if}
+    </div>
+    <div>
+      {#if matrixTheme}
+        <button
+          class="bg-transparent hover:bg-green-700 text-green-900 dark:text-green-500 font-semibold hover:text-white dark:hover:text-white py-2 px-4 border border-green-800 hover:border-transparent rounded-lg shadow-lg"
+          on:click={downloadResultsAsJSONFile}>Download Results JSON</button
+        >
+      {:else}
+        <button
+          class="bg-transparent hover:bg-purple-700 text-purple-900 dark:text-purple-500 font-semibold hover:text-white dark:hover:text-white py-2 px-4 border border-purple-800 hover:border-transparent rounded-lg shadow-lg"
+          on:click={downloadResultsAsJSONFile}>Download Results JSON</button
+        >
+      {/if}
+    </div>
+  </div>
 </div>
 
 <style lang="scss">

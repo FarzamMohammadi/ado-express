@@ -1,4 +1,4 @@
-import type { RunConfigurations } from '../../../models/classes/run-configurations.model';
+import type { RunConfiguration } from '../../../models/classes/run-configuration.model';
 import type { IDeploymentDetails } from '../../../models/interfaces/ideployment-details.interface';
 import type { IReleaseDetails } from '../../../models/interfaces/irelease-details.interface';
 import { JSONHttp } from '../https';
@@ -6,7 +6,7 @@ import { Endpoints } from './endpoints';
 
 export class ADOExpressApi {
 
-  public async runADOExpress(runConfigurations: RunConfigurations): Promise<IReleaseDetails | IDeploymentDetails> {
+  public async runADOExpress(runConfigurations: RunConfiguration): Promise<IReleaseDetails | IDeploymentDetails> {
     if (runConfigurations.searchOnly) {
       if (runConfigurations.queries) {
         return await this.searchViaQuery(runConfigurations);
@@ -26,7 +26,7 @@ export class ADOExpressApi {
     }
   }
 
-  private async searchViaEnvironment(runConfigurations: RunConfigurations): Promise<IReleaseDetails> {
+  private async searchViaEnvironment(runConfigurations: RunConfiguration): Promise<IReleaseDetails> {
     return await JSONHttp.post<IReleaseDetails>(
       Endpoints.searchViaEnvironment,
       runConfigurations
@@ -37,7 +37,7 @@ export class ADOExpressApi {
   }
 
 
-  private async searchViaLatest(runConfigurations: RunConfigurations): Promise<IDeploymentDetails> {
+  private async searchViaLatest(runConfigurations: RunConfiguration): Promise<IDeploymentDetails> {
     return await JSONHttp.post<IDeploymentDetails>(
       Endpoints.searchViaLatest,
       runConfigurations
@@ -47,7 +47,7 @@ export class ADOExpressApi {
     });
   }
 
-  private async searchViaNumber(runConfigurations: RunConfigurations): Promise<IReleaseDetails> {
+  private async searchViaNumber(runConfigurations: RunConfiguration): Promise<IReleaseDetails> {
     return await JSONHttp.post<IReleaseDetails>(
       Endpoints.searchViaNumber,
       runConfigurations
@@ -57,7 +57,7 @@ export class ADOExpressApi {
     });
   }
 
-  private async searchViaQuery(runConfigurations: RunConfigurations): Promise<IDeploymentDetails> {
+  private async searchViaQuery(runConfigurations: RunConfiguration): Promise<IDeploymentDetails> {
     return await JSONHttp.post<IDeploymentDetails>(
       Endpoints.searchViaQuery,
       runConfigurations
@@ -67,7 +67,7 @@ export class ADOExpressApi {
     });
   }
 
-  private async deploy(runConfigurations: RunConfigurations): Promise<IDeploymentDetails> {
+  private async deploy(runConfigurations: RunConfiguration): Promise<IDeploymentDetails> {
     return await JSONHttp.post<IDeploymentDetails>(
       Endpoints.deploy,
       runConfigurations

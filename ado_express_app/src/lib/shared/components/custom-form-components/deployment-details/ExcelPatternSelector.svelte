@@ -60,35 +60,37 @@
   }
 
   function updateDeploymentDetails() {
-    $deploymentDetails = Array(rows)
-      .fill(null)
-      .map((_, row) => {
-        return new DeploymentDetail(
-          cells[cellId(row, 1)],
-          cells[cellId(row, 2)],
-          cells[cellId(row, 3)],
-          cells[cellId(row, 4)],
-          cells[cellId(row, 5)]
+  $deploymentDetails = Array(rows)
+    .fill(null)
+    .map((_, row) => {
+      return new DeploymentDetail(
+        cells[cellId(row, 1)],
+        cells[cellId(row, 2)],
+        cells[cellId(row, 3)],
+        cells[cellId(row, 4)],
+        cells[cellId(row, 5)]
+      );
+    })
+    .filter((deploymentDetail) => {
+      if (
+        deploymentDetail.releaseNumber &&
+        deploymentDetail.releaseRollback &&
+        deploymentDetail.releaseNumber < deploymentDetail.releaseRollback
+      ) {
+        showToast(
+          ToastType.Error,
+          deploymentDetail.releaseName
+            ? `Release number cannot be less than rollback number: Release: ${deploymentDetail.releaseName}`
+            : `Release number cannot be less than rollback number`
         );
-      })
-      .filter((deploymentDetail) => {
-        if (deploymentDetail.releaseNumber < deploymentDetail.releaseRollback) {
-          return showToast(
-            ToastType.Error,
-            deploymentDetail.releaseName
-              ? `Release number cannot be less than rollback number: Release: ${deploymentDetail.releaseName}`
-              : `Release number cannot be less than rollback number`
-          );
-        } else {
-          return (
-            deploymentDetail.releaseProjectName &&
-            deploymentDetail.releaseName &&
-            deploymentDetail.releaseNumber &&
-            deploymentDetail.releaseRollback
-          );
-        }
-      });
-  }
+      } else {
+        return (
+          deploymentDetail.releaseProjectName &&
+          deploymentDetail.releaseName
+        );
+      }
+    });
+}
 
   function showToast(
     type: ToastType,

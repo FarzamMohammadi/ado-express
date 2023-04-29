@@ -83,7 +83,7 @@
         <ExploreBtn />
       </div>
     </div>
-    <div class="flex items-center justify-end m-6">
+    <div class="flex items-center justify-end m-3">
       <div class="mt-2 flex md:hidden">
         <button
           type="button"

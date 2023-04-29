@@ -6,10 +6,6 @@
   import DarkToggle from './lib/shared/components/utils/DarkToggle.svelte';
   import { running } from './lib/utils/stores';
 
-  // function setRunStatus() {
-  //   $running = !$running;
-  // }
-
   let runType;
   let runMethod;
 </script>
@@ -26,28 +22,28 @@
 </svelte:head>
 
 <main class="min-w-full min-h-screen">
-  <!-- <button on:click={setRunStatus}>asdfsadf</button> -->
-
   <div>
     <Navbar />
   </div>
 
   <div class="flex flex-col items-center justify-center to-gray-600 pb-8">
-    <div class="z-50">
+    <div class="z-50 mb-5">
       <h1
-        class="text-6xl font-bold uppercase text-gray-900 dark:text-white mb-2 z-50"
+        class="text-4xl font-bold text-gray-900 dark:text-white z-50 max-w-4xl"
       >
-        ADO EXPRESS
+        Effortlessly Manage ADO Releases & Deployments
       </h1>
+    </div>
 
-      <p class="text-md text-gray-900 dark:text-white mb-4">
-        A release management tool designed to streamline the Azure DevOps
-        release deployment process.
-      </p>
+    <div class="z-50">
+      <h6 class="text-md text-gray-900 dark:text-white mb-4 max-w-3xl">
+        ADO Express is a meticulously crafted release management tool, tailored
+        to simplify and enhance the Azure DevOps release deployment process.
+      </h6>
+    </div>
 
-      <div class="z-50 mb-12">
-        <DarkToggle />
-      </div>
+    <div class="z-50 mb-12">
+      <DarkToggle />
     </div>
 
     <div class="w-[500px] mb-12 z-40">
@@ -56,6 +52,16 @@
         bind:selectedTask={runMethod}
       />
     </div>
+
+    {#if $running}
+      <a
+        class="my-4 bg-transparent hover:bg-purple-700 text-purple-900 dark:text-purple-500 font-semibold hover:text-white dark:hover:text-white py-2 px-4 border border-purple-800 hover:border-transparent rounded-lg shadow-lg"
+        data-sveltekit-preload-data="tap"
+        href="/"
+      >
+        Clear Form & Results
+      </a>
+    {/if}
 
     <div
       class="z-30 flex justify-center items-center"
@@ -74,7 +80,7 @@
       </div>
 
       <div
-        class="overflow-hidden smooth-transition items-center"
+        class="overflow-hidden smooth-transition items-center z-30"
         style="
           width: {$running ? '50%' : '0'};
           transform: {$running ? 'translateX(25%)' : 'translateX(0)'};
@@ -82,7 +88,7 @@
           min-width: {$running ? '35vw' : '0'};
         "
       >
-        <RunResults />
+        <RunResults bind:runType bind:runMethod />
       </div>
     </div>
   </div>
@@ -90,6 +96,6 @@
 
 <style>
   .smooth-transition {
-    transition: all 3s ease;
+    transition: all 2s ease;
   }
 </style>

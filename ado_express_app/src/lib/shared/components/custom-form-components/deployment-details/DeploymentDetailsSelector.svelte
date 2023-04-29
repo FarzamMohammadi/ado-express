@@ -1,8 +1,6 @@
 <script lang="ts">
   import { clickOutside } from '../../../../utils/click-outside';
-  import { deploymentDetails, running } from '../../../../utils/stores';
   import Tooltip from '../../utils/Tooltip.svelte';
-  import DeploymentDetailSelectionResults from './DeploymentDetailSelectionResults.svelte';
   import ExcelFileInput from './ExcelFileInput.svelte';
   import ExcelPatternSelector from './ExcelPatternSelector.svelte';
 
@@ -31,8 +29,7 @@
   <div
     class="w-full border-2 rounded border-gray-600 dark:border-gray-500 mt-2 mb-3 p-2 mx-4"
     id="$deploymentDetails"
-    use:clickOutside
-    on:click_outside={handleClickOutside}
+    use:clickOutside on:click_outside={handleClickOutside}
     on:click={handleClickInside}
     on:keypress={handleClickInside}
   >
@@ -50,7 +47,7 @@
       </Tooltip>
     </div>
 
-    {#if !$running}
+    <!-- {#if !$running} -->
       {#if showCustomSelector}
         <div class="p-2 mt-2 read-only">
           <ExcelFileInput
@@ -72,9 +69,9 @@
           >
         </div>
       {/if}
-    {/if}
+    <!-- {/if} -->
 
-    {#if $running}
+    <!-- {#if $running}
       {#if $deploymentDetails.length}
         <DeploymentDetailSelectionResults
           bind:showingDeploymentDetailsReadOnlySelection
@@ -88,6 +85,6 @@
           </div>
         {/if}
       {/if}
-    {/if}
+    {/if} -->
   </div>
 {/if}

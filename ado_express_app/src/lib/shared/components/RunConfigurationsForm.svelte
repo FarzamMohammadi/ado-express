@@ -1,7 +1,9 @@
 <script lang="ts">
   import { ADOExpressApi } from '../../core/services/api';
-  import { RunConfigurations } from '../../models/classes/run-configurations.model';
+  import type { DeploymentDetail } from '../../models/classes/deployment-detail.model';
+  import { RunConfiguration } from '../../models/classes/run-configuration.model';
   import {
+      DeploymentRunMethod,
       RunType,
       SearchRunMethod,
       ToastType,
@@ -24,7 +26,7 @@
       show: true,
     } as IInputSettings,
     crd: {
-      required: true,
+      required: false,
       show: true,
     } as IInputSettings,
     org_url: {
@@ -52,7 +54,7 @@
       show: true,
     } as IInputSettings,
     erv: {
-      required: true,
+      required: false,
       show: true,
     } as IInputSettings,
   };
@@ -69,10 +71,10 @@
   export let runMethod: string = null;
   export let runType: string = null;
   export let running;
-  let showSubmitButton = true;
   let submitButtonLabel = 'Run ADO Express';
-
-  // RunConfigurations
+  let isSubmitting = false;
+  let showSubmitButton = true;
+  // RunConfiguration
   let crucialReleaseDefinitions: '';
   let explicitReleaseValuesReleases = '';
   let explicitReleaseValuesType = '';
@@ -85,16 +87,7 @@
   let viaEnv = false;
   let viaEnvLatestRelease = false;
   let viaEnvSourceName = '';
-
-  function sendMessage(text: string, showIdleDots: boolean = false) {
-    runResultData.update((data) => [
-      ...data,
-      {
-        text,
-        showIdleDots,
-      },
-    ]);
-  }
+  let runResultDataIsValid = false;
 
   function getExplicitReleaseValues(): IExplicitInclusion | IExplicitExclusion {
     if (!hasExplicitReleaseValues) return null;
@@ -121,8 +114,15 @@
   }
 
   async function handleSubmit() {
+    showSubmitButton = false;
     running = true;
-    sendMessage(`Starting ${runType.toLowerCase()}`, true);
+    isSubmitting = true;
+    ResultHandler.sendMessage(
+      running
+        ? `\n\nRunning ${runType}`
+        : `\nRunning ${runType}`,
+      true
+    );
 
     if (isNullOrUndefined(runType) || isNullOrUndefined(runMethod)) {
       return showToast(
@@ -134,7 +134,7 @@
     //TODO: within this or run method validator set a variable to be levered for finding out whether we need deployment details or not
     setupRunConfigurationRunTypeVariables();
 
-    const runConfigurations = new RunConfigurations(
+    const runConfigurations = new RunConfiguration(
       getExplicitReleaseValues(),
       crucialReleaseDefinitions?.split(',').map((s) => s.trim()) ?? null,
       organizationUrl.trim(),
@@ -154,10 +154,11 @@
 
     showToast(ToastType.Success, 'Successfully submitted run request');
 
-    const results = await adoExpressApi.runADOExpress(runConfigurations);
-    // console.log(results);
+    $runResultData = await adoExpressApi.runADOExpress(runConfigurations);
 
-    ResultHandler.sendRunResults(results);
+    ResultHandler.sendRunResults(runConfigurations);
+
+    isSubmitting = false;
   }
 
   function isNullOrUndefined(variable: any): Boolean {
@@ -179,6 +180,11 @@
     formInputRequirements = structuredClone(defaultFormInputRequirements);
 
     if (runType === RunType.Search) {
+      // Don't allow more than one run search
+      if (running) {
+        showSubmitButton = false;
+      }
+
       formInputRequirements.crd.required = false;
       formInputRequirements.crd.show = false;
 
@@ -218,32 +224,31 @@
         formInputRequirements.dd.required = false;
         formInputRequirements.dd.show = false;
       }
-    } else if (runType === RunType.Deployment) {
-      if (runMethod == SearchRunMethod.ViaLatestInEnvironment) {
-        viaEnv = true;
-        viaEnvLatestRelease = true;
-        queries = null;
-
-        formInputRequirements.queries.required = false;
-        formInputRequirements.queries.show = false;
-      } else if (runMethod == SearchRunMethod.ViaNumber) {
-        viaEnv = false;
-        viaEnvLatestRelease = false;
-        queries = null;
-        formInputRequirements.queries.required = false;
-        formInputRequirements.queries.show = false;
-
-        formInputRequirements.rse.required = false;
-        formInputRequirements.rse.show = false;
+    } else if (
+      runType === RunType.Deployment &&
+      runMethod === DeploymentRunMethod.ViaNumber
+    ) {
+      // Allow deployment after search
+      if (running) {
+        showSubmitButton = true;
       }
+
+      viaEnv = false;
+      viaEnvLatestRelease = false;
+      queries = null;
+      formInputRequirements.queries.required = false;
+      formInputRequirements.queries.show = false;
+
+      formInputRequirements.rse.required = false;
+      formInputRequirements.rse.show = false;
     }
   }
 
   function onRunTypeSelection(runType): void {
     if (runType === RunType.Search) {
-      submitButtonLabel = 'Run the Search';
+      submitButtonLabel = 'Initiate Search';
     } else if (runType === RunType.Deployment) {
-      submitButtonLabel = 'Run the Deployment';
+      submitButtonLabel = 'Execute Deployment';
     }
   }
 
@@ -265,16 +270,13 @@
         viaEnv = true;
         viaEnvLatestRelease = false;
       }
-    } else if (runType === RunType.Deployment) {
-      if (runMethod == SearchRunMethod.ViaLatestInEnvironment) {
-        viaEnv = true;
-        viaEnvLatestRelease = true;
-        queries = null;
-      } else if (runMethod == SearchRunMethod.ViaNumber) {
-        viaEnv = false;
-        viaEnvLatestRelease = false;
-        queries = null;
-      }
+    } else if (
+      runType === RunType.Deployment &&
+      runMethod == DeploymentRunMethod.ViaNumber
+    ) {
+      viaEnv = false;
+      viaEnvLatestRelease = false;
+      queries = null;
     }
   }
 
@@ -293,8 +295,26 @@
     });
   }
 
+  function deploySearchResults() {
+    runType = RunType.Deployment;
+    runMethod = DeploymentRunMethod.ViaNumber;
+
+    deploymentDetails.set([]);
+
+    for (let key in $runResultData) {
+      deploymentDetails.update((deploymentDetails) => [
+        ...deploymentDetails,
+        $runResultData[key] as DeploymentDetail,
+      ]);
+    }
+  }
+
   $: onRunTypeSelection(runType);
   $: onRunMethodSelection(runMethod);
+  $: runResultDataIsValid =
+    $runResultData !== null &&
+    $runResultData !== undefined &&
+    Object.keys($runResultData).length > 0;
 </script>
 
 <svelte:head>
@@ -369,10 +389,10 @@
         bind:showInput={formInputRequirements.erv.show}
       />
     </div>
-
     {#if showSubmitButton}
       <div class="flex justify-center pt-4">
         <button
+          disabled={isSubmitting}
           type="submit"
           class="bg-transparent hover:bg-blue-700 text-blue-900 dark:text-blue-500 font-semibold hover:text-white dark:hover:text-white border border-blue-800 hover:border-transparent rounded-lg shadow-lg"
         >
@@ -380,5 +400,13 @@
         </button>
       </div>
     {/if}
+    <div class="flex flex-row items-center justify-center">
+      {#if !showSubmitButton && runResultDataIsValid && runType === RunType.Search && (runMethod === SearchRunMethod.ViaLatestInEnvironment || runMethod === SearchRunMethod.ViaQuery)}
+        <button
+          class="bg-transparent hover:bg-blue-700 text-blue-900 dark:text-blue-500 font-semibold hover:text-white dark:hover:text-white border border-blue-800 hover:border-transparent rounded-lg shadow-lg"
+          on:click={deploySearchResults}>Deploy Search Results</button
+        >
+      {/if}
+    </div>
   </form>
 </div>

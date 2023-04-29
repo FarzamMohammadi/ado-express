@@ -6,7 +6,7 @@ import type { IExplicitInclusion } from '../interfaces/iexplicit-inclusion.inter
 import type { IRunConfigurations } from '../interfaces/irun-configurations.interface';
 import type { IToSnakeCase } from '../interfaces/ito-snake-case.interface';
 
-export class RunConfigurations
+export class RunConfiguration
   implements
     IDeserializable<IRunConfigurations>,
     IToSnakeCase,
@@ -71,10 +71,10 @@ export class RunConfigurations
 
   private static toSnakeCaseDeep(obj: any): any {
     if (Array.isArray(obj)) {
-      return obj.map(RunConfigurations.toSnakeCaseDeep);
+      return obj.map(RunConfiguration.toSnakeCaseDeep);
     } else if (obj && typeof obj === 'object') {
       return Object.fromEntries(
-        Object.entries(obj).map(([key, value]) => [camelCaseToSnakeCase(key), RunConfigurations.toSnakeCaseDeep(value)])
+        Object.entries(obj).map(([key, value]) => [camelCaseToSnakeCase(key), RunConfiguration.toSnakeCaseDeep(value)])
       );
     } else {
       return obj;
@@ -82,6 +82,6 @@ export class RunConfigurations
   }
   
   toSnakeCase(): Object {
-    return RunConfigurations.toSnakeCaseDeep(this);
+    return RunConfiguration.toSnakeCaseDeep(this);
   }
 }

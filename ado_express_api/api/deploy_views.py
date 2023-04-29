@@ -7,20 +7,23 @@ from rest_framework.response import Response
 
 from ado_express.main import Startup
 
-from .serializers import (DeploymentDetailsSerializer,
-                          RunConfigurationsSerializer)
+from .serializers import DeploymentDetailSerializer, RunConfigurationSerializer
 
 
+# -Deployment via number-
+# This method does not run a search 
+# Deployment details must be provided in the request body
+# If a search is required, it must be done beforehand
 @api_view(['POST'])
 def deploy(request):
-    deployment_details_serializer = DeploymentDetailsSerializer()
-    serializer = RunConfigurationsSerializer(data=request.data)
+    deployment_details_serializer = DeploymentDetailSerializer()
+    serializer = RunConfigurationSerializer(data=request.data)
 
     serializer.fields['deploymentDetails'].child = deployment_details_serializer
 
     # Fields required for run
     serializer.fields['deploymentDetails'].allow_empty = False
-
+    
     if serializer.is_valid():
         run_configurations = RunConfiguration(serializer.validated_data['explicit_release_values'], 
                                                serializer.validated_data['crucial_release_definitions'], 
@@ -33,7 +36,7 @@ def deploy(request):
                                                serializer.validated_data['via_env'], 
                                                serializer.validated_data['via_env_latest_release'],
                                                serializer.validated_data['via_env_source_name'],
-                                               serializer.validated_data['deploymentDetails'])
+                                               serializer.validated_data['deployment_details'])
         
         ado_express = Startup(run_configurations)
         deployment_details = []
@@ -70,8 +73,8 @@ def deploy(request):
             regular_deployment_results = ado_express.run_release_deployments(deployment_details, False, True)
 
             for deployment_result in regular_deployment_results:
-                deployment_results[deployment_result.release_definition] = deployment_result.__dict__
+                deployment_results[deployment_result.release_definition] = [deployment_result.__dict__]
 
         return Response(status=status.HTTP_200_OK, data=SnakeToCamelCaseConverter.convert(deployment_results))
     else:
-        return Response(status=status.HTTP_400_BAD_REQUEST, data=f"Fields are invalid.\n{serializer.error_messages}")
+        return Response(status=status.HTTP_400_BAD_REQUEST, data=f"\n{serializer.errors}")
