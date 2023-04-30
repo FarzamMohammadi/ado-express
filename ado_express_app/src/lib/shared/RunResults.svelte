@@ -34,6 +34,8 @@
   }
 
   onMount(() => {
+    console.log("HELLO")
+
     localResultData = $runResultData;
     displayDataInputs = localResultData.map(() => '');
 
@@ -42,6 +44,13 @@
     });
 
     isMounted = true;
+
+    let dictionary = {};
+
+    // Update the percentage or set "Completed"
+    dictionary['key1'] = 50; // New percentage
+    dictionary['key2'] = "Completed"; // Mark as completed
+    console.log(dictionary)
   });
 
   // Reactive statement to watch for changes in the $runResultData array
@@ -65,6 +74,13 @@
         class="terminal-content flex-col items-center justify-end ml-6 mr-6"
         class:matrix={matrixTheme}
       >
+      <div class="dictionary-container">
+        {#each Object.entries(dictionary) as [key, value]}
+          <div>
+            <strong>{key}:</strong> {value}
+          </div>
+        {/each}
+      </div>
         <div class="dataInput-container">
           {#each displayDataInputs as dataInput, i}
             <span>

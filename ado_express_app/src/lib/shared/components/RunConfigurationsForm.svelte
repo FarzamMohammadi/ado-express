@@ -191,14 +191,12 @@
 
     const runConfigurations = new RunConfiguration(
       getExplicitReleaseValues(),
-      formInputRequirements.crd.bindValue
-        .trim()
+      formInputRequirements.crd.bindValue?.trim()
         .split(',')
         .map((s) => s.trim()) ?? null,
       formInputRequirements.org_url.bindValue.trim(),
       formInputRequirements.pat.bindValue.trim(),
-      formInputRequirements.queries.bindValue
-        .trim()
+      formInputRequirements.queries.bindValue?.trim()
         .split(',')
         .map((s) => s.trim()) ?? null,
       formInputRequirements.rnf.bindValue.trim(),
