@@ -74,10 +74,33 @@
 
   const updateWindowWidth = () => {
     windowWidth = window.innerWidth;
-    parentWidth = Math.min((windowWidth / 2.5) * 0.8, 600); // Adjust the multiplier (0.8) as needed to match the parent div's width
+    parentWidth =
+     Math.min((windowWidth / 2.5) * 0.8, 600); // Adjust the multiplier (0.8) as needed to match the parent div's width
   };
 
+  let ws: WebSocket;
+
   onMount(() => {
+    const websocketUrl = 'ws://localhost:8000/ws/';
+    ws = new WebSocket(websocketUrl);
+
+    ws.addEventListener('open', (event) => {
+      console.log('WebSocket connection opened:', event);
+    });
+
+    ws.addEventListener('message', (event) => {
+      console.log('WebSocket message received:', event.data);
+    });
+
+    ws.addEventListener('close', (event) => {
+      console.log('WebSocket connection closed:', event);
+    });
+
+    ws.addEventListener('error', (event) => {
+      console.error('WebSocket error:', event);
+    });
+
+
     localResultData = $displayedRunResultData;
     displayDataInputs = localResultData.map(() => '');
 

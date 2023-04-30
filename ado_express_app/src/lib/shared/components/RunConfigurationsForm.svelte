@@ -132,9 +132,6 @@
     ];
 
     for (const input of requiredInputs) {
-      if (Array.isArray(input.bindValue)) {
-        console.log(input.bindValue);
-      }
       if (
         input.required &&
         input.show &&
@@ -468,10 +465,8 @@
         bind:showInput={formInputRequirements.erv.show}
       />
     </div>
-    {#if showSubmitButton}
       <div class="flex justify-center pt-4">
         <button
-          disabled={disableSubmitButton}
           type="button"
           on:click={handleSubmit}
           class="bg-transparent hover:bg-blue-700 text-blue-900 dark:text-blue-500 font-semibold hover:text-white dark:hover:text-white border border-blue-800 hover:border-transparent rounded-lg shadow-lg"
@@ -479,7 +474,6 @@
           {submitButtonLabel}
         </button>
       </div>
-    {/if}
     <div class="flex flex-row items-center justify-center">
       {#if !showSubmitButton && runResultDataIsValid && runType === RunType.Search && (runMethod === SearchRunMethod.ViaLatestInEnvironment || runMethod === SearchRunMethod.ViaQuery)}
         <button
