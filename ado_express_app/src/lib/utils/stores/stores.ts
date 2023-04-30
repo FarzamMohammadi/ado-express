@@ -10,4 +10,4 @@ export const displayedRunResultData = writable<IDisplayedRunResultData[]>([]);
 
 export const runResultData = writable<IReleaseDetails | IDeploymentDetails>();
 
-export const running = writable(false);
+export const running = writable(true);
