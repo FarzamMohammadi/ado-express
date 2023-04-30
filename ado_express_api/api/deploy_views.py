@@ -4,6 +4,7 @@ from base.models.DeploymentDetail import DeploymentDetail
 from base.models.RunConfiguration import RunConfiguration
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from websocket_server.consumers import WebSocketConsumer
 
 from ado_express.main import Startup
 
@@ -61,20 +62,49 @@ def deploy(request):
 
         #TODO Add clear rollback handling and return results to user - currently it's handled but user is not notified and will only know the deployment was unsuccessful 
         deployment_results = dict()
+        has_crucial_deployments = False
 
         # In case we need to separate later
         if crucial_deployment_details:
-            crucial_deployment_results = ado_express.run_release_deployments(crucial_deployment_details, True)
+            has_crucial_deployments = True
+            ado_express.run_release_deployments(crucial_deployment_details, True)
+            
+            deployments_complete = False
+            completed_deployments = []
 
-            for crucial_deployment_result in crucial_deployment_results:
-                deployment_results[crucial_deployment_result.release_definition] = crucial_deployment_result.__dict__
+            release_deployment_status = dict()
+            release_deployment_status['international-api'] = "Complete"
+            WebSocketConsumer.send_message("DEPLOYING!!!")
+            WebSocketConsumer.send_message(release_deployment_status)
+
+            while not deployments_complete:
+                
+                for deployment_details in crucial_deployment_details:
+                    
+                    if deployment_details.release_name not in completed_deployments:
+                        deployment_is_complete = ado_express.release_deployment_completed(deployment_details)
+
+                        if deployment_is_complete:
+                            completed_deployments.append(deployment_details.release_name)
+
+                            release_deployment_status = dict()
+                            release_deployment_status[deployment_details.release_name] = "Complete"
+                            
+                            WebSocketConsumer.send_message(release_deployment_status)
+                        else: 
+                            deployment_status = ado_express.get_deployment_status(deployment_details)
+                            
+                            WebSocketConsumer.send_message(deployment_status)
+                
+                if len(completed_deployments) == len(crucial_deployment_details):
+                    deployments_complete = True
 
         if deployment_details:
-            regular_deployment_results = ado_express.run_release_deployments(deployment_details, False, True)
+            regular_deployment_results = ado_express.run_release_deployments(deployment_details, False, has_crucial_deployments)
 
             for deployment_result in regular_deployment_results:
                 deployment_results[deployment_result.release_definition] = [deployment_result.__dict__]
 
-        return Response(status=status.HTTP_200_OK, data=SnakeToCamelCaseConverter.convert(deployment_results))
+        return Response(status=status.HTTP_200_OK)
     else:
         return Response(status=status.HTTP_400_BAD_REQUEST, data=f"\n{serializer.errors}")

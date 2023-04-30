@@ -5,7 +5,6 @@ from base.models.ReleaseDetail import ReleaseDetail
 from base.models.RunConfiguration import RunConfiguration
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from websocket_server.websocket_server import send_message
 
 from ado_express.main import Startup
 
@@ -58,8 +57,6 @@ def search_via_release_environment(request):
     
 @api_view(['POST'])
 def search_via_latest_release(request):
-    print("OKAY I GOT HERE")
-    send_message("HOLY SHIT FINALLY!!")
     deployment_details = DeploymentDetailSerializer()
     deployment_details.set_required_fields_for_via_latest()
 

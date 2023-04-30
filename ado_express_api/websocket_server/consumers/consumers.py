@@ -1,8 +1,9 @@
-import json
+import asyncio
 
 from channels.generic.websocket import AsyncWebsocketConsumer
 
 connected_clients = set()
+
 
 class WebSocketConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -10,23 +11,26 @@ class WebSocketConsumer(AsyncWebsocketConsumer):
         await self.accept()
 
     async def disconnect(self, close_code):
-        connected_clients.remove(self)
+        connected_clients.discard(self)
 
     async def receive(self, text_data):
-        await self.broadcast(text_data)
+        print('Received Data!', text_data)
 
     async def broadcast(self, message):
         if connected_clients:
-            await self.channel_layer.group_send(
-                'broadcast',
-                {
-                    'type': 'send_message',
-                    'message': message
-                }
-            )
+            await asyncio.gather(*(client.send(message) for client in connected_clients))
 
-    async def send_message(self, event):
-        message = event['message']
+    # Can be called from anywhere
+    @staticmethod
+    def send_message(message):
+        if connected_clients:
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
 
-        for client in connected_clients:
-            await client.send(text_data=json.dumps({'message': message}))
+            async def broadcast_static():
+                nonlocal message
+                if connected_clients:
+                    await asyncio.gather(*(client.send(message) for client in connected_clients))
+
+            coroutine = broadcast_static()
+            loop.run_until_complete(coroutine)

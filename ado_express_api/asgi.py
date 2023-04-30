@@ -24,9 +24,3 @@ application = ProtocolTypeRouter({
         )
     ),
 })
-
-# async def application(scope, receive, send):
-#     if scope['type'] == 'http':
-#         await django_application(scope, receive, send)
-#     elif scope['type'] == 'websocket':
-#         await websocket_server.handler(scope, receive, send)

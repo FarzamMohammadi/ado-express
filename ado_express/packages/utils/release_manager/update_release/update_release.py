@@ -34,15 +34,15 @@ class UpdateRelease:
             if matching_release_environment.status not in ReleaseEnvironmentStatuses.InProgress:
                 # Update Release
                 comment = 'Deployed automatically via ADO-Express (https://github.com/FarzamMohammadi/ado-express)'
-                update_result = self.update_release_environment(comment, deployment_detail, release_to_update, matching_release_environment)
+                self.update_release_environment(comment, deployment_detail, release_to_update, matching_release_environment)
                 logging.info(f'Update triggered - Project:{deployment_detail.release_project_name} Release Definition:{deployment_detail.release_name} Release:{release_to_update.name} Environment:{self.environment_variables.RELEASE_TARGET_ENV}')
             else: 
                 logging.info(f'Release is already updating - Project:{deployment_detail.release_project_name} Release Definition:{deployment_detail.release_name} Release:{release_to_update.name} Environment:{self.environment_variables.RELEASE_TARGET_ENV}')
             
-            return (True, None), matching_release_environment
+            return True, None
         else: 
             failure_reason = f'Destination Release Environment "{self.environment_variables.RELEASE_TARGET_ENV}" not found'
-            return (False, failure_reason), matching_release_environment
+            return False, failure_reason
 
 
     def get_release_update_result(self, deployment_detail, release_to_update):
