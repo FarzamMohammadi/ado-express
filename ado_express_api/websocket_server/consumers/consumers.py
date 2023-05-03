@@ -1,4 +1,5 @@
 import asyncio
+import json
 
 from channels.generic.websocket import AsyncWebsocketConsumer
 
@@ -30,6 +31,7 @@ class WebSocketConsumer(AsyncWebsocketConsumer):
             async def broadcast_static():
                 nonlocal message
                 if connected_clients:
+                    message = json.dumps(message) if isinstance(message, dict) else message
                     await asyncio.gather(*(client.send(message) for client in connected_clients))
 
             coroutine = broadcast_static()

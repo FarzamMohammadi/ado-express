@@ -96,7 +96,7 @@ class Startup:
     def get_crucial_release_definitions(self, deployment_details):
         crucial_release_definitions = []
         # First checks command line args, if not found, then checks the deployment plan file
-        if self.environment_variables.CRUCIAL_RELEASE_DEFINITIONS is not None:
+        if self.environment_variables.CRUCIAL_RELEASE_DEFINITIONS is not None and self.environment_variables.CRUCIAL_RELEASE_DEFINITIONS != []:
             crucial_release_definitions = self.environment_variables.CRUCIAL_RELEASE_DEFINITIONS
         else:
             for deployment_detail in deployment_details:
@@ -179,28 +179,28 @@ class Startup:
                 return attempt_was_successful
         except Exception as e:
             logging.error(f'There was an error with deployment for: {deployment_detail.release_name}. Please check their status and continue manually.\nException:{e}')
+            return False
 
     def get_deployment_status(self, deployment_detail: DeploymentDetails):
         try:
             if deployment_detail is not None: # The ThreadPoolExecutor may return None for some releases
-                status = dict()
                 updating_release = self.release_finder.get_release(deployment_detail, self.via_env, False, self.via_latest)
-
+                
                 release_environment_finder = ReleaseEnvironmentFinder(self.ms_authentication, self.environment_variables)
                 updating_release_environment = release_environment_finder.get_release_environment(deployment_detail, updating_release.id)
-
+                
                 release_progress = UpdateProgressRetriever(self.ms_authentication, self.environment_variables)
                 current_deployment_status = release_progress.monitor_release_progress(deployment_detail.release_project_name, updating_release, updating_release_environment.id)
-                status[updating_release.release_definition] = current_deployment_status
                 
-                return status
+                return current_deployment_status
 
         except Exception as e:
             logging.error(f'There was an error with retrieving live deployment status of {updating_release.release_definition}.\nException:{e}')
+
     def release_deployment_completed(self, deployment_detail): 
         update_manager = UpdateRelease(constants, self.ms_authentication, self.environment_variables, self.release_finder)
         release_to_update = self.release_finder.get_release(deployment_detail, self.via_env, False, self.via_latest)
-        deployment_is_complete = update_manager.get_release_update_result(deployment_detail, release_to_update)
+        deployment_is_complete = update_manager.is_deployment_complete(deployment_detail, release_to_update)
         return deployment_is_complete
     
     def run_release_deployments(self, deployment_details, is_deploying_crucial_releases, had_crucial_releases=False):

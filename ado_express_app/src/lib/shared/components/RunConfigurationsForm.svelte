@@ -35,8 +35,8 @@
       required: true,
       show: true,
     } as IInputSettings,
-    crd: {
-      bindValue: '',
+    crd: { // TODO: Remove this and all references since it's no longer needed
+      bindValue: null,
       required: false,
       show: true,
     } as IInputSettings,

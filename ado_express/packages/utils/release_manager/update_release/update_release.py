@@ -45,24 +45,18 @@ class UpdateRelease:
             return False, failure_reason
 
 
-    def get_release_update_result(self, deployment_detail, release_to_update):
-        updated_successfully = False
-        update_complete = False
-
-        while not update_complete:
-            release_to_update_data = self.release_client.get_release(project=deployment_detail.release_project_name, release_id=release_to_update.id)
-            for environment in release_to_update_data.environments:
-                if (str(environment.name).lower() == self.environment_variables.RELEASE_TARGET_ENV.lower()):
-                    if environment.status in ReleaseEnvironmentStatuses.Succeeded: 
-                        updated_successfully = True
-                        update_complete = True
-                        break
-                    elif environment.status in ReleaseEnvironmentStatuses.Failed:
-                        update_complete = True
-                        break       
-            time.sleep(5)
-                            
-        return updated_successfully
+    def is_deployment_complete(self, deployment_detail, release_to_update):
+        release_to_update_data = self.release_client.get_release(project=deployment_detail.release_project_name, release_id=release_to_update.id)
+        
+        for environment in release_to_update_data.environments:
+            if (str(environment.name).lower() == self.environment_variables.RELEASE_TARGET_ENV.lower()):
+                if environment.status in ReleaseEnvironmentStatuses.Succeeded: 
+                    return True
+                elif environment.status in ReleaseEnvironmentStatuses.Failed:
+                    return True
+                else:
+                    return False
+        
 
     def update_release_environment(self, comment, deployment_detail, release_to_update, matching_release_environment):
         update_metadata = ReleaseEnvironmentUpdateMetadata(comment, status=2)

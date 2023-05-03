@@ -34,3 +34,26 @@ class RunConfigurationSerializer(serializers.Serializer):
     viaEnvLatestRelease = serializers.BooleanField(source='via_env_latest_release')
 
     deploymentDetails = serializers.ListSerializer(child=DeploymentDetailSerializer(), allow_empty=True, allow_null=True, source='deployment_details')
+
+
+
+class DeploymentStatusSerializer:
+    def __init__(self, comment, percentage, status):
+        self.comment = comment
+        self.percentage = percentage
+        self.status = status
+
+    def to_dict(self):
+        return {
+            'comment': self.comment,
+            'percentage': self.percentage,
+            'status': self.status,
+        }
+
+class ReleaseDeploymentStatus(serializers.Serializer):
+    comment = serializers.CharField(max_length=200, allow_null=True, allow_blank=True)
+    percentage = serializers.IntegerField(min_value=0, max_value=100, required=True)
+    status = serializers.CharField(max_length=200, required=True)
+
+    def create(self, validated_data):
+        return DeploymentStatusSerializer(**validated_data)

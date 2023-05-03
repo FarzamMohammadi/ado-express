@@ -1,5 +1,4 @@
 import base64
-import time
 
 import requests
 
@@ -9,6 +8,8 @@ from ado_express.packages.common.enums.environment_statuses import \
     ReleaseEnvironmentStatuses
 from ado_express.packages.common.environment_variables import \
     EnvironmentVariables
+from ado_express.packages.common.models.deployment_status import \
+    DeploymentStatus
 from ado_express.packages.utils.asset_retrievers.release_environment_finder.release_environment_finder import \
     ReleaseEnvironmentFinder
 
@@ -20,19 +21,18 @@ class UpdateProgressRetriever:
         self.release_client = ms_authentication.client
         self.environment_finder = ReleaseEnvironmentFinder(ms_authentication, environment_variables)
 
-    def calculate_deployment_completion_percentage(self, deployment_tasks):
+    def calculate_deployment_completion_percentage(self, deployment_tasks, latest_environment_deployment_status):
         completed_tasks = 0
         tasks = deployment_tasks['value']
 
         if tasks:
             total_tasks = deployment_tasks['count']
             for task in tasks:
-                print(task)
-                print(task['status'])
                 if str(task['status']).lower() in ['succeeded', 'partiallysucceeded', 'failed', 'canceled']: completed_tasks += 1
 
         percentage = (completed_tasks / total_tasks) * 100 if total_tasks > 0 else 0
-        return percentage
+
+        return percentage, completed_tasks, total_tasks
     
     def get_release_environment_tasks(self, release_project, release_id, environment_id, timeline_id):
         generic_release_info = self.release_client.get_releases(project=release_project, definition_id=90, release_id_filter=[release_id])
@@ -65,49 +65,47 @@ class UpdateProgressRetriever:
         return latest_deploy_steps
     
     def monitor_release_progress(self, release_project, updating_release, environment_id):
-        release_definition = updating_release.release_definition
         release_id = updating_release.id
         all_tasks_completed = False
         latest_environment_deployment_status = None
         seconds_to_sleep_between_calls = 2
-        
-        # TODO Check that it has not succeeded (and maybe other statuses we dont want to get stuck in)
-        while latest_environment_deployment_status != ReleaseEnvironmentStatuses.InProgress.IN_PROGRESS.value:
-            deploy_steps = self.get_environment_deploy_steps(release_project, release_id, environment_id)
-            latest_environment_deployment_status = deploy_steps.status
 
-            if latest_environment_deployment_status != ReleaseEnvironmentStatuses.InProgress.IN_PROGRESS.value: 
-                print(f"Release: {release_definition.name}, Deployment Status: {latest_environment_deployment_status}")
-                time.sleep(seconds_to_sleep_between_calls)
+        deploy_steps = self.get_environment_deploy_steps(release_project, release_id, environment_id)
+        latest_environment_deployment_status = deploy_steps.status
 
-            
-        #TODO add trycatch for empty array
-        timeline_id_equivalent = deploy_steps.release_deploy_phases[0].run_plan_id
-        
-        while not all_tasks_completed:
-            release_tasks = self.get_release_environment_tasks(release_project, release_id, environment_id, timeline_id_equivalent)
-
-            if release_tasks:
-                percentage = self.calculate_deployment_completion_percentage(release_tasks)
-                print(f"Release: {release_definition.name}, Progress: {percentage:.2f}%")
-                
-                if percentage == 100:
-                    all_tasks_completed = True 
-                elif percentage < 100:
-                    time.sleep(seconds_to_sleep_between_calls)
+        if latest_environment_deployment_status != ReleaseEnvironmentStatuses.InProgress.IN_PROGRESS.value:
+            if latest_environment_deployment_status in ReleaseEnvironmentStatuses.Failed:
+                return self.return_deployment_status("Something went wrong with the deployment, please check the errors on ADO.", 0, latest_environment_deployment_status)
+            elif latest_environment_deployment_status in ReleaseEnvironmentStatuses.Succeeded:
+                return self.return_deployment_status("The deployment process has finished successfully.", 100, latest_environment_deployment_status)
             else:
-                print("Error fetching release status.")
-                all_tasks_completed = True 
+                return self.return_deployment_status("Waiting for deployment to start.", 0, latest_environment_deployment_status)
+                    
+        try:
+            timeline_id_equivalent = deploy_steps.release_deploy_phases[0].run_plan_id
+            
+            while not all_tasks_completed:
+                release_tasks = self.get_release_environment_tasks(release_project, release_id, environment_id, timeline_id_equivalent)
 
-        while latest_environment_deployment_status != ReleaseEnvironmentStatuses.Succeeded.SUCCEEDED.value:
-            time.sleep(seconds_to_sleep_between_calls)
-            latest_environment_deployment_status = self.get_environment_deploy_steps(release_project, release_id, environment_id).status
-        
-        print(f"Release: {release_definition.name}, Final Deployment Status: {latest_environment_deployment_status}")
-        return latest_environment_deployment_status
-    
+                if release_tasks:
+                    percentage, completed_tasks, total_tasks = self.calculate_deployment_completion_percentage(release_tasks, latest_environment_deployment_status)
+
+                    if percentage == 100:
+                        all_tasks_completed = True
+                        return self.return_deployment_status("All deployment tasks have been completed successfully, pending final confirmation call from release.", 100, latest_environment_deployment_status)
+                    else:
+                        return self.return_deployment_status(f"{completed_tasks}/{total_tasks} deployment tasks completed.", percentage, latest_environment_deployment_status)
+                else:
+                    return self.return_deployment_status("Unable to retrieve live deployment data. Deployment is still in progress.", 0, latest_environment_deployment_status)
+        except:
+            return self.return_deployment_status("Live deployment data retrieval failed. Please check ADO and proceed manually.", 0, latest_environment_deployment_status)
+
     def get_environment_deploy_steps(self, release_project, release_id, environment_id):
         release_environment = self.environment_finder.get_release_environment_by_id(release_project, release_id, environment_id)
         deploy_steps = self.get_latest_deploy_step_from_environment_details(release_environment)
         return deploy_steps
+    
+    def return_deployment_status(self, comment, percentage, status):
+        live_deployment_status = DeploymentStatus(comment,percentage,status)
+        return live_deployment_status
             
