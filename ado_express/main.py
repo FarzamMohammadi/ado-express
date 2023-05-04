@@ -183,19 +183,28 @@ class Startup:
 
     def get_deployment_status(self, deployment_detail: DeploymentDetails):
         try:
-            if deployment_detail is not None: # The ThreadPoolExecutor may return None for some releases
-                updating_release = self.release_finder.get_release(deployment_detail, self.via_env, False, self.via_latest)
-                
-                release_environment_finder = ReleaseEnvironmentFinder(self.ms_authentication, self.environment_variables)
-                updating_release_environment = release_environment_finder.get_release_environment(deployment_detail, updating_release.id)
-                
+            if deployment_detail is not None:
+                try:
+                    updating_release = self.release_finder.get_release(deployment_detail, self.via_env, False, self.via_latest)
+                except IndexError:
+                    logging.error(f"Error: Cannot find the release for {deployment_detail.release_name}")
+                    return None
+
+                try:
+                    release_environment_finder = ReleaseEnvironmentFinder(self.ms_authentication, self.environment_variables)
+                    updating_release_environment = release_environment_finder.get_release_environment(deployment_detail, updating_release.id)
+                except IndexError:
+                    logging.error(f"Error: Cannot find the release environment for {deployment_detail.release_name} and release ID {updating_release.id}")
+                    return None
+
                 release_progress = UpdateProgressRetriever(self.ms_authentication, self.environment_variables)
                 current_deployment_status = release_progress.monitor_release_progress(deployment_detail.release_project_name, updating_release, updating_release_environment.id)
-                
+
                 return current_deployment_status
 
         except Exception as e:
             logging.error(f'There was an error with retrieving live deployment status of {updating_release.release_definition}.\nException:{e}')
+
 
     def release_deployment_completed(self, deployment_detail): 
         update_manager = UpdateRelease(constants, self.ms_authentication, self.environment_variables, self.release_finder)

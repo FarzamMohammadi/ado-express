@@ -1,5 +1,6 @@
 import json
 import time
+from threading import Thread
 
 import status
 from base.models.DeploymentDetail import DeploymentDetail
@@ -66,52 +67,59 @@ def deploy(request):
             crucial_deployment_details = ado_express.get_crucial_deployment_from_deployment_details(deployment_details, crucial_release_definitions)
             deployment_details[:] = ado_express.remove_crucial_deployments_from_deployment_details(deployment_details, crucial_release_definitions)
 
-        #TODO Add clear rollback handling and return results to user - currently it's handled but user is not notified and will only know the deployment was unsuccessful 
-        deployment_results = dict()
-        has_crucial_deployments = False
+        def run_deployments_in_background():
+            has_crucial_deployments = False
 
-        # In case we need to separate later
-        if crucial_deployment_details:
-            has_crucial_deployments = True
-            ado_express.run_release_deployments(crucial_deployment_details, True)
+            if crucial_deployment_details:
+                ado_express.run_release_deployments(crucial_deployment_details, True)
+                process_deployments(crucial_deployment_details, ado_express)
 
-            print("OKAY DEPLOYMENTS ATTEMPTED")
-            
-            deployments_complete = False
-            completed_deployments = []
+                has_crucial_deployments = True
 
-            while not deployments_complete:
-                
-                for deployment_detail in crucial_deployment_details:
+            if deployment_details:
+                ado_express.run_release_deployments(deployment_details, False, has_crucial_deployments)
+                process_deployments(deployment_details, ado_express)
 
-                    if deployment_detail.release_name not in completed_deployments:
-                        deployment_is_complete = ado_express.release_deployment_completed(deployment_detail)
-                        
-                        if deployment_is_complete:
-                            completed_deployments.append(deployment_detail.release_name)
+        # Start a new thread to run the deployments in the background
+        deployment_thread = Thread(target=run_deployments_in_background)
+        deployment_thread.start()
 
-                            latest_deployment_status: DeploymentStatus = ado_express.get_deployment_status(deployment_detail)
-                            deployment_status = dict()
-                            deployment_status[deployment_detail.release_name] = DeploymentStatusSerializer(latest_deployment_status.comment, latest_deployment_status.percentage, latest_deployment_status.status)
-                            
-                            WebSocketConsumer.send_message(json.dumps({key: value.to_dict() for key, value in deployment_status.items()}))
-                        else: 
-                            deployment_status = dict()
-                            latest_deployment_status: DeploymentStatus = ado_express.get_deployment_status(deployment_detail)
-                            deployment_status[deployment_detail.release_name] = DeploymentStatusSerializer(latest_deployment_status.comment, latest_deployment_status.percentage, latest_deployment_status.status)
-
-                            WebSocketConsumer.send_message(json.dumps({key: value.to_dict() for key, value in deployment_status.items()}))
-                            time.sleep(1)
-                
-                if len(completed_deployments) == len(crucial_deployment_details):
-                    deployments_complete = True
-
-        # if deployment_details:
-        #     regular_deployment_results = ado_express.run_release_deployments(deployment_details, False, has_crucial_deployments)
-
-        #     for deployment_result in regular_deployment_results:
-        #         deployment_results[deployment_result.release_definition] = [deployment_result.__dict__]
-
-        return Response(status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_200_OK, data={})
     else:
         return Response(status=status.HTTP_400_BAD_REQUEST, data=f"\n{serializer.errors}")
+    
+def process_deployments(deployment_details, ado_express: Startup):
+    deployments_complete = False
+    completed_deployments = []
+
+    while not deployments_complete:
+        for deployment_detail in deployment_details:
+            if deployment_detail.release_name not in completed_deployments:
+                deployment_is_complete = ado_express.release_deployment_completed(deployment_detail)
+
+                if deployment_is_complete:
+                    completed_deployments.append(deployment_detail.release_name)
+
+                latest_deployment_status: DeploymentStatus = ado_express.get_deployment_status(deployment_detail)
+                
+                if latest_deployment_status is None: 
+                    deployment_status = dict()
+                    deployment_status[deployment_detail.release_name] = DeploymentStatusSerializer('Unable to retrieve deployment status - Please check ADO', 0, 'Unknown')
+                    
+                    WebSocketConsumer.send_message(json.dumps({key: value.to_dict() for key, value in deployment_status.items()}))
+                    
+                    completed_deployments.append(deployment_detail.release_name) 
+                    continue
+
+                deployment_status = dict()
+                deployment_status[deployment_detail.release_name] = DeploymentStatusSerializer(latest_deployment_status.comment, latest_deployment_status.percentage, latest_deployment_status.status)
+
+                WebSocketConsumer.send_message(json.dumps({key: value.to_dict() for key, value in deployment_status.items()}))
+
+                if not deployment_is_complete:
+                    time.sleep(1)
+
+        if len(completed_deployments) == len(deployment_details):
+            deployments_complete = True
+
+    return deployments_complete

@@ -31,13 +31,13 @@ class UpdateRelease:
         
         if matching_release_environment is not None:
             
-            if matching_release_environment.status not in ReleaseEnvironmentStatuses.InProgress:
+            if matching_release_environment.status != ReleaseEnvironmentStatuses.InProgress.IN_PROGRESS.value:
                 # Update Release
                 comment = 'Deployed automatically via ADO-Express (https://github.com/FarzamMohammadi/ado-express)'
                 self.update_release_environment(comment, deployment_detail, release_to_update, matching_release_environment)
                 logging.info(f'Update triggered - Project:{deployment_detail.release_project_name} Release Definition:{deployment_detail.release_name} Release:{release_to_update.name} Environment:{self.environment_variables.RELEASE_TARGET_ENV}')
             else: 
-                logging.info(f'Release is already updating - Project:{deployment_detail.release_project_name} Release Definition:{deployment_detail.release_name} Release:{release_to_update.name} Environment:{self.environment_variables.RELEASE_TARGET_ENV}')
+                logging.info(f'Release deployment is already in progress - Project:{deployment_detail.release_project_name} Release Definition:{deployment_detail.release_name} Release:{release_to_update.name} Environment:{self.environment_variables.RELEASE_TARGET_ENV}')
             
             return True, None
         else: 

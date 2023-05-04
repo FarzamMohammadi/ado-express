@@ -83,16 +83,13 @@
     });
 
     ws.addEventListener('message', (event) => {
-      console.log('WebSocket message received:', event.data);
-      console.log(runType, runMethod)
 
       if (
         runType === RunType.Deployment &&
         runMethod === DeploymentRunMethod.ViaNumber
       ) {
-        console.log("Should be parsing the data")
         const parsedData: ILiveDeploymentDetails = JSON.parse(event.data);
-        dictionary = parsedData;
+        dictionary = { ...dictionary, ...parsedData };
       }
     });
 
@@ -181,7 +178,7 @@
                 </div>
                 <div class="text-xl">
                   {value.status}
-                  {value.percentage}%
+                  {value.percentage.toFixed()}%
                 </div>
               </div>
               <div class="flex flex-col items-center justify-center">

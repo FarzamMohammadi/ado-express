@@ -1,4 +1,5 @@
 import base64
+import logging
 
 import requests
 
@@ -34,13 +35,13 @@ class UpdateProgressRetriever:
 
         return percentage, completed_tasks, total_tasks
     
-    def get_release_environment_tasks(self, release_project, release_id, environment_id, timeline_id):
-        generic_release_info = self.release_client.get_releases(project=release_project, definition_id=90, release_id_filter=[release_id])
-
+    def get_release_environment_tasks(self, release_project, release_id, environment_id, timeline_id, release_definition_id):
+        generic_release_info = self.release_client.get_releases(project=release_project, definition_id=release_definition_id, release_id_filter=[release_id])
+        
         for key, items in generic_release_info.__dict__.items():
             for item in items:
                 release_base_url = item.url
-
+            
                 # Making direct API call because azure-devops doesn't provide a method to get tasks
                 if (release_base_url):
                     api_url = f"{release_base_url}/environments/{environment_id}/attempts/1/timelines/{timeline_id}/tasks"
@@ -48,7 +49,7 @@ class UpdateProgressRetriever:
                         'Authorization': f'Basic {str(base64.b64encode((f":{self.environment_variables.PERSONAL_ACCESS_TOKEN}").encode("ascii")).strip(), "ascii")}',
                         'Content-Type': 'application/json'
                     }
-
+                    
                     response = requests.get(api_url, headers=headers)
 
                     if response.status_code == 200:
@@ -66,9 +67,9 @@ class UpdateProgressRetriever:
     
     def monitor_release_progress(self, release_project, updating_release, environment_id):
         release_id = updating_release.id
+        release_definition_id = updating_release.release_definition.id
         all_tasks_completed = False
         latest_environment_deployment_status = None
-        seconds_to_sleep_between_calls = 2
 
         deploy_steps = self.get_environment_deploy_steps(release_project, release_id, environment_id)
         latest_environment_deployment_status = deploy_steps.status
@@ -83,9 +84,13 @@ class UpdateProgressRetriever:
                     
         try:
             timeline_id_equivalent = deploy_steps.release_deploy_phases[0].run_plan_id
-            
-            while not all_tasks_completed:
-                release_tasks = self.get_release_environment_tasks(release_project, release_id, environment_id, timeline_id_equivalent)
+        except Exception as e:
+            logging.error(f"Error: Failed to get timeline ID equivalent for release {release_id}, environment {environment_id}. Exception: {e}")
+            return self.return_deployment_status("Live deployment data retrieval failed. Please check ADO and proceed manually.", 0, latest_environment_deployment_status)
+
+        while not all_tasks_completed:
+            try:
+                release_tasks = self.get_release_environment_tasks(release_project, release_id, environment_id, timeline_id_equivalent, release_definition_id)
 
                 if release_tasks:
                     percentage, completed_tasks, total_tasks = self.calculate_deployment_completion_percentage(release_tasks, latest_environment_deployment_status)
@@ -97,8 +102,9 @@ class UpdateProgressRetriever:
                         return self.return_deployment_status(f"{completed_tasks}/{total_tasks} deployment tasks completed.", percentage, latest_environment_deployment_status)
                 else:
                     return self.return_deployment_status("Unable to retrieve live deployment data. Deployment is still in progress.", 0, latest_environment_deployment_status)
-        except:
-            return self.return_deployment_status("Live deployment data retrieval failed. Please check ADO and proceed manually.", 0, latest_environment_deployment_status)
+            except Exception as e:
+                logging.error(f"Error: Failed to get release environment tasks for release {release_id}, environment {environment_id}. Exception: {e}")
+                return self.return_deployment_status("Live deployment data retrieval failed. Please check ADO and proceed manually.", 0, latest_environment_deployment_status)
 
     def get_environment_deploy_steps(self, release_project, release_id, environment_id):
         release_environment = self.environment_finder.get_release_environment_by_id(release_project, release_id, environment_id)

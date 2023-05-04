@@ -67,13 +67,12 @@ export class ADOExpressApi {
     });
   }
 
-  private async deploy(runConfigurations: RunConfiguration): Promise<IDeploymentDetails> {
-    return await JSONHttp.post<IDeploymentDetails>(
+  private async deploy(runConfigurations: RunConfiguration): Promise<void> {
+    await JSONHttp.post<IDeploymentDetails>(
       Endpoints.deploy,
       runConfigurations
     ).then((res) => {
       console.log(res);
-      return res;
     });
-  }
+  }  
 }
