@@ -5,6 +5,8 @@ import requests
 
 from ado_express.packages.authentication.ms_authentication.ms_authentication import \
     MSAuthentication
+from ado_express.packages.common.enums.deployment_status_label import \
+    DeploymentStatusLabel
 from ado_express.packages.common.enums.environment_statuses import \
     ReleaseEnvironmentStatuses
 from ado_express.packages.common.environment_variables import \
@@ -76,17 +78,17 @@ class UpdateProgressRetriever:
 
         if latest_environment_deployment_status != ReleaseEnvironmentStatuses.InProgress.IN_PROGRESS.value:
             if latest_environment_deployment_status in ReleaseEnvironmentStatuses.Failed:
-                return self.return_deployment_status("Something went wrong with the deployment, please check the errors on ADO.", 0, latest_environment_deployment_status)
+                return self.return_deployment_status("Something went wrong with the deployment, please check the errors on ADO.", 0, self.get_deployment_status_label(latest_environment_deployment_status))
             elif latest_environment_deployment_status in ReleaseEnvironmentStatuses.Succeeded:
-                return self.return_deployment_status("The deployment process has finished successfully.", 100, latest_environment_deployment_status)
+                return self.return_deployment_status("The deployment process has finished successfully.", 100, self.get_deployment_status_label(latest_environment_deployment_status))
             else:
-                return self.return_deployment_status("Waiting for deployment to start.", 0, latest_environment_deployment_status)
+                return self.return_deployment_status("Waiting for deployment to start.", 0, self.get_deployment_status_label(latest_environment_deployment_status))
                     
         try:
             timeline_id_equivalent = deploy_steps.release_deploy_phases[0].run_plan_id
         except Exception as e:
             logging.error(f"Error: Failed to get timeline ID equivalent for release {release_id}, environment {environment_id}. Exception: {e}")
-            return self.return_deployment_status("Live deployment data retrieval failed. Please check ADO and proceed manually.", 0, latest_environment_deployment_status)
+            return self.return_deployment_status("Live deployment data retrieval failed. Please check ADO and proceed manually.", 0, self.get_deployment_status_label(latest_environment_deployment_status))
 
         while not all_tasks_completed:
             try:
@@ -97,14 +99,14 @@ class UpdateProgressRetriever:
 
                     if percentage == 100:
                         all_tasks_completed = True
-                        return self.return_deployment_status("All deployment tasks have been completed successfully, pending final confirmation call from release.", 100, latest_environment_deployment_status)
+                        return self.return_deployment_status("All deployment tasks have been completed successfully, pending final confirmation call from release.", 100, self.get_deployment_status_label(latest_environment_deployment_status))
                     else:
-                        return self.return_deployment_status(f"{completed_tasks}/{total_tasks} deployment tasks completed.", percentage, latest_environment_deployment_status)
+                        return self.return_deployment_status(f"{completed_tasks}/{total_tasks} deployment tasks completed.", percentage, self.get_deployment_status_label(latest_environment_deployment_status))
                 else:
-                    return self.return_deployment_status("Unable to retrieve live deployment data. Deployment is still in progress.", 0, latest_environment_deployment_status)
+                    return self.return_deployment_status("Unable to retrieve live deployment data. Deployment is still in progress.", 0, self.get_deployment_status_label(latest_environment_deployment_status))
             except Exception as e:
                 logging.error(f"Error: Failed to get release environment tasks for release {release_id}, environment {environment_id}. Exception: {e}")
-                return self.return_deployment_status("Live deployment data retrieval failed. Please check ADO and proceed manually.", 0, latest_environment_deployment_status)
+                return self.return_deployment_status("Live deployment data retrieval failed. Please check ADO and proceed manually.", 0, self.get_deployment_status_label(latest_environment_deployment_status))
 
     def get_environment_deploy_steps(self, release_project, release_id, environment_id):
         release_environment = self.environment_finder.get_release_environment_by_id(release_project, release_id, environment_id)
@@ -115,3 +117,8 @@ class UpdateProgressRetriever:
         live_deployment_status = DeploymentStatus(comment,percentage,status)
         return live_deployment_status
             
+    def get_deployment_status_label(self, status_key: str) -> str:
+        try:
+            return DeploymentStatusLabel[status_key].value
+        except KeyError:
+            return "Undefined"

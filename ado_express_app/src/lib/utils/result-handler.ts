@@ -75,11 +75,12 @@ export class ResultHandler {
     }
 
     static sendRunResults(runConfiguration: RunConfiguration) {
-        if (runConfiguration.searchOnly === false ||
-            (runConfiguration.searchOnly
+        if (runConfiguration.searchOnly === false )  return;
+        
+        if (runConfiguration.searchOnly
                 && !runConfiguration.queries
                 && (!runConfiguration.viaEnv && !runConfiguration.viaEnvLatestRelease
-                    || runConfiguration.viaEnv && !runConfiguration.viaEnvLatestRelease))) {
+                    || runConfiguration.viaEnv && !runConfiguration.viaEnvLatestRelease)) {
             this.showReleaseDetailsToUser(get(runResultData) as IReleaseDetails, runConfiguration.searchOnly);
         }
         else {
