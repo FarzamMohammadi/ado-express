@@ -145,7 +145,7 @@ def search_via_release_number(request):
         
         return Response(status=status.HTTP_200_OK, data=SnakeToCamelCaseConverter.convert(release_details))
     else:
-        return Response(status=status.HTTP_400_BAD_REQUEST, data=f"Fields are invalid.\n{serializer.error_messages}")
+        return Response(status=status.HTTP_400_BAD_REQUEST, data=f"Fields are invalid.\n{serializer.errors}")
                     
 @api_view(['POST'])
 def search_via_query(request):
@@ -181,5 +181,5 @@ def search_via_query(request):
         
         return Response(status=status.HTTP_200_OK, data=SnakeToCamelCaseConverter.convert(deployment_details))
     else:
-        return Response(status=status.HTTP_400_BAD_REQUEST, data=f"Fields are invalid.\n{serializer.error_messages}")
+        return Response(status=status.HTTP_400_BAD_REQUEST, data=f"Fields are invalid.\n{serializer.errors}")
 

@@ -46,7 +46,7 @@
     <div class="z-50 mb-12">
       <DarkToggle />
     </div>
-
+    
     <div class="w-[500px] mb-12 z-40">
       <CustomRunSpecifierDropdown
         bind:selectedCategoryName={runType}
