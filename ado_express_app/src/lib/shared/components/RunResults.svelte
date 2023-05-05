@@ -83,7 +83,6 @@
     });
 
     ws.addEventListener('message', (event) => {
-
       if (
         runType === RunType.Deployment &&
         runMethod === DeploymentRunMethod.ViaNumber
@@ -178,15 +177,19 @@
                 </div>
                 <div class="text-xl">
                   {value.status}
-                  {value.percentage.toFixed()}%
                 </div>
               </div>
-              <div class="flex flex-col items-center justify-center">
-                <GlowingBars
-                  percentage={value.percentage}
-                  {parentWidth}
-                  {matrixTheme}
-                />
+              <div class="flex flex-row items-center justify-center">
+                <div>
+                  <GlowingBars
+                    percentage={value.percentage}
+                    {parentWidth}
+                    {matrixTheme}
+                  />
+                </div>
+                <div>
+                  {value.percentage.toFixed()}%
+                </div>
               </div>
             </div>
           {/each}
