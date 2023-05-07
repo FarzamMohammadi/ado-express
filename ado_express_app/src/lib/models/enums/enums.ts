@@ -20,3 +20,10 @@ export enum SearchRunMethod {
 export enum DeploymentRunMethod {
     ViaNumber = "Via Release Number"
 }
+
+export enum WebsocketMessageType {
+    Generic = "Generic",
+    DeploymentStatus = "DeploymentStatus",
+    SearchStatus = "SearchStatus",
+    Error = "Error",
+}

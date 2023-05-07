@@ -1,5 +1,5 @@
-import type { ILiveDeploymentDetail } from './ilive-deployment-detail.interface';
+import type { IDeploymentStatus } from './ilive-deployment-detail.interface';
 
-export interface ILiveDeploymentDetails {
-  [releaseDefinition: string]: ILiveDeploymentDetail;
+export interface IDeploymentStatuses {
+  [releaseDefinition: string]: IDeploymentStatus;
 }

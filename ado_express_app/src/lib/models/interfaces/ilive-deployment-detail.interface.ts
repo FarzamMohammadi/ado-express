@@ -1,4 +1,4 @@
-export interface ILiveDeploymentDetail {
+export interface IDeploymentStatus {
   comment?: string;
   percentage: number;
   status: string;

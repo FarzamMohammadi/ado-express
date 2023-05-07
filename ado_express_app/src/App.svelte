@@ -1,8 +1,8 @@
 <script lang="ts">
   import RunConfigurationsForm from './lib/shared/components/RunConfigurationsForm.svelte';
-  import RunResults from './lib/shared/components/RunResults.svelte';
   import CustomRunSpecifierDropdown from './lib/shared/components/custom-form-components/CustomRunSpecifierDropdown.svelte';
   import Navbar from './lib/shared/components/navbar/Navbar.svelte';
+  import RunResults from './lib/shared/components/run-results/RunResults.svelte';
   import DarkToggle from './lib/shared/components/utils/DarkToggle.svelte';
   import { running } from './lib/utils/stores';
 

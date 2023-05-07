@@ -23,7 +23,7 @@ class WebSocketConsumer(AsyncWebsocketConsumer):
 
     # Can be called from anywhere
     @staticmethod
-    def send_message(message):
+    def send_message(message='', message_type='generic'):
         if connected_clients:
             loop = asyncio.new_event_loop()
             asyncio.set_event_loop(loop)
@@ -31,8 +31,12 @@ class WebSocketConsumer(AsyncWebsocketConsumer):
             async def broadcast_static():
                 nonlocal message
                 if connected_clients:
-                    message = json.dumps(message) if isinstance(message, dict) else message
-                    await asyncio.gather(*(client.send(message) for client in connected_clients))
+                    if isinstance(message, dict):
+                        message['message_type'] = message_type
+                    else:
+                        message = {'message': message, 'message_type': message_type}
+                    json_message = json.dumps(message)
+                    await asyncio.gather(*(client.send(json_message) for client in connected_clients))
 
             coroutine = broadcast_static()
             loop.run_until_complete(coroutine)
