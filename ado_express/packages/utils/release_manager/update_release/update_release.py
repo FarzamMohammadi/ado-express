@@ -31,38 +31,32 @@ class UpdateRelease:
         
         if matching_release_environment is not None:
             
-            if matching_release_environment.status not in ReleaseEnvironmentStatuses.InProgress:
+            if matching_release_environment.status != ReleaseEnvironmentStatuses.InProgress.IN_PROGRESS.value:
                 # Update Release
                 comment = 'Deployed automatically via ADO-Express (https://github.com/FarzamMohammadi/ado-express)'
-                update_result = self.update_release_environment(comment, deployment_detail, release_to_update, matching_release_environment)
+                self.update_release_environment(comment, deployment_detail, release_to_update, matching_release_environment)
                 logging.info(f'Update triggered - Project:{deployment_detail.release_project_name} Release Definition:{deployment_detail.release_name} Release:{release_to_update.name} Environment:{self.environment_variables.RELEASE_TARGET_ENV}')
             else: 
-                logging.info(f'Release is already updating - Project:{deployment_detail.release_project_name} Release Definition:{deployment_detail.release_name} Release:{release_to_update.name} Environment:{self.environment_variables.RELEASE_TARGET_ENV}')
+                logging.info(f'Release deployment is already in progress - Project:{deployment_detail.release_project_name} Release Definition:{deployment_detail.release_name} Release:{release_to_update.name} Environment:{self.environment_variables.RELEASE_TARGET_ENV}')
             
-            return (True, None), matching_release_environment
+            return True, None
         else: 
             failure_reason = f'Destination Release Environment "{self.environment_variables.RELEASE_TARGET_ENV}" not found'
-            return (False, failure_reason), matching_release_environment
+            return False, failure_reason
 
 
-    def get_release_update_result(self, deployment_detail, release_to_update):
-        updated_successfully = False
-        update_complete = False
-
-        while not update_complete:
-            release_to_update_data = self.release_client.get_release(project=deployment_detail.release_project_name, release_id=release_to_update.id)
-            for environment in release_to_update_data.environments:
-                if (str(environment.name).lower() == self.environment_variables.RELEASE_TARGET_ENV.lower()):
-                    if environment.status in ReleaseEnvironmentStatuses.Succeeded: 
-                        updated_successfully = True
-                        update_complete = True
-                        break
-                    elif environment.status in ReleaseEnvironmentStatuses.Failed:
-                        update_complete = True
-                        break       
-            time.sleep(5)
-                            
-        return updated_successfully
+    def is_deployment_complete(self, deployment_detail, release_to_update):
+        release_to_update_data = self.release_client.get_release(project=deployment_detail.release_project_name, release_id=release_to_update.id)
+        
+        for environment in release_to_update_data.environments:
+            if (str(environment.name).lower() == self.environment_variables.RELEASE_TARGET_ENV.lower()):
+                if environment.status in ReleaseEnvironmentStatuses.Succeeded: 
+                    return True
+                elif environment.status in ReleaseEnvironmentStatuses.Failed:
+                    return True
+                else:
+                    return False
+        
 
     def update_release_environment(self, comment, deployment_detail, release_to_update, matching_release_environment):
         update_metadata = ReleaseEnvironmentUpdateMetadata(comment, status=2)

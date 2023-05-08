@@ -1,6 +1,8 @@
 import os
 import sys
 
+from ado_express.packages.utils.asset_retrievers.release_environment_finder.release_environment_finder import \
+    ReleaseEnvironmentFinder
 from ado_express.packages.utils.release_manager.update_progress_retriever.update_progress_retriever import \
     UpdateProgressRetriever
 
@@ -94,7 +96,7 @@ class Startup:
     def get_crucial_release_definitions(self, deployment_details):
         crucial_release_definitions = []
         # First checks command line args, if not found, then checks the deployment plan file
-        if self.environment_variables.CRUCIAL_RELEASE_DEFINITIONS is not None:
+        if self.environment_variables.CRUCIAL_RELEASE_DEFINITIONS is not None and self.environment_variables.CRUCIAL_RELEASE_DEFINITIONS != []:
             crucial_release_definitions = self.environment_variables.CRUCIAL_RELEASE_DEFINITIONS
         else:
             for deployment_detail in deployment_details:
@@ -169,32 +171,47 @@ class Startup:
                 release_to_update = self.release_finder.get_release(deployment_detail, self.via_env, False, self.via_latest)
                 update_manager = UpdateRelease(constants, self.ms_authentication, self.environment_variables, self.release_finder)
 
-                update_attempt, updating_release_environment = update_manager.update_release(deployment_detail, release_to_update)
-                update_attempt_successful = update_attempt[0]
-                update_comment = update_attempt[1]
+                attempt_was_successful, update_error = update_manager.update_release(deployment_detail, release_to_update)
+
+                if not attempt_was_successful:
+                    logging.error(f'There was an error with deployment for: {deployment_detail.release_name}.\n:{update_error}')
+
+                return attempt_was_successful
+        except Exception as e:
+            logging.error(f'There was an error with deployment for: {deployment_detail.release_name}. Please check their status and continue manually.\nException:{e}')
+            return False
+
+    def get_deployment_status(self, deployment_detail: DeploymentDetails):
+        try:
+            if deployment_detail is not None:
+                try:
+                    updating_release = self.release_finder.get_release(deployment_detail, self.via_env, False, self.via_latest)
+                except IndexError:
+                    logging.error(f"Error: Cannot find the release for {deployment_detail.release_name}")
+                    return None
+
+                try:
+                    release_environment_finder = ReleaseEnvironmentFinder(self.ms_authentication, self.environment_variables)
+                    updating_release_environment = release_environment_finder.get_release_environment(deployment_detail, updating_release.id)
+                except IndexError:
+                    logging.error(f"Error: Cannot find the release environment for {deployment_detail.release_name} and release ID {updating_release.id}")
+                    return None
 
                 release_progress = UpdateProgressRetriever(self.ms_authentication, self.environment_variables)
-                release_progress.monitor_release_progress(deployment_detail.release_project_name, release_to_update, updating_release_environment.id)
+                current_deployment_status = release_progress.monitor_release_progress(deployment_detail.release_project_name, updating_release, updating_release_environment.id)
 
-                if update_attempt_successful:
-                    # Check the status of release update
-                    logging.info(f'Monitoring update Status - Project:{deployment_detail.release_project_name} Release Definition:{deployment_detail.release_name} Release:{release_to_update.name} Environment:{self.environment_variables.RELEASE_TARGET_ENV}')
-                    release_updated_successfully = update_manager.get_release_update_result(deployment_detail, release_to_update)
-
-                    if not release_updated_successfully:
-                        update_manager.handle_failed_update(deployment_detail, self.via_env)
-                    else:
-                        logging.info(f'Release Update Successful - Project:{deployment_detail.release_project_name} Release Definition:{deployment_detail.release_name} Release:{release_to_update.name} Environment:{self.environment_variables.RELEASE_TARGET_ENV}')
-
-                        return ReleaseDetails(deployment_detail.release_project_name, deployment_detail.release_name, release_to_update.name, self.environment_variables.RELEASE_TARGET_ENV, True, datetime.now())
-                else:
-                    update_manager.handle_failed_update(deployment_detail, self.via_env, failure_reason=update_comment)
-
-                return ReleaseDetails(deployment_detail.release_project_name, deployment_detail.release_name, release_to_update.name, self.environment_variables.RELEASE_TARGET_ENV, False, datetime.now())
+                return current_deployment_status
 
         except Exception as e:
-            logging.error(f'There was an error. Please check their status and continue manually.\nException:{e}')
-         
+            logging.error(f'There was an error with retrieving live deployment status of {updating_release.release_definition}.\nException:{e}')
+
+
+    def release_deployment_completed(self, deployment_detail): 
+        update_manager = UpdateRelease(constants, self.ms_authentication, self.environment_variables, self.release_finder)
+        release_to_update = self.release_finder.get_release(deployment_detail, self.via_env, False, self.via_latest)
+        deployment_is_complete = update_manager.is_deployment_complete(deployment_detail, release_to_update)
+        return deployment_is_complete
+    
     def run_release_deployments(self, deployment_details, is_deploying_crucial_releases, had_crucial_releases=False):
         releases = []
         

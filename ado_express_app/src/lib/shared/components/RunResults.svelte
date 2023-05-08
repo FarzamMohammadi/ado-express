@@ -1,5 +1,7 @@
 <script lang="ts">
   import { onDestroy, onMount } from 'svelte';
+  import { DeploymentRunMethod, RunType } from '../../models/enums/enums';
+  import type { ILiveDeploymentDetails } from '../../models/interfaces/ilive-deployment-details.interface';
   import type { IDisplayedRunResultData } from '../../models/interfaces/irun-result-data';
   import {
       displayedRunResultData,
@@ -11,6 +13,7 @@
   export let runMethod: string = null;
   export let runType: string = null;
   let displayingDeploymentResults = false;
+  let dictionary: ILiveDeploymentDetails = {};
 
   let matrixTheme = true;
   let localResultData: IDisplayedRunResultData[] = [];
@@ -51,14 +54,6 @@
     if (dotText.length < 3) {
       dotText += '.';
       percentage = percentage + 5;
-
-      dictionary['international-api-yaml'] = {
-        status: 'Pending',
-        percentage: percentage,
-      };
-      if (percentage > 100) {
-        percentage = 0;
-      }
     } else {
       dotText = '';
     }
@@ -77,7 +72,35 @@
     parentWidth = Math.min((windowWidth / 2.5) * 0.8, 600); // Adjust the multiplier (0.8) as needed to match the parent div's width
   };
 
+  let ws: WebSocket;
+
   onMount(() => {
+    const websocketUrl = 'ws://localhost:8000/ws/';
+    ws = new WebSocket(websocketUrl);
+
+    ws.addEventListener('open', (event) => {
+      console.log('WebSocket connection opened:', event);
+    });
+
+    ws.addEventListener('message', (event) => {
+
+      if (
+        runType === RunType.Deployment &&
+        runMethod === DeploymentRunMethod.ViaNumber
+      ) {
+        const parsedData: ILiveDeploymentDetails = JSON.parse(event.data);
+        dictionary = { ...dictionary, ...parsedData };
+      }
+    });
+
+    ws.addEventListener('close', (event) => {
+      console.log('WebSocket connection closed:', event);
+    });
+
+    ws.addEventListener('error', (event) => {
+      console.error('WebSocket error:', event);
+    });
+
     localResultData = $displayedRunResultData;
     displayDataInputs = localResultData.map(() => '');
 
@@ -115,13 +138,6 @@
   let dotText = '';
   setInterval(updateDots, 400);
 
-  let dictionary = {};
-
-  dictionary['international-api-yaml'] = {
-    status: 'In Progress',
-    percentage: '50',
-  };
-
   $: {
     updateWindowWidth();
   }
@@ -152,17 +168,25 @@
         <div class="dictionary-container">
           {#each Object.entries(dictionary) as [key, value]}
             <div class="mb-4">
-              <div class="flex {parentWidth < 400 ? 'flex-col' : 'flex-row'} items-center justify-between">
+              <div
+                class="flex {parentWidth < 400
+                  ? 'flex-col'
+                  : 'flex-row'} items-center justify-between"
+              >
                 <div>
                   <strong class="text-xl">{key}</strong>
                 </div>
                 <div class="text-xl">
-                  {value['status']}
-                  {value['percentage']}%
+                  {value.status}
+                  {value.percentage.toFixed()}%
                 </div>
               </div>
               <div class="flex flex-col items-center justify-center">
-                <GlowingBars percentage={value['percentage']} {parentWidth} {matrixTheme} />
+                <GlowingBars
+                  percentage={value.percentage}
+                  {parentWidth}
+                  {matrixTheme}
+                />
               </div>
             </div>
           {/each}
