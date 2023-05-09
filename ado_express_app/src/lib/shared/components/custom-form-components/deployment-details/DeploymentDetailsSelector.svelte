@@ -61,7 +61,6 @@
       </Tooltip>
     </div>
 
-    <!-- {#if !$running} -->
       {#if showCustomSelector}
         <div class="p-2 mt-2 read-only">
           <ExcelFileInput
