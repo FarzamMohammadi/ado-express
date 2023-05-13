@@ -5,10 +5,13 @@
   import RunResults from './lib/shared/components/run-results/RunResults.svelte';
   import DarkToggle from './lib/shared/components/utils/DarkToggle.svelte';
   import { running } from './lib/utils/stores';
+  import { websocketStore } from './lib/utils/websocketStores/websocket-store';
 
   let runType;
   let runMethod;
   let isSubmitting;
+
+  websocketStore.connect();
 </script>
 
 <svelte:head>
@@ -46,7 +49,7 @@
     <div class="z-50 mb-12">
       <DarkToggle />
     </div>
-    
+
     <div class="w-[500px] mb-12 z-40">
       <CustomRunSpecifierDropdown
         bind:selectedCategoryName={runType}

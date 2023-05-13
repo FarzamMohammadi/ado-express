@@ -3,17 +3,15 @@
   import LiveDeploymentStatus from './LiveDeploymentStatus.svelte';
 
   import { onDestroy, onMount } from 'svelte';
-  import { WebsocketMessageType } from '../../../models/enums/enums';
-  import type { GenericWebsocketMessage } from '../../../models/interfaces/generic-websocket-message';
   import type { IDeploymentStatuses } from '../../../models/interfaces/ilive-deployment-details.interface';
   import type { IDisplayedRunResultData } from '../../../models/interfaces/irun-result-data';
   import {
       displayedRunResultData,
       runResultData,
   } from '../../../utils/stores/stores';
+  import { deploymentStatusStore } from '../../../utils/websocketStores/deployment-status-store';
+  import { genericMessageStore } from '../../../utils/websocketStores/generic-message-store';
 
-  export let runMethod: string = null;
-  export let runType: string = null;
   let displayingDeploymentResults = false;
   let deploymentStatuses: IDeploymentStatuses = {};
   let displayItems = [];
@@ -22,6 +20,22 @@
   let localResultData: IDisplayedRunResultData[] = [];
   export let displayIdleDots = false;
   let displayDataInputs: string[] = [];
+
+  let genericWebsocketMessages;
+  let deploymentStatusWebsocketMessages;
+
+  let previousLength = 0;
+  const unsubscribeGenericMessage = genericMessageStore.subscribe((value) => {
+    if (value.length > previousLength) {
+      // Append only new messages
+      localResultData = [...localResultData, ...value.slice(previousLength)];
+      previousLength = value.length;
+    }
+  });
+
+  const unsubscribeDeploymentStatus = deploymentStatusStore.subscribe((value) => {
+    deploymentStatusWebsocketMessages = value;
+  });
 
   function downloadResultsAsJSONFile(): void {
     const jsonString = JSON.stringify($runResultData);
@@ -78,59 +92,11 @@
   let ws: WebSocket;
 
   onMount(() => {
-    const websocketUrl = 'ws://localhost:8000/ws/';
-    ws = new WebSocket(websocketUrl);
-
-    ws.addEventListener('open', (event) => {
-      console.log('WebSocket connection opened:', event);
-    });
-
-    ws.addEventListener('message', (event) => {
-      const parsedData = JSON.parse(event.data);
-      console.log('WebSocket message received:', parsedData);
-      if (parsedData.message_type === WebsocketMessageType.Generic) {
-        console.log('Got generic message');
-        const messageData: GenericWebsocketMessage = JSON.parse(
-          parsedData.message
-        );
-        displayDataInputs = [...displayDataInputs, messageData.message];
-        localResultData = [
-          ...localResultData,
-          {
-            text: messageData.message,
-            showIdleDots: messageData.showIdleDots,
-          },
-        ];
-      } else if (
-        parsedData.message_type === WebsocketMessageType.DeploymentStatus
-      ) {
-        const messageData = JSON.parse(parsedData.message);
-        const liveDeploymentDetails: IDeploymentStatuses = {};
-
-        for (const key in messageData) {
-          liveDeploymentDetails[key] = messageData[key];
-        }
-
-        deploymentStatuses = {
-          ...deploymentStatuses,
-          ...liveDeploymentDetails,
-        };
-      }
-    });
-
-    ws.addEventListener('close', (event) => {
-      console.log('WebSocket connection closed:', event);
-    });
-
-    ws.addEventListener('error', (event) => {
-      console.error('WebSocket error:', event);
-    });
-
     localResultData = $displayedRunResultData;
     displayDataInputs = localResultData.map(() => '');
 
     localResultData.forEach((dataInput, index) => {
-      typeEffect(dataInput.text || '', 0, index);
+      typeEffect(dataInput.message || '', 0, index);
     });
 
     window.addEventListener('resize', updateWindowWidth);
@@ -146,7 +112,7 @@
           //displayIdleDots = !localResultData[newIndex].showIdleDots;
 
           displayDataInputs = [...displayDataInputs, ''];
-          typeEffect(localResultData[newIndex].text || '', 0, newIndex);
+          typeEffect(localResultData[newIndex].message || '', 0, newIndex);
         }
       }
     );
@@ -157,6 +123,8 @@
   });
 
   onDestroy(() => {
+    unsubscribeGenericMessage();
+    unsubscribeDeploymentStatus();
     unsubscribeDisplayedRunResultData();
   });
 
@@ -172,7 +140,9 @@
   $: {
     const isLocalResultDataChanged =
       localResultData.length !== prevLocalResultDataLength;
-    const deploymentStatusKeys = new Set(Object.keys(deploymentStatuses));
+    const deploymentStatusKeys = new Set(
+      Object.keys(deploymentStatusWebsocketMessages)
+    );
     const isNewKeyInDeploymentStatus = !Array.from(deploymentStatusKeys).every(
       (key) => prevDeploymentStatusKeys.has(key)
     );
@@ -202,6 +172,7 @@
     prevDeploymentStatusKeys = deploymentStatusKeys;
 
     console.log('displayItems', displayItems);
+    console.log('displayItems', localResultData);
   }
 </script>
 
@@ -215,7 +186,7 @@
         {#each displayItems as item, i}
           {#if item.type === 'message'}
             <DisplayDataInput
-              data={item.data.text}
+              data={item.data.message}
               showIdleDots={item.data.showIdleDots &&
                 i === localResultData.length - 1}
               bind:dotText

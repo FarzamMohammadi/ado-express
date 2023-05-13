@@ -25,11 +25,11 @@ export class ResultHandler {
         return `${formattedDate} ${formattedTime}`;
     }
 
-    static sendMessage(text: string, showIdleDots: boolean = false) {
+    static sendMessage(message: string, showIdleDots: boolean = false) {
         displayedRunResultData.update((data) => [
             ...data,
             {
-                text,
+                message,
                 showIdleDots,
             },
         ]);
