@@ -73,33 +73,35 @@ def deploy(request):
             has_crucial_deployments = False
 
             if crucial_deployment_details:
-                message = GenericWebsocketMessageSerializer('\n\nDeploying crucial releases', True)
-
-                
+                message = GenericWebsocketMessageSerializer('\nDeploying crucial releases', True)
                 WebSocketConsumer.send_message(json.dumps(message.to_dict()), WebsocketMessageType.Generic.value)
-                time.sleep(10)
-                # ado_express.run_release_deployments(crucial_deployment_details, True)
-                # process_deployments(crucial_deployment_details, ado_express)
+ 
+                ado_express.run_release_deployments(crucial_deployment_details, True)
+                process_deployments(crucial_deployment_details, ado_express)
 
-                # has_crucial_deployments = True
-                # message = GenericWebsocketMessageSerializer('\n\nCrucial release deployments successfully completed.')
-                # WebSocketConsumer.send_message(json.dumps(message.to_dict()), WebsocketMessageType.Generic.value)
-
-        #     if deployment_details:
+                has_crucial_deployments = True
                 
-        #         if has_crucial_deployments: 
-        #             message = GenericWebsocketMessageSerializer('\n\nNow, deploying the rest of the releases', True)
-        #             WebSocketConsumer.send_message(json.dumps(message.to_dict()), WebsocketMessageType.Generic.value)
-        #         else: 
-        #             message = GenericWebsocketMessageSerializer('\n\nDeploying releases', True)
-        #             WebSocketConsumer.send_message(json.dumps(message.to_dict()), WebsocketMessageType.Generic.value)
+                message = GenericWebsocketMessageSerializer('Crucial release deployments are now complete.')
+                WebSocketConsumer.send_message(json.dumps(message.to_dict()), WebsocketMessageType.Generic.value)
 
-        #         ado_express.run_release_deployments(deployment_details, False, has_crucial_deployments)
-        #         process_deployments(deployment_details, ado_express)
+            if deployment_details:
+                
+                if has_crucial_deployments: 
+                    message = GenericWebsocketMessageSerializer('\nNow, deploying the rest of the releases', True)
+                    WebSocketConsumer.send_message(json.dumps(message.to_dict()), WebsocketMessageType.Generic.value)
+                else: 
+                    message = GenericWebsocketMessageSerializer('\nDeploying releases', True)
+                    WebSocketConsumer.send_message(json.dumps(message.to_dict()), WebsocketMessageType.Generic.value)
 
-        # # Start a new thread to run the deployments in the background
-        # deployment_thread = Thread(target=run_deployments_in_background)
-        # deployment_thread.start()
+                ado_express.run_release_deployments(deployment_details, False, has_crucial_deployments)
+                process_deployments(deployment_details, ado_express)
+
+                message = GenericWebsocketMessageSerializer('\nAll release deployments are now complete.')
+                WebSocketConsumer.send_message(json.dumps(message.to_dict()), WebsocketMessageType.Generic.value)
+
+        # Start a new thread to run the deployments in the background
+        deployment_thread = Thread(target=run_deployments_in_background)
+        deployment_thread.start()
 
         return Response(status=status.HTTP_200_OK, data={})
     else:

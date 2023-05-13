@@ -1,14 +1,36 @@
 <script>
+  import { onMount } from 'svelte';
   import GlowingBars from '../utils/GlowingBars.svelte';
 
   export let key = '';
   export let status = '';
   export let percentage = 0;
-  export let parentWidth = 0;
   export let matrixTheme = true;
+  let parentWidth;
+
+  function updateContainerWidth(){
+    parentWidth = Math.min((window.innerWidth / 2) * 0.62); // Adjust the multiplier (0.8) as needed to match the parent div's width
+
+    if (parentWidth < 400 ) {
+      parentWidth = parentWidth * 0.90;
+    }
+  }
+
+  onMount(() => {
+    window.addEventListener('resize', updateContainerWidth);
+
+    return () => {
+      window.removeEventListener('resize', updateContainerWidth);
+    };
+  });
+
+  $: {
+    updateContainerWidth();
+  }
+
 </script>
 
-<div class="mb-4">
+<div class="my-4">
   <div
     class="flex {parentWidth < 400
       ? 'flex-col'

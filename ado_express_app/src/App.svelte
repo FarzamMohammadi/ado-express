@@ -94,7 +94,7 @@
           min-width: {$running ? '35vw' : '0'};
         "
       >
-        <RunResults bind:runType bind:runMethod />
+        <RunResults />
       </div>
     </div>
   </div>

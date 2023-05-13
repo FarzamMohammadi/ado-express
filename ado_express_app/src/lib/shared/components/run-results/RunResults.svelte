@@ -12,30 +12,28 @@
   import { deploymentStatusStore } from '../../../utils/websocketStores/deployment-status-store';
   import { genericMessageStore } from '../../../utils/websocketStores/generic-message-store';
 
-  let displayingDeploymentResults = false;
-  let deploymentStatuses: IDeploymentStatuses = {};
   let displayItems = [];
   let dotText = '';
   let matrixTheme = true;
   let localResultData: IDisplayedRunResultData[] = [];
   export let displayIdleDots = false;
   let displayDataInputs: string[] = [];
+  let deploymentStatuses: IDeploymentStatuses = {};
+  let prevGenericMessageDataLength = 0;
+  let genericMessageData: IDisplayedRunResultData[] = [];
 
-  let genericWebsocketMessages;
-  let deploymentStatusWebsocketMessages;
+  let newLocalResultItems = [];
+  let newGenericMessageItems = [];
+  let lastMessageIndex = -1;
 
-  let previousLength = 0;
-  const unsubscribeGenericMessage = genericMessageStore.subscribe((value) => {
-    if (value.length > previousLength) {
-      // Append only new messages
-      localResultData = [...localResultData, ...value.slice(previousLength)];
-      previousLength = value.length;
+  const unsubscribeDeploymentStatus = deploymentStatusStore.subscribe(
+    (value) => {
+      deploymentStatuses = {
+        ...deploymentStatuses,
+        ...value,
+      };
     }
-  });
-
-  const unsubscribeDeploymentStatus = deploymentStatusStore.subscribe((value) => {
-    deploymentStatusWebsocketMessages = value;
-  });
+  );
 
   function downloadResultsAsJSONFile(): void {
     const jsonString = JSON.stringify($runResultData);
@@ -57,16 +55,17 @@
     dataInput: string,
     i: number,
     dataIndex: number,
-    speed = 50,
-    delay = 50
+    delay = 15
   ) {
     if (i < dataInput.length) {
       displayDataInputs[dataIndex] =
         (displayDataInputs[dataIndex] || '') + dataInput[i];
-      setTimeout(() => typeEffect(dataInput, i + 1, dataIndex, speed), delay);
+      setTimeout(() => typeEffect(dataInput, i + 1, dataIndex, 10), delay);
     }
   }
+
   let percentage = 0;
+
   function updateDots() {
     if (dotText.length < 3) {
       dotText += '.';
@@ -81,45 +80,29 @@
 
   let unsubscribeDisplayedRunResultData;
 
-  let parentWidth = 600;
-  let windowWidth = window.innerWidth;
-
-  const updateWindowWidth = () => {
-    windowWidth = window.innerWidth;
-    parentWidth = Math.min((windowWidth / 2.5) * 0.8, 600); // Adjust the multiplier (0.8) as needed to match the parent div's width
-  };
-
-  let ws: WebSocket;
-
   onMount(() => {
     localResultData = $displayedRunResultData;
-    displayDataInputs = localResultData.map(() => '');
+    displayDataInputs = new Array(
+      localResultData.length + genericMessageData.length
+    ).fill('');
 
-    localResultData.forEach((dataInput, index) => {
-      typeEffect(dataInput.message || '', 0, index);
-    });
-
-    window.addEventListener('resize', updateWindowWidth);
-
-    // Subscribe to displayedRunResultData store
     unsubscribeDisplayedRunResultData = displayedRunResultData.subscribe(
       ($displayedRunResultData) => {
         if (localResultData.length !== $displayedRunResultData.length) {
-          const newIndex = $displayedRunResultData.length - 1;
           localResultData = $displayedRunResultData;
-
-          displayIdleDots = false; // Might adjust later but for now, never show idling dots
-          //displayIdleDots = !localResultData[newIndex].showIdleDots;
-
+          displayIdleDots = false;
           displayDataInputs = [...displayDataInputs, ''];
-          typeEffect(localResultData[newIndex].message || '', 0, newIndex);
         }
       }
     );
+  });
 
-    return () => {
-      window.removeEventListener('resize', updateWindowWidth);
-    };
+  const unsubscribeGenericMessage = genericMessageStore.subscribe((value) => {
+    genericMessageData = [...value];
+    displayDataInputs = [
+      ...displayDataInputs,
+      ...new Array(value.length).fill(''),
+    ];
   });
 
   onDestroy(() => {
@@ -130,30 +113,70 @@
 
   setInterval(updateDots, 400);
 
-  $: {
-    updateWindowWidth();
-  }
-
   let prevLocalResultDataLength = localResultData.length;
   let prevDeploymentStatusKeys = new Set(Object.keys(deploymentStatuses));
+  let prevDeploymentStatuses: IDeploymentStatuses = {};
+  let messageCount = 0;
 
+  // Reactive updates for in file localResultData update & deploymentStatuses update
   $: {
-    const isLocalResultDataChanged =
+    const localResultDataChanged =
       localResultData.length !== prevLocalResultDataLength;
-    const deploymentStatusKeys = new Set(
-      Object.keys(deploymentStatusWebsocketMessages)
-    );
+    const genericMessageDataChanged =
+      genericMessageData.length !== prevGenericMessageDataLength;
+
+    if (localResultDataChanged) {
+      const prevLength = prevLocalResultDataLength;
+      prevLocalResultDataLength = localResultData.length;
+
+      for (let i = prevLength; i < localResultData.length; i++) {
+        let newItem = {
+          type: 'message',
+          data: localResultData[i],
+        };
+        newLocalResultItems = [...newLocalResultItems, newItem];
+        typeEffect(localResultData[i].message || '', 0, messageCount++);
+      }
+    }
+
+    if (genericMessageDataChanged) {
+      const prevLength = prevGenericMessageDataLength;
+      prevGenericMessageDataLength = genericMessageData.length;
+
+      for (let i = prevLength; i < genericMessageData.length; i++) {
+        let newItem = {
+          type: 'message',
+          data: genericMessageData[i],
+        };
+        newGenericMessageItems = [...newGenericMessageItems, newItem];
+        typeEffect(genericMessageData[i].message || '', 0, messageCount++);
+      }
+    }
+
+    // Merge new items into displayItems separately
+    displayItems = [
+      ...displayItems,
+      ...newLocalResultItems,
+      ...newGenericMessageItems,
+    ];
+
+    // Update lastMessageIndex after merging the new items
+    lastMessageIndex = displayItems.reduce((prev, current, index) => {
+      return current.type === 'message' ? index : prev;
+    }, lastMessageIndex);
+
+    newLocalResultItems = [];
+    newGenericMessageItems = [];
+
+    const deploymentStatusKeys = new Set(Object.keys(deploymentStatuses));
     const isNewKeyInDeploymentStatus = !Array.from(deploymentStatusKeys).every(
       (key) => prevDeploymentStatusKeys.has(key)
     );
-
-    if (isLocalResultDataChanged) {
-      let newItem = {
-        type: 'message',
-        data: localResultData[localResultData.length - 1],
-      };
-      displayItems = [...displayItems, newItem];
-    }
+    const isDeploymentStatusUpdated = Array.from(deploymentStatusKeys).some(
+      (key) =>
+        prevDeploymentStatusKeys.has(key) &&
+        deploymentStatuses[key] !== prevDeploymentStatuses[key]
+    );
 
     if (isNewKeyInDeploymentStatus) {
       let newKey = Array.from(deploymentStatusKeys).find(
@@ -167,42 +190,46 @@
       displayItems = [...displayItems, newItem];
     }
 
+    if (isDeploymentStatusUpdated) {
+      displayItems = displayItems.map((item) => {
+        if (
+          item.type === 'deploymentStatus' &&
+          deploymentStatuses[item.key] !== item.value
+        ) {
+          return { ...item, value: deploymentStatuses[item.key] };
+        }
+        return item;
+      });
+    }
+
     // Update the previous state
     prevLocalResultDataLength = localResultData.length;
     prevDeploymentStatusKeys = deploymentStatusKeys;
-
-    console.log('displayItems', displayItems);
-    console.log('displayItems', localResultData);
+    prevDeploymentStatuses = { ...deploymentStatuses };
   }
 </script>
 
-<div>
-  <div>
-    <div class="terminal-container my-4">
-      <div
-        class="terminal-content flex-col items-center justify-end ml-6 mr-6"
-        class:matrix={matrixTheme}
-      >
-        {#each displayItems as item, i}
-          {#if item.type === 'message'}
-            <DisplayDataInput
-              data={item.data.message}
-              showIdleDots={item.data.showIdleDots &&
-                i === localResultData.length - 1}
-              bind:dotText
-            />
-          {:else}
-            <LiveDeploymentStatus
-              key={item.key}
-              status={item.value.status}
-              percentage={item.value.percentage}
-              bind:parentWidth
-              bind:matrixTheme
-            />
-          {/if}
-        {/each}
-      </div>
-    </div>
+<div class="terminal-container my-4">
+  <div
+    class="terminal-content flex-col items-center justify-end mx-6"
+    class:matrix={matrixTheme}
+  >
+    {#each displayItems as item, i}
+      {#if item.type === 'message'}
+        <DisplayDataInput
+          data={displayDataInputs[i]}
+          showIdleDots={item.data.showIdleDots && i === lastMessageIndex}
+          bind:dotText
+        />
+      {:else}
+        <LiveDeploymentStatus
+          key={item.key}
+          status={item.value.status}
+          percentage={item.value.percentage}
+          bind:matrixTheme
+        />
+      {/if}
+    {/each}
   </div>
 </div>
 
@@ -236,14 +263,9 @@
 </div>
 
 <style lang="scss">
-  .dataInput-container {
-    display: block;
-    word-break: break-all;
-  }
-
   .terminal-container {
     background-color: black;
-    padding-block: 20px;
+    padding-block: 30px;
     border-radius: 8px;
     overflow-y: auto;
     width: 100%;
