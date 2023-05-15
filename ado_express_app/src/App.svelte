@@ -1,14 +1,17 @@
 <script lang="ts">
   import RunConfigurationsForm from './lib/shared/components/RunConfigurationsForm.svelte';
-  import RunResults from './lib/shared/components/RunResults.svelte';
   import CustomRunSpecifierDropdown from './lib/shared/components/custom-form-components/CustomRunSpecifierDropdown.svelte';
   import Navbar from './lib/shared/components/navbar/Navbar.svelte';
+  import RunResults from './lib/shared/components/run-results/RunResults.svelte';
   import DarkToggle from './lib/shared/components/utils/DarkToggle.svelte';
   import { running } from './lib/utils/stores';
+  import { websocketStore } from './lib/utils/websocketStores/websocket-store';
 
   let runType;
   let runMethod;
   let isSubmitting;
+
+  websocketStore.connect();
 </script>
 
 <svelte:head>
@@ -46,7 +49,7 @@
     <div class="z-50 mb-12">
       <DarkToggle />
     </div>
-    
+
     <div class="w-[500px] mb-12 z-40">
       <CustomRunSpecifierDropdown
         bind:selectedCategoryName={runType}
@@ -91,7 +94,7 @@
           min-width: {$running ? '35vw' : '0'};
         "
       >
-        <RunResults bind:runType bind:runMethod />
+        <RunResults />
       </div>
     </div>
   </div>

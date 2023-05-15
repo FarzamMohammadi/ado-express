@@ -4,6 +4,7 @@ from threading import Thread
 
 import status
 from base.models.DeploymentDetail import DeploymentDetail
+from base.models.enums.WebsocketMessageType import WebsocketMessageType
 from base.models.RunConfiguration import RunConfiguration
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -15,6 +16,7 @@ from ado_express.packages.common.models.deployment_status import \
 
 from .serializers import (DeploymentDetailSerializer,
                           DeploymentStatusSerializer,
+                          GenericWebsocketMessageSerializer,
                           RunConfigurationSerializer)
 
 
@@ -71,14 +73,31 @@ def deploy(request):
             has_crucial_deployments = False
 
             if crucial_deployment_details:
+                message = GenericWebsocketMessageSerializer('\nDeploying crucial releases', True)
+                WebSocketConsumer.send_message(json.dumps(message.to_dict()), WebsocketMessageType.Generic.value)
+ 
                 ado_express.run_release_deployments(crucial_deployment_details, True)
                 process_deployments(crucial_deployment_details, ado_express)
 
                 has_crucial_deployments = True
+                
+                message = GenericWebsocketMessageSerializer('Crucial release deployments are now complete.')
+                WebSocketConsumer.send_message(json.dumps(message.to_dict()), WebsocketMessageType.Generic.value)
 
             if deployment_details:
+                
+                if has_crucial_deployments: 
+                    message = GenericWebsocketMessageSerializer('\nNow, deploying the rest of the releases', True)
+                    WebSocketConsumer.send_message(json.dumps(message.to_dict()), WebsocketMessageType.Generic.value)
+                else: 
+                    message = GenericWebsocketMessageSerializer('\nDeploying releases', True)
+                    WebSocketConsumer.send_message(json.dumps(message.to_dict()), WebsocketMessageType.Generic.value)
+
                 ado_express.run_release_deployments(deployment_details, False, has_crucial_deployments)
                 process_deployments(deployment_details, ado_express)
+
+                message = GenericWebsocketMessageSerializer('\nAll release deployments are now complete.', False)
+                WebSocketConsumer.send_message(json.dumps(message.to_dict()), WebsocketMessageType.Generic.value)
 
         # Start a new thread to run the deployments in the background
         deployment_thread = Thread(target=run_deployments_in_background)
@@ -106,7 +125,7 @@ def process_deployments(deployment_details, ado_express: Startup):
                     deployment_status = dict()
                     deployment_status[deployment_detail.release_name] = DeploymentStatusSerializer('Unable to retrieve deployment status - Please check ADO', 0, 'Unknown')
                     
-                    WebSocketConsumer.send_message(json.dumps({key: value.to_dict() for key, value in deployment_status.items()}))
+                    WebSocketConsumer.send_message(json.dumps({key: value.to_dict() for key, value in deployment_status.items()}), WebsocketMessageType.DeploymentStatus.value)
                     
                     completed_deployments.append(deployment_detail.release_name) 
                     continue
@@ -114,7 +133,7 @@ def process_deployments(deployment_details, ado_express: Startup):
                 deployment_status = dict()
                 deployment_status[deployment_detail.release_name] = DeploymentStatusSerializer(latest_deployment_status.comment, latest_deployment_status.percentage, latest_deployment_status.status)
 
-                WebSocketConsumer.send_message(json.dumps({key: value.to_dict() for key, value in deployment_status.items()}))
+                WebSocketConsumer.send_message(json.dumps({key: value.to_dict() for key, value in deployment_status.items()}), WebsocketMessageType.DeploymentStatus.value)
 
                 if not deployment_is_complete:
                     time.sleep(1)

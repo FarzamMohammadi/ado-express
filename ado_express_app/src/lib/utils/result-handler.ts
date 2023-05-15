@@ -25,11 +25,11 @@ export class ResultHandler {
         return `${formattedDate} ${formattedTime}`;
     }
 
-    static sendMessage(text: string, showIdleDots: boolean = false) {
+    static sendMessage(message: string, showIdleDots: boolean = false) {
         displayedRunResultData.update((data) => [
             ...data,
             {
-                text,
+                message,
                 showIdleDots,
             },
         ]);
@@ -75,11 +75,12 @@ export class ResultHandler {
     }
 
     static sendRunResults(runConfiguration: RunConfiguration) {
-        if (runConfiguration.searchOnly === false ||
-            (runConfiguration.searchOnly
+        if (runConfiguration.searchOnly === false )  return;
+        
+        if (runConfiguration.searchOnly
                 && !runConfiguration.queries
                 && (!runConfiguration.viaEnv && !runConfiguration.viaEnvLatestRelease
-                    || runConfiguration.viaEnv && !runConfiguration.viaEnvLatestRelease))) {
+                    || runConfiguration.viaEnv && !runConfiguration.viaEnvLatestRelease)) {
             this.showReleaseDetailsToUser(get(runResultData) as IReleaseDetails, runConfiguration.searchOnly);
         }
         else {

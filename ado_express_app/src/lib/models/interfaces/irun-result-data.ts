@@ -1,4 +1,4 @@
 export interface IDisplayedRunResultData {
-  text?: string;
+  message?: string;
   showIdleDots?: boolean;
 }

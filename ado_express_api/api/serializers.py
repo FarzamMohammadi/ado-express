@@ -38,7 +38,7 @@ class RunConfigurationSerializer(serializers.Serializer):
 
 
 class DeploymentStatusSerializer:
-    def __init__(self, comment, percentage, status):
+    def __init__(self, comment: str, percentage: int, status: str):
         self.comment = comment
         self.percentage = percentage
         self.status = status
@@ -49,7 +49,6 @@ class DeploymentStatusSerializer:
             'percentage': self.percentage,
             'status': self.status,
         }
-
 class ReleaseDeploymentStatus(serializers.Serializer):
     comment = serializers.CharField(max_length=200, allow_null=True, allow_blank=True)
     percentage = serializers.IntegerField(min_value=0, max_value=100, required=True)
@@ -57,3 +56,21 @@ class ReleaseDeploymentStatus(serializers.Serializer):
 
     def create(self, validated_data):
         return DeploymentStatusSerializer(**validated_data)
+
+
+class GenericWebsocketMessageSerializer:
+    def __init__(self, message: str, show_idle_dots: bool = False):
+        self.message = message
+        self.show_idle_dots = show_idle_dots
+
+    def to_dict(self):
+        return {
+            'message': self.message,
+            'showIdleDots': self.show_idle_dots,
+        }  
+class GenericWebsocketMessage:
+    message = serializers.CharField()
+    show_idle_dots = serializers.BooleanField(default=False)
+
+    def create(self, validated_data):
+        return GenericWebsocketMessageSerializer(**validated_data)
