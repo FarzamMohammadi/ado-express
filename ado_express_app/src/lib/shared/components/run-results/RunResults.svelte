@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { writable } from 'svelte/store';
   import DisplayDataInput from './DisplayDataInput.svelte';
   import LiveDeploymentStatus from './LiveDeploymentStatus.svelte';
 
@@ -12,15 +13,20 @@
   import { deploymentStatusStore } from '../../../utils/websocketStores/deployment-status-store';
   import { genericMessageStore } from '../../../utils/websocketStores/generic-message-store';
 
+  const displayDataInputsStore = writable([]);
   let displayItems = [];
   let dotText = '';
   let matrixTheme = true;
   let localResultData: IDisplayedRunResultData[] = [];
   export let displayIdleDots = false;
   let displayDataInputs: string[] = [];
+  displayDataInputsStore.subscribe((value) => {
+    console.log(value);
+    console.log(displayItems);
+    displayDataInputs = value;
+  });
   let deploymentStatuses: IDeploymentStatuses = {};
   let prevGenericMessageDataLength = 0;
-  let genericMessageData: IDisplayedRunResultData[] = [];
 
   let newLocalResultItems = [];
   let newGenericMessageItems = [];
@@ -51,19 +57,6 @@
     }, 0);
   }
 
-  function typeEffect(
-    dataInput: string,
-    i: number,
-    dataIndex: number,
-    delay = 15
-  ) {
-    if (i < dataInput.length) {
-      displayDataInputs[dataIndex] =
-        (displayDataInputs[dataIndex] || '') + dataInput[i];
-      setTimeout(() => typeEffect(dataInput, i + 1, dataIndex, 10), delay);
-    }
-  }
-
   let percentage = 0;
 
   function updateDots() {
@@ -83,7 +76,7 @@
   onMount(() => {
     localResultData = $displayedRunResultData;
     displayDataInputs = new Array(
-      localResultData.length + genericMessageData.length
+      localResultData.length + $genericMessageStore.length
     ).fill('');
 
     unsubscribeDisplayedRunResultData = displayedRunResultData.subscribe(
@@ -97,16 +90,7 @@
     );
   });
 
-  const unsubscribeGenericMessage = genericMessageStore.subscribe((value) => {
-    genericMessageData = [...value];
-    displayDataInputs = [
-      ...displayDataInputs,
-      ...new Array(value.length).fill(''),
-    ];
-  });
-
   onDestroy(() => {
-    unsubscribeGenericMessage();
     unsubscribeDeploymentStatus();
     unsubscribeDisplayedRunResultData();
   });
@@ -120,92 +104,97 @@
 
   // Reactive updates for in file localResultData update & deploymentStatuses update
   $: {
-    const localResultDataChanged =
-      localResultData.length !== prevLocalResultDataLength;
-    const genericMessageDataChanged =
-      genericMessageData.length !== prevGenericMessageDataLength;
+    const localResultDataLength = localResultData.length;
+    const genericMessageDataLength = $genericMessageStore.length;
 
-    if (localResultDataChanged) {
-      const prevLength = prevLocalResultDataLength;
-      prevLocalResultDataLength = localResultData.length;
-
-      for (let i = prevLength; i < localResultData.length; i++) {
+    // Process new localResultData items
+    if (localResultDataLength !== prevLocalResultDataLength) {
+      for (let i = prevLocalResultDataLength; i < localResultDataLength; i++) {
         let newItem = {
           type: 'message',
           data: localResultData[i],
         };
-        newLocalResultItems = [...newLocalResultItems, newItem];
-        typeEffect(localResultData[i].message || '', 0, messageCount++);
+        newLocalResultItems.push(newItem);
+        displayDataInputsStore.update((inputs) => {
+          inputs[messageCount] =
+            (inputs[messageCount] || '') + localResultData[i].message;
+          return inputs;
+        });
+        messageCount++;
       }
+      prevLocalResultDataLength = localResultDataLength;
     }
 
-    if (genericMessageDataChanged) {
-      const prevLength = prevGenericMessageDataLength;
-      prevGenericMessageDataLength = genericMessageData.length;
-
-      for (let i = prevLength; i < genericMessageData.length; i++) {
+    // Process new genericMessageData items
+    if (genericMessageDataLength !== prevGenericMessageDataLength) {
+      for (
+        let i = prevGenericMessageDataLength;
+        i < genericMessageDataLength;
+        i++
+      ) {
         let newItem = {
           type: 'message',
-          data: genericMessageData[i],
+          data: $genericMessageStore[i],
         };
-        newGenericMessageItems = [...newGenericMessageItems, newItem];
-        typeEffect(genericMessageData[i].message || '', 0, messageCount++);
+        newGenericMessageItems.push(newItem);
+        displayDataInputsStore.update((inputs) => {
+          inputs[messageCount] =
+            (inputs[messageCount] || '') + $genericMessageStore[i].message;
+          return inputs;
+        });
+        messageCount++;
+      }
+      prevGenericMessageDataLength = genericMessageDataLength;
+    }
+
+    // Merge new items into displayItems
+    if (newLocalResultItems.length > 0 || newGenericMessageItems.length > 0) {
+      displayItems = displayItems.concat(
+        newLocalResultItems,
+        newGenericMessageItems
+      );
+
+      // Update lastMessageIndex
+      lastMessageIndex = displayItems.length - 1;
+
+      newLocalResultItems = [];
+      newGenericMessageItems = [];
+    }
+  }
+
+  $: {
+    const newDeploymentStatuses = { ...deploymentStatuses };
+    const newDeploymentStatusKeys = new Set(Object.keys(newDeploymentStatuses));
+
+    let hasChanges = false;
+    for (const key of newDeploymentStatusKeys) {
+      // Check if there's a new key in deploymentStatuses
+      if (!prevDeploymentStatusKeys.has(key)) {
+        let newItem = {
+          type: 'deploymentStatus',
+          key: key,
+          value: newDeploymentStatuses[key],
+        };
+        displayItems = [...displayItems, newItem];
+        hasChanges = true;
+      }
+      // Check if a deployment status has been updated
+      else if (prevDeploymentStatuses[key] !== newDeploymentStatuses[key]) {
+        displayItems = displayItems.map((item) => {
+          if (item.type === 'deploymentStatus' && item.key === key) {
+            return { ...item, value: newDeploymentStatuses[key] };
+          }
+          return item;
+        });
+        hasChanges = true;
       }
     }
 
-    // Merge new items into displayItems separately
-    displayItems = [
-      ...displayItems,
-      ...newLocalResultItems,
-      ...newGenericMessageItems,
-    ];
-
-    // Update lastMessageIndex after merging the new items
-    lastMessageIndex = displayItems.reduce((prev, current, index) => {
-      return current.type === 'message' ? index : prev;
-    }, lastMessageIndex);
-
-    newLocalResultItems = [];
-    newGenericMessageItems = [];
-
-    const deploymentStatusKeys = new Set(Object.keys(deploymentStatuses));
-    const isNewKeyInDeploymentStatus = !Array.from(deploymentStatusKeys).every(
-      (key) => prevDeploymentStatusKeys.has(key)
-    );
-    const isDeploymentStatusUpdated = Array.from(deploymentStatusKeys).some(
-      (key) =>
-        prevDeploymentStatusKeys.has(key) &&
-        deploymentStatuses[key] !== prevDeploymentStatuses[key]
-    );
-
-    if (isNewKeyInDeploymentStatus) {
-      let newKey = Array.from(deploymentStatusKeys).find(
-        (key) => !prevDeploymentStatusKeys.has(key)
-      );
-      let newItem = {
-        type: 'deploymentStatus',
-        key: newKey,
-        value: deploymentStatuses[newKey],
-      };
-      displayItems = [...displayItems, newItem];
+    // Update the previous state only when there are changes
+    if (hasChanges) {
+      prevDeploymentStatusKeys = newDeploymentStatusKeys;
+      prevDeploymentStatuses = newDeploymentStatuses;
     }
-
-    if (isDeploymentStatusUpdated) {
-      displayItems = displayItems.map((item) => {
-        if (
-          item.type === 'deploymentStatus' &&
-          deploymentStatuses[item.key] !== item.value
-        ) {
-          return { ...item, value: deploymentStatuses[item.key] };
-        }
-        return item;
-      });
-    }
-
-    // Update the previous state
-    prevLocalResultDataLength = localResultData.length;
-    prevDeploymentStatusKeys = deploymentStatusKeys;
-    prevDeploymentStatuses = { ...deploymentStatuses };
   }
 </script>
 
@@ -217,7 +206,7 @@
     {#each displayItems as item, i}
       {#if item.type === 'message'}
         <DisplayDataInput
-          data={displayDataInputs[i]}
+          data={item.data.message}
           showIdleDots={item.data.showIdleDots && i === lastMessageIndex}
           bind:dotText
         />

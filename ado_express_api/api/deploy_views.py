@@ -96,7 +96,7 @@ def deploy(request):
                 ado_express.run_release_deployments(deployment_details, False, has_crucial_deployments)
                 process_deployments(deployment_details, ado_express)
 
-                message = GenericWebsocketMessageSerializer('\nAll release deployments are now complete.')
+                message = GenericWebsocketMessageSerializer('\nAll release deployments are now complete.', False)
                 WebSocketConsumer.send_message(json.dumps(message.to_dict()), WebsocketMessageType.Generic.value)
 
         # Start a new thread to run the deployments in the background

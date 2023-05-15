@@ -19,9 +19,7 @@ const createWebsocketStore = () => {
       console.log('WebSocket message received:', parsedData);
 
       if (parsedData.message_type === WebsocketMessageType.Generic) {
-        console.log('Got generic message');
         const genericMessage: GenericWebsocketMessage = JSON.parse(parsedData.message);
-        // Add the new message to the genericMessageStore
         genericMessageStore.addMessage(genericMessage);
       } else if (parsedData.message_type === WebsocketMessageType.Error) {
         errorStore.addError(parsedData.message);

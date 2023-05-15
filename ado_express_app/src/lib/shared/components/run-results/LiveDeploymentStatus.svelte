@@ -9,7 +9,7 @@
   let parentWidth;
 
   function updateContainerWidth(){
-    parentWidth = Math.min((window.innerWidth / 2) * 0.62); // Adjust the multiplier (0.8) as needed to match the parent div's width
+    parentWidth = Math.min((window.innerWidth / 2) * 0.6); // Adjust the multiplier (0.8) as needed to match the parent div's width
 
     if (parentWidth < 400 ) {
       parentWidth = parentWidth * 0.90;
@@ -30,12 +30,8 @@
 
 </script>
 
-<div class="my-4">
-  <div
-    class="flex {parentWidth < 400
-      ? 'flex-col'
-      : 'flex-row'} items-center justify-between"
-  >
+<div class="flex flex-col my-5">
+  <div class="flex {parentWidth < 400 ? 'flex-col': 'flex-row'} items-center justify-between">
     <div>
       <strong class="text-xl">{key}</strong>
     </div>
@@ -43,7 +39,7 @@
       {status}
     </div>
   </div>
-  <div class="flex flex-row items-center justify-center">
+  <div class="flex flex-row items-center justify-between">
     <div>
       <GlowingBars {percentage} {parentWidth} {matrixTheme} />
     </div>
