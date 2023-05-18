@@ -10,7 +10,7 @@
   export let rows: number;
 
   let cells = {};
-  let columns = 6;
+  const columns = 6;
 
   function addRow() {
     rows += 1;
@@ -34,12 +34,9 @@
   function removeRow() {
     if (rows > 0) {
       rows -= 1;
-
       for (let col = 1; col <= columns; col++) {
-        const id = cellId(rows, col);
-        delete cells[id];
+        delete cells[cellId(rows, col)];
       }
-
       updateDeploymentDetails();
     }
   }
@@ -47,7 +44,6 @@
   export function setDeploymentDetailsValuesToTable() {
     if ($deploymentDetails.length) {
       rows = $deploymentDetails.length;
-
       for (let r = 0; r < rows; r++) {
         const deploymentDetail = $deploymentDetails[r];
         cells[cellId(r, 1)] = deploymentDetail.releaseProjectName;
@@ -59,44 +55,7 @@
     }
   }
 
-  function updateDeploymentDetails() {
-  $deploymentDetails = Array(rows)
-    .fill(null)
-    .map((_, row) => {
-      return new DeploymentDetail(
-        cells[cellId(row, 1)],
-        cells[cellId(row, 2)],
-        cells[cellId(row, 3)],
-        cells[cellId(row, 4)],
-        cells[cellId(row, 5)]
-      );
-    })
-    .filter((deploymentDetail) => {
-      if (
-        deploymentDetail.releaseNumber &&
-        deploymentDetail.releaseRollback &&
-        deploymentDetail.releaseNumber < deploymentDetail.releaseRollback
-      ) {
-        showToast(
-          ToastType.Error,
-          deploymentDetail.releaseName
-            ? `Release number cannot be less than rollback number: Release: ${deploymentDetail.releaseName}`
-            : `Release number cannot be less than rollback number`
-        );
-      } else {
-        return (
-          deploymentDetail.releaseProjectName &&
-          deploymentDetail.releaseName
-        );
-      }
-    });
-}
-
-  function showToast(
-    type: ToastType,
-    message: string,
-    duration?: number
-  ): void {
+  function showToast(type: ToastType, message: string, duration?: number): void {
     new Toast({
       target: document.body,
       props: {
@@ -107,6 +66,22 @@
     });
   }
 
+  function updateDeploymentDetails() {
+    $deploymentDetails = Array(rows)
+      .fill(null)
+      .map((_, row) => new DeploymentDetail(cells[cellId(row, 1)], cells[cellId(row, 2)], cells[cellId(row, 3)], cells[cellId(row, 4)], cells[cellId(row, 5)]))
+      .filter((deploymentDetail) =>
+        deploymentDetail.releaseNumber && deploymentDetail.releaseRollback && deploymentDetail.releaseNumber < deploymentDetail.releaseRollback
+          ? showToast(
+              ToastType.Error,
+              deploymentDetail.releaseName
+                ? `Release number cannot be less than rollback number: Release: ${deploymentDetail.releaseName}`
+                : `Release number cannot be less than rollback number`,
+            )
+          : deploymentDetail.releaseProjectName && deploymentDetail.releaseName,
+      );
+  }
+
   onMount(() => {
     setDeploymentDetailsValuesToTable();
   });
@@ -114,39 +89,39 @@
 
 <div class="flex flex-row mb-2 justify-between">
   <div class="flex items-center">
-    <a href="/Deployment-Details-Template.xlsx"  
-    class="bg-transparent hover:bg-purple-700 text-purple-900 dark:text-purple-500 font-semibold hover:text-white dark:hover:text-white py-2 px-4 border border-purple-800 hover:border-transparent rounded-lg shadow-lg"
+    <a
+      href="/Deployment-Details-Template.xlsx"
+      class="bg-transparent hover:bg-purple-700 text-purple-900 dark:text-purple-500 font-semibold hover:text-white dark:hover:text-white py-2 px-4 border border-purple-800 hover:border-transparent rounded-lg shadow-lg"
     >
       Download Excel Template
     </a>
   </div>
+
   <div class="flex items-center">
     <button
-  disabled={rows >= 25}
-  on:click={addRow}
-  type="button"
-  class="text-gray-900 leading-none bg-gradient-to-r hover:bg-gradient-to-br focus:ring-2 focus:outline-none font-semibold rounded-full text-3xl w-10 h-10 flex items-center justify-center m-1 {rows >=
-  25
-    ? 'from-gray-500 via-gray-600 to-gray-700 focus:ring-gray-300 dark:focus:ring-gray-800 shadow-lg shadow-gray-500/50 dark:shadow-lg dark:shadow-gray-800/80 cursor-not-allowed'
-    : 'from-blue-500 via-blue-600 to-blue-700 focus:ring-blue-300 dark:focus:ring-blue-800 shadow-lg shadow-blue-500/50 dark:shadow-lg dark:shadow-blue-800/80'}"
->
-  +
-</button>
+      disabled={rows >= 25}
+      on:click={addRow}
+      type="button"
+      class="text-gray-900 leading-none bg-gradient-to-r hover:bg-gradient-to-br focus:ring-2 focus:outline-none font-semibold rounded-full text-3xl w-10 h-10 flex items-center justify-center m-1 {rows >=
+      25
+        ? 'from-gray-500 via-gray-600 to-gray-700 focus:ring-gray-300 dark:focus:ring-gray-800 shadow-lg shadow-gray-500/50 dark:shadow-lg dark:shadow-gray-800/80 cursor-not-allowed'
+        : 'from-blue-500 via-blue-600 to-blue-700 focus:ring-blue-300 dark:focus:ring-blue-800 shadow-lg shadow-blue-500/50 dark:shadow-lg dark:shadow-blue-800/80'}"
+    >
+      +
+    </button>
 
-<button
-  disabled={rows <= 0}
-  on:click={removeRow}
-  type="button"
-  class="text-gray-900 leading-none bg-gradient-to-r focus:ring-2 focus:outline-none shadow-lg dark:shadow-lg font-semibold rounded-full text-3xl w-10 h-10 flex items-center justify-center m-1 {rows <=
-  0
-    ? 'from-gray-500 via-gray-600 to-gray-700 focus:ring-gray-300 dark:focus:ring-gray-800 shadow-lg shadow-gray-500/50 dark:shadow-lg dark:shadow-gray-800/80 cursor-not-allowed'
-    : 'from-red-400 via-red-500 to-red-600 hover:bg-gradient-to-br focus:ring-red-300 dark:focus:ring-red-800 shadow-red-500/50 dark:shadow-red-800/80 '}"
->
-  -
-</button>
-
+    <button
+      disabled={rows <= 0}
+      on:click={removeRow}
+      type="button"
+      class="text-gray-900 leading-none bg-gradient-to-r focus:ring-2 focus:outline-none shadow-lg dark:shadow-lg font-semibold rounded-full text-3xl w-10 h-10 flex items-center justify-center m-1 {rows <=
+      0
+        ? 'from-gray-500 via-gray-600 to-gray-700 focus:ring-gray-300 dark:focus:ring-gray-800 shadow-lg shadow-gray-500/50 dark:shadow-lg dark:shadow-gray-800/80 cursor-not-allowed'
+        : 'from-red-400 via-red-500 to-red-600 hover:bg-gradient-to-br focus:ring-red-300 dark:focus:ring-red-800 shadow-red-500/50 dark:shadow-red-800/80 '}"
+    >
+      -
+    </button>
   </div>
-  
 </div>
 
 <div class="grid grid-cols-[repeat(6,minmax(0,auto))] gap-1 mb-3">
@@ -180,7 +155,7 @@
           type="checkbox"
           bind:checked={cells[cellId(row, col)]}
           disabled={disabledColumns.includes(col)}
-          class="text-center text-sm border border-gray-800 rounded-md focus:outline-none focus:border-blue-500 'w-24'"
+          class="text-center text-sm border border-gray-800 rounded-md focus:outline-none focus:border-blue-500 w-24"
           on:input={(event) => handleInput(row, col, event)}
         />
       {:else if col === 3 || col === 4}
@@ -188,11 +163,7 @@
           bind:value={cells[cellId(row, col)]}
           disabled={disabledColumns.includes(col)}
           type="number"
-          class="text-center h-8 px-2 py-1 text-sm border bg-gray-700 border-gray-800 rounded-md focus:outline-none focus:border-blue-500 w-24 {disabledColumns.includes(
-            col
-          )
-            ? 'bg-transparent border-none'
-            : 'bg-gray-700'}"
+          class="text-center h-8 px-2 py-1 text-sm border bg-gray-700 border-gray-800 rounded-md focus:outline-none focus:border-blue-500 w-24"
           on:input={(event) => handleInput(row, col, event)}
         />
       {:else}
@@ -200,11 +171,7 @@
           bind:value={cells[cellId(row, col)]}
           disabled={disabledColumns.includes(col)}
           type="text"
-          class="text-center h-8 px-2 py-1 text-sm border bg-gray-700 border-gray-800 rounded-md focus:outline-none focus:border-blue-500 w-full {disabledColumns.includes(
-            col
-          )
-            ? 'bg-transparent border-none'
-            : 'bg-gray-700'}"
+          class="text-center h-8 px-2 py-1 text-sm border bg-gray-700 border-gray-800 rounded-md focus:outline-none focus:border-blue-500 w-full"
           on:input={(event) => handleInput(row, col, event)}
         />
       {/if}
