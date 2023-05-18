@@ -6,29 +6,29 @@
 <script lang="ts">
   import { onMount } from 'svelte';
 
-  onMount(() => {
-    const initParticles = () => {
-      const RANDOM = (min: number, max: number): number =>
-        Math.floor(Math.random() * (max - min + 1) + min);
-      const PARTICLES = document.querySelectorAll('.star');
+  function randomValue(min: number, max: number): number {
+    return Math.floor(Math.random() * (max - min + 1) + min);
+  }
 
-      PARTICLES.forEach((P) => {
-        P.setAttribute(
-          'style',
-          `
-            --angle: ${RANDOM(0, 360)};
-            --duration: ${RANDOM(6, 20)};
-            --delay: ${RANDOM(1, 10)};
-            --alpha: ${RANDOM(40, 90) / 100};
-            --size: ${RANDOM(2, 6)};
-            --distance: ${RANDOM(40, 200)};
-          `
-        );
-      });
-    };
+  function initParticles() {
+    const particles = document.querySelectorAll('.star');
 
-    initParticles();
-  });
+    particles.forEach((particle) => {
+      particle.setAttribute(
+        'style',
+        `
+          --angle: ${randomValue(0, 360)};
+          --duration: ${randomValue(6, 20)};
+          --delay: ${randomValue(1, 10)};
+          --alpha: ${randomValue(40, 90) / 100};
+          --size: ${randomValue(2, 6)};
+          --distance: ${randomValue(40, 200)};
+        `,
+      );
+    });
+  }
+
+  onMount(initParticles);
 </script>
 
 <a target="_blank" href="https://github.com/FarzamMohammadi">
@@ -86,28 +86,11 @@
   button {
     --cut: 0.12em;
     --active: 0;
-    --bg: radial-gradient(
-          120% 120% at 126% 126%,
-          hsl(
-              var(--hue) calc(var(--active) * 97%) 98% /
-                calc(var(--active) * 0.9)
-            )
-            28%,
-          transparent 50%
-        )
+    --bg: radial-gradient(120% 120% at 126% 126%, hsl(var(--hue) calc(var(--active) * 97%) 98% / calc(var(--active) * 0.9)) 28%, transparent 50%)
         calc(100px - (var(--active) * 100px)) 0 / 100% 100% no-repeat,
-      radial-gradient(
-          120% 120% at 120% 120%,
-          hsl(
-              var(--hue) calc(var(--active) * 97%) 70% / calc(var(--active) * 1)
-            )
-            30%,
-          transparent 70%
-        )
+      radial-gradient(120% 120% at 120% 120%, hsl(var(--hue) calc(var(--active) * 97%) 70% / calc(var(--active) * 1)) 30%, transparent 70%)
         calc(100px - (var(--active) * 100px)) 0 / 100% 100% no-repeat,
-      hsl(
-        var(--hue) calc(var(--active) * 100%) calc(12% - (var(--active) * 8%))
-      );
+      hsl(var(--hue) calc(var(--active) * 100%) calc(12% - (var(--active) * 8%)));
     background: var(--bg);
     font-weight: 500;
     border: 0;
@@ -119,18 +102,10 @@
     white-space: nowrap;
     border-radius: 2rem;
     position: relative;
-    box-shadow: 0 0 calc(var(--active) * 6em) calc(var(--active) * 1em)
-        hsl(var(--hue) 97% 61% / 0.5),
-      0 0.05em 0 0
-        hsl(
-          var(--hue) calc(var(--active) * 97%) calc((var(--active) * 50%) + 30%)
-        )
-        inset,
-      0 -0.05em 0 0 hsl(
-          var(--hue) calc(var(--active) * 97%) calc(var(--active) * 10%)
-        ) inset;
-    transition: box-shadow var(--transition), scale var(--transition),
-    background var(--transition);
+    box-shadow: 0 0 calc(var(--active) * 6em) calc(var(--active) * 1em) hsl(var(--hue) 97% 61% / 0.5),
+      0 0.05em 0 0 hsl(var(--hue) calc(var(--active) * 97%) calc((var(--active) * 50%) + 30%)) inset,
+      0 -0.05em 0 0 hsl(var(--hue) calc(var(--active) * 97%) calc(var(--active) * 10%)) inset;
+    transition: box-shadow var(--transition), scale var(--transition), background var(--transition);
     transform-style: preserve-3d;
     perspective: 100vmin;
     overflow: hidden;
@@ -149,16 +124,13 @@
     opacity: var(--alpha);
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%) rotate(10deg) rotate(0deg)
-      translateY(calc(var(--distance) * 1px));
-    animation: orbit calc(var(--duration) * 1s) calc(var(--delay) * -1s)
-      infinite linear;
+    transform: translate(-50%, -50%) rotate(10deg) rotate(0deg) translateY(calc(var(--distance) * 1px));
+    animation: orbit calc(var(--duration) * 1s) calc(var(--delay) * -1s) infinite linear;
   }
 
   @keyframes orbit {
     to {
-      transform: translate(-50%, -50%) rotate(10deg) rotate(360deg)
-        translateY(calc(var(--distance) * 1px));
+      transform: translate(-50%, -50%) rotate(10deg) rotate(360deg) translateY(calc(var(--distance) * 1px));
     }
   }
 
@@ -181,8 +153,7 @@
     top: 50%;
     left: 50%;
     border-radius: 50%;
-    transform: translate(-28%, -40%) rotateX(-24deg) rotateY(-30deg)
-      rotateX(90deg);
+    transform: translate(-28%, -40%) rotateX(-24deg) rotateY(-30deg) rotateX(90deg);
     transform-style: preserve-3d;
   }
 
@@ -202,10 +173,8 @@
     max-height: 4px;
     filter: brightness(4);
     opacity: 0.9;
-    animation: move-x calc(var(--duration) * 0.1s) calc(var(--delay) * -0.1s)
-        infinite linear,
-      move-y calc(var(--duration) * 0.2s) calc(var(--delay) * -0.2s) infinite
-        linear;
+    animation: move-x calc(var(--duration) * 0.1s) calc(var(--delay) * -0.1s) infinite linear,
+      move-y calc(var(--duration) * 0.2s) calc(var(--delay) * -0.2s) infinite linear;
   }
 
   button:hover .star--static {

@@ -1,34 +1,31 @@
-<script>
-  export let text = 'Tooltip';
-  export let position = 'top';
-
-  let tooltipClasses = {
-    top: 'bottom-full mb-2',
-    bottom: 'top-full mt-2',
-    left: 'right-full ml-2',
-    right: 'left-full mr-2',
-  };
+<script lang="ts">
   let arrowClasses = {
-    top: 'bottom-0 mb-1',
     bottom: 'top-0 mt-1',
     left: 'right-0 mr-1',
     right: 'left-0 ml-1',
+    top: 'bottom-0 mb-1',
   };
+
+  let tooltipClasses = {
+    bottom: 'top-full mt-2',
+    left: 'right-full ml-2',
+    right: 'left-full mr-2',
+    top: 'bottom-full mb-2',
+  };
+
+  export let position = 'top';
+  export let text = 'Tooltip';
 </script>
 
-<div class="relative inline-block cursor-pointer">
-  <slot></slot>
-  <div
-    class={`absolute z-10 invisible text-xs text-white bg-black rounded py-1 px-2 shadow-md opacity-0 whitespace-nowrap tooltip ${tooltipClasses[position]}`}
-  >
+<div class="cursor-pointer inline-block relative">
+  <slot />
+  <div class={`absolute bg-black opacity-0 invisible px-2 py-1 rounded shadow-md text-xs text-white tooltip whitespace-nowrap z-10 ${tooltipClasses[position]}`}>
     {text}
     <div
-      class={`absolute w-0 h-0 border-4 border-transparent ${arrowClasses[position]} ${
-        position === 'top' || position === 'bottom'
-          ? 'border-' + position + '-black'
-          : 'border-' + position + '-transparent'
+      class={`absolute border-4 border-transparent h-0 w-0 ${arrowClasses[position]} ${
+        position === 'top' || position === 'bottom' ? 'border-' + position + '-black' : 'border-' + position + '-transparent'
       }`}
-    ></div>
+    />
   </div>
 </div>
 
@@ -38,7 +35,7 @@
   }
 
   .cursor-pointer:hover .tooltip {
-    opacity: 100;
+    opacity: 1;
     visibility: visible;
   }
 </style>

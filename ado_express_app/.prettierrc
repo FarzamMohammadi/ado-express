@@ -1,3 +1,21 @@
 {
-    "singleQuote": true
+    "arrowParens": "always",
+    "bracketSpacing": true,
+    "endOfLine": "lf",
+    "htmlWhitespaceSensitivity": "css",
+    "insertPragma": false,
+    "jsxBracketSameLine": true,
+    "jsxSingleQuote": false,
+    "proseWrap": "preserve",
+    "quoteProps": "as-needed",
+    "requirePragma": false,
+    "singleQuote": true,
+    "tabWidth": 2,
+    "printWidth": 170,
+    "semi": true,
+    "trailingComma": "all",
+    "svelteSortOrder": "scripts-markup-styles",
+    "svelteStrictMode": false,
+    "svelteBracketNewLine": true,
+    "svelteAllowShorthand": false
 }

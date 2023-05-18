@@ -4,40 +4,30 @@
 </script>
 
 {#if showingDeploymentDetailsReadOnlySelection}
-  <div class="flex flex-col items-center border-2 rounded border-gray-500 m-2">
-    <div class="overflow-x-auto sm:-mx-6 lg:-mx-8">
-      <div class="inline-block min-w-full py-2 sm:px-6 lg:px-8">
+  <div class="border-2 border-gray-500 flex flex-col items-center m-2 rounded">
+    <div class="lg:-mx-8 overflow-x-auto sm:-mx-6">
+      <div class="inline-block lg:px-8 min-w-full py-2 sm:px-6">
         <div class="overflow-hidden">
-          <table
-            class="min-w-full text-center text-md font-normal text-gray-900 dark:text-gray-300"
-          >
-            <thead class="border-b font-medium text-gray-800 dark:text-white">
+          <table class="dark:text-gray-300 font-normal min-w-full text-center text-gray-900 text-md">
+            <thead class="border-b dark:text-white font-medium text-gray-800">
               <tr>
-                <th scope="col" class="px-6 py-4">#</th>
-                <th scope="col" class="px-6 py-4">Project Name</th>
-                <th scope="col" class="px-6 py-4">Release Name</th>
-                <th scope="col" class="px-6 py-4">Release #</th>
-                <th scope="col" class="px-6 py-4">Rollback #</th>
-                <th scope="col" class="px-6 py-4">Crucial</th>
+                <th class="px-6 py-4" scope="col">#</th>
+                <th class="px-6 py-4" scope="col">Project Name</th>
+                <th class="px-6 py-4" scope="col">Release Name</th>
+                <th class="px-6 py-4" scope="col">Release #</th>
+                <th class="px-6 py-4" scope="col">Rollback #</th>
+                <th class="px-6 py-4" scope="col">Crucial</th>
               </tr>
             </thead>
             <tbody>
               {#each $deploymentDetails as row, i}
                 <tr class="border-b">
-                  <td class="whitespace-nowrap px-6 py-4 font-medium"
-                    >{i + 1}</td
-                  >
-                  <td class="whitespace-nowrap px-6 py-4"
-                    >{row.releaseProjectName}</td
-                  >
-                  <td class="whitespace-nowrap px-6 py-4">{row.releaseName}</td>
-                  <td class="whitespace-nowrap px-6 py-4"
-                    >{row.releaseNumber}</td
-                  >
-                  <td class="whitespace-nowrap px-6 py-4"
-                    >{row.releaseRollback}</td
-                  >
-                  <td class=" px-6 py-4">{row.isCrucial}</td>
+                  <td class="font-medium px-6 py-4 whitespace-nowrap">{i + 1}</td>
+                  <td class="px-6 py-4 whitespace-nowrap">{row.releaseProjectName}</td>
+                  <td class="px-6 py-4 whitespace-nowrap">{row.releaseName}</td>
+                  <td class="px-6 py-4 whitespace-nowrap">{row.releaseNumber}</td>
+                  <td class="px-6 py-4 whitespace-nowrap">{row.releaseRollback}</td>
+                  <td class="px-6 py-4">{row.isCrucial}</td>
                 </tr>
               {/each}
             </tbody>
