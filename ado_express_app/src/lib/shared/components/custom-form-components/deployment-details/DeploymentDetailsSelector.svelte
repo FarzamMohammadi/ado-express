@@ -44,8 +44,8 @@
   <div
     id="$deploymentDetails"
     class="focus:border-blue-600 dark:focus:border-sky-500 rounded-lg border-2 border-gray-600 dark:border-gray-500 mb-3 mt-2 mx-4 p-2 w-full {invalid ? 'invalid' : ''}"
-    use:clickOutside
-    on:click_outside={handleClickOutside} on:click={handleClickInside}
+    use:clickOutside on:click_outside={handleClickOutside}
+    on:click={handleClickInside}
     on:keypress={handleClickInside}
   >
     <div class="flex justify-center ml-3">
@@ -62,7 +62,7 @@
 
     {#if showCustomSelector}
       <div class="p-2 mt-2">
-                <ExcelFileInput on:onDeploymentDetailsUpload={handleExcelDeploymentDetailsUpload} />
+        <ExcelFileInput on:onDeploymentDetailsUpload={handleExcelDeploymentDetailsUpload} />
       </div>
 
       <div class="p-2">

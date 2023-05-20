@@ -235,7 +235,6 @@
       z-index: 40;
     }
     .toggle {
-      outline: none;
       border: none;
       background: none;
       position: relative;

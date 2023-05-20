@@ -79,6 +79,6 @@
 .inputfile:focus + label {
   outline: 10px ;
   border-width: 2px;
-  border-color:  #646cff;
+  border-color:  #3b82f6;
 }
 </style>

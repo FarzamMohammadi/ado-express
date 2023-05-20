@@ -155,7 +155,7 @@
           type="checkbox"
           bind:checked={cells[cellId(row, col)]}
           disabled={disabledColumns.includes(col)}
-          class="text-center text-sm border border-gray-800 rounded-md focus:outline-none focus:border-blue-500 w-24"
+          class="text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:bg-gray-700 dark:border-gray-600"
           on:input={(event) => handleInput(row, col, event)}
         />
       {:else if col === 3 || col === 4}
