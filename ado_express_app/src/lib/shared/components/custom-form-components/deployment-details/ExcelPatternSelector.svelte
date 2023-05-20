@@ -91,7 +91,7 @@
   <div class="flex items-center">
     <a
       href="/Deployment-Details-Template.xlsx"
-      class="bg-transparent hover:bg-purple-700 text-purple-900 dark:text-purple-500 font-semibold hover:text-white dark:hover:text-white py-2 px-4 border border-purple-800 hover:border-transparent rounded-lg shadow-lg"
+      class="focus:ring-1 focus:outline-none focus:ring-purple-500 bg-transparent hover:bg-purple-700 text-purple-900 dark:text-purple-500 font-semibold hover:text-white dark:hover:text-white py-2 px-4 border border-purple-800 hover:border-transparent rounded-lg shadow-lg"
     >
       Download Excel Template
     </a>

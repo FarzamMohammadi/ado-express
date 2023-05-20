@@ -62,7 +62,7 @@
 
     {#if showCustomSelector}
       <div class="p-2 mt-2">
-        <ExcelFileInput on:onDeploymentDetailsUpload={handleExcelDeploymentDetailsUpload} />
+                <ExcelFileInput on:onDeploymentDetailsUpload={handleExcelDeploymentDetailsUpload} />
       </div>
 
       <div class="p-2">
@@ -71,7 +71,7 @@
     {:else}
       <div class="my-3">
         <button
-          class="bg-transparent border border-green-800 dark:hover:text-white dark:text-green-500 font-semibold hover:bg-green-700 hover:border-transparent hover:text-white px-4 py-2 rounded-lg shadow-lg text-green-900"
+          class="focus:ring-1 focus:outline-none focus:ring-green-500 bg-transparent border border-green-800 dark:hover:text-white dark:text-green-500 font-semibold hover:bg-green-700 hover:border-transparent hover:text-white px-4 py-2 rounded-lg shadow-lg text-green-900"
         >
           Manage Selection
         </button>
