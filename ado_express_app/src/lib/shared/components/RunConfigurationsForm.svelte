@@ -14,7 +14,7 @@
   import { ResultHandler } from '../../utils/result-handler';
   import { deploymentDetails, runResultData } from '../../utils/stores';
   import ExplicitReleaseValuesInput from './custom-form-components/ExplicitReleaseValuesInput.svelte';
-  import DeploymentDetailsSelector from './custom-form-components/deployment-details/DeploymentDetailsSelector.svelte';
+  import DeploymentDetailsSelector from './custom-form-components/deployment-detail-selector/DeploymentDetailSelector.svelte';
   import CustomPasswordInput from './custom-form-components/inputs/CustomPasswordInput.svelte';
   import CustomTextInput from './custom-form-components/inputs/CustomTextInput.svelte';
   import CustomUrlInput from './custom-form-components/inputs/CustomUrlInput.svelte';
