@@ -56,7 +56,7 @@
 </script>
 
 <div class="mb-1 mt-1 w-full">
-  <input id="file-upload" type="file" accept=".xlsx, .xls" on:change={handleFileUpload} class="hidden" />
+  <input id="file-upload" type="file" accept=".xlsx, .xls" on:change={handleFileUpload} class="inputfile"/>
 
   <label
     for="file-upload"
@@ -65,3 +65,20 @@
     Upload Excel File
   </label>
 </div>
+
+<style lang="scss">
+  .inputfile {
+	width: 0.1px;
+	height: 0.1px;
+	opacity: 0;
+	overflow: hidden;
+	position: absolute;
+	z-index: -1;
+}
+
+.inputfile:focus + label {
+  outline: 10px ;
+  border-width: 2px;
+  border-color:  #646cff;
+}
+</style>
