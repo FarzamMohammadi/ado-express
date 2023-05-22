@@ -1,7 +1,7 @@
 <script lang="ts">
-  import RunConfigurationsForm from './lib/shared/components/RunConfigurationsForm.svelte';
   import CustomRunSpecifierDropdown from './lib/shared/components/custom-form-components/CustomRunSpecifierDropdown.svelte';
   import Navbar from './lib/shared/components/navbar/Navbar.svelte';
+  import RunConfigurationForm from './lib/shared/components/run-configuration-form/RunConfigurationForm.svelte';
   import RunResults from './lib/shared/components/run-results/RunResults.svelte';
   import DarkToggle from './lib/shared/components/utils/DarkToggle.svelte';
   import { running } from './lib/utils/stores';
@@ -70,7 +70,7 @@
     <div class="z-30 flex justify-center items-center max-w-screen">
       
       <div class="smooth-transition" style={formStyle}>
-        <RunConfigurationsForm
+        <RunConfigurationForm
           bind:running={$running}
           bind:runType
           bind:runMethod

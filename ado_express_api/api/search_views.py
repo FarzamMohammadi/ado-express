@@ -27,34 +27,40 @@ def search_via_release_environment(request):
     serializer.fields['viaEnvLatestRelease'].required = False
 
     if serializer.is_valid():
-        run_configurations = RunConfiguration(serializer.validated_data['explicit_release_values'], 
-                                               serializer.validated_data['crucial_release_definitions'], 
-                                               serializer.validated_data['organization_url'], 
-                                               serializer.validated_data['personal_access_token'], 
-                                               None,    # queries
-                                               serializer.validated_data['release_name_format'], 
-                                               serializer.validated_data['release_target_env'], 
-                                               True,    # search_only
-                                               True,    # via_env
-                                               False,   # via_env_latest_release
-                                               None,    #
-                                               serializer.validated_data['deployment_details'])
-        
+        run_configurations = RunConfiguration(
+            None,
+            None,
+            serializer.validated_data['organization_url'],
+            serializer.validated_data['personal_access_token'],
+            None,    # queries
+            serializer.validated_data['release_name_format'],
+            serializer.validated_data['release_target_env'],
+            True,    # search_only
+            True,    # via_env
+            False,   # via_env_latest_release
+            None,    #
+            serializer.validated_data['deployment_details'])
+
         ado_express = Startup(run_configurations)
         release_details = dict()
 
-        #TODO Make concurrent
+        # TODO Make concurrent
         for deployment in run_configurations.deployment_details:
-            converted_deployment_details = DeploymentDetail(deployment['release_project_name'], deployment['release_name'], None, None, False)
-            
-            releases: list[ReleaseDetail] = ado_express.search_and_log_details_only(converted_deployment_details)
+            converted_deployment_details = DeploymentDetail(
+                deployment['release_project_name'], deployment['release_name'], None, None, False)
 
-            if releases: release_details[deployment['release_name']] = [release.__dict__ for release in releases]
+            releases: list[ReleaseDetail] = ado_express.search_and_log_details_only(
+                converted_deployment_details)
+
+            if releases:
+                release_details[deployment['release_name']] = [
+                    release.__dict__ for release in releases]
 
         return Response(status=status.HTTP_200_OK, data=SnakeToCamelCaseConverter.convert(release_details))
     else:
         return Response(status=status.HTTP_400_BAD_REQUEST, data=f"Errors:\n{serializer.errors}")
-    
+
+
 @api_view(['POST'])
 def search_via_latest_release(request):
     deployment_details = DeploymentDetailSerializer()
@@ -73,34 +79,40 @@ def search_via_latest_release(request):
     serializer.fields['viaEnvLatestRelease'].required = False
 
     if serializer.is_valid():
-        run_configurations = RunConfiguration(serializer.validated_data['explicit_release_values'], 
-                                               serializer.validated_data['crucial_release_definitions'], 
-                                               serializer.validated_data['organization_url'], 
-                                               serializer.validated_data['personal_access_token'], 
-                                               serializer.validated_data['queries'], 
-                                               serializer.validated_data['release_name_format'], 
-                                               serializer.validated_data['release_target_env'],
-                                               True,    # search_only
-                                               True,    # via_env
-                                               True,    # via_env_latest_release
-                                               serializer.validated_data['via_env_source_name'],
-                                               serializer.validated_data['deployment_details'])
-        
+        run_configurations = RunConfiguration(
+            None,
+            None,
+            serializer.validated_data['organization_url'],
+            serializer.validated_data['personal_access_token'],
+            serializer.validated_data['queries'],
+            serializer.validated_data['release_name_format'],
+            serializer.validated_data['release_target_env'],
+            True,    # search_only
+            True,    # via_env
+            True,    # via_env_latest_release
+            serializer.validated_data['via_env_source_name'],
+            serializer.validated_data['deployment_details'])
+
         ado_express = Startup(run_configurations)
         deployment_details = dict()
 
-        #TODO Make concurrent
+        # TODO Make concurrent
         for deployment in run_configurations.deployment_details:
-            converted_deployment_details = DeploymentDetail(deployment['release_project_name'], deployment['release_name'], None, None, deployment['is_crucial'])
-            
-            deployment_detail = ado_express.get_deployment_detail_from_latest_release(converted_deployment_details)
-            
-            if deployment_detail: deployment_details[deployment['release_name']] = deployment_detail.__dict__
+            converted_deployment_details = DeploymentDetail(
+                deployment['release_project_name'], deployment['release_name'], None, None, deployment['is_crucial'])
+
+            deployment_detail = ado_express.get_deployment_detail_from_latest_release(
+                converted_deployment_details)
+
+            if deployment_detail:
+                deployment_details[deployment['release_name']
+                                   ] = deployment_detail.__dict__
 
         return Response(status=status.HTTP_200_OK, data=SnakeToCamelCaseConverter.convert(deployment_details))
     else:
         return Response(status=status.HTTP_400_BAD_REQUEST, data=f"Errors:\n{serializer.errors}")
-    
+
+
 @api_view(['POST'])
 def search_via_release_number(request):
     deployment_details = DeploymentDetailSerializer()
@@ -117,36 +129,42 @@ def search_via_release_number(request):
     serializer.fields['viaEnvLatestRelease'].required = False
     serializer.fields['releaseTargetEnv'].allow_blank = True
     serializer.fields['viaEnvSourceName'].allow_blank = True
-    
+
     if serializer.is_valid():
-        run_configurations = RunConfiguration(None, # explicit_release_values
-                                               None, # crucial_release_definitions
-                                               serializer.validated_data['organization_url'], 
-                                               serializer.validated_data['personal_access_token'], 
-                                               None,    # queries
-                                               serializer.validated_data['release_name_format'], 
-                                               None,    # release_target_env
-                                               True,    # search_only
-                                               False,   # via_env
-                                               False,   # via_env_latest_release
-                                               None,    # via_env_source_name
-                                               serializer.validated_data['deployment_details'])
-        
+        run_configurations = RunConfiguration(
+            None,  # explicit_release_values
+            None,  # crucial_release_definitions
+            serializer.validated_data['organization_url'],
+            serializer.validated_data['personal_access_token'],
+            None,    # queries
+            serializer.validated_data['release_name_format'],
+            None,    # release_target_env
+            True,    # search_only
+            False,   # via_env
+            False,   # via_env_latest_release
+            None,    # via_env_source_name
+            serializer.validated_data['deployment_details'])
+
         ado_express = Startup(run_configurations)
         release_details = dict()
-        
-        #TODO Make concurrent
+
+        # TODO Make concurrent
         for deployment in run_configurations.deployment_details:
-            converted_deployment_details = DeploymentDetail(deployment['release_project_name'], deployment['release_name'], deployment['release_number'], None, deployment['is_crucial'])
-            
-            releases: list[ReleaseDetail] = ado_express.search_and_log_details_only(converted_deployment_details)
-            
-            if releases: release_details[deployment['release_name']] = [release.__dict__ for release in releases]
-        
+            converted_deployment_details = DeploymentDetail(
+                deployment['release_project_name'], deployment['release_name'], deployment['release_number'], None, deployment['is_crucial'])
+
+            releases: list[ReleaseDetail] = ado_express.search_and_log_details_only(
+                converted_deployment_details)
+
+            if releases:
+                release_details[deployment['release_name']] = [
+                    release.__dict__ for release in releases]
+
         return Response(status=status.HTTP_200_OK, data=SnakeToCamelCaseConverter.convert(release_details))
     else:
         return Response(status=status.HTTP_400_BAD_REQUEST, data=f"Fields are invalid.\n{serializer.errors}")
-                    
+
+
 @api_view(['POST'])
 def search_via_query(request):
     serializer = RunConfigurationSerializer(data=request.data)
@@ -159,27 +177,27 @@ def search_via_query(request):
     serializer.fields['searchOnly'].required = False
 
     if serializer.is_valid():
-        run_configurations = RunConfiguration(serializer.validated_data['explicit_release_values'], 
-                                               serializer.validated_data['crucial_release_definitions'], 
-                                               serializer.validated_data['organization_url'], 
-                                               serializer.validated_data['personal_access_token'], 
-                                               serializer.validated_data['queries'], 
-                                               serializer.validated_data['release_name_format'], 
-                                               serializer.validated_data['release_target_env'], 
-                                               True,    # search_only
-                                               serializer.validated_data['via_env'], 
-                                               serializer.validated_data['via_env_latest_release'],
-                                               serializer.validated_data['via_env_source_name'],
-                                               serializer.validated_data['deployment_details'])
-        
+        run_configurations = RunConfiguration(
+            None,
+            None,
+            serializer.validated_data['organization_url'],
+            serializer.validated_data['personal_access_token'],
+            serializer.validated_data['queries'],
+            serializer.validated_data['release_name_format'],
+            serializer.validated_data['release_target_env'],
+            True,    # search_only
+            serializer.validated_data['via_env'],
+            serializer.validated_data['via_env_latest_release'],
+            serializer.validated_data['via_env_source_name'],
+            serializer.validated_data['deployment_details'])
+
         ado_express = Startup(run_configurations)
         deployment_details = dict()
         deployment_details_list = ado_express.get_deployment_details_from_query()
-        
+
         for deployment in deployment_details_list:
             deployment_details[deployment.release_name] = deployment.__dict__
-        
+
         return Response(status=status.HTTP_200_OK, data=SnakeToCamelCaseConverter.convert(deployment_details))
     else:
         return Response(status=status.HTTP_400_BAD_REQUEST, data=f"Fields are invalid.\n{serializer.errors}")
-

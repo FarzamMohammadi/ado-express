@@ -1,21 +1,15 @@
 import { camelCaseToSnakeCase } from '../../utils/camel-to-snakecase';
 import type { IDeploymentDetail } from '../interfaces/ideployment-detail.interface';
 import type { IDeserializable } from '../interfaces/ideserializable.interface';
-import type { IExplicitExclusion } from '../interfaces/iexplicit-exclusion.interface';
-import type { IExplicitInclusion } from '../interfaces/iexplicit-inclusion.interface';
-import type { IRunConfigurations } from '../interfaces/irun-configurations.interface';
+import type { IRunConfiguration } from '../interfaces/irun-configuration.interface';
 import type { IToSnakeCase } from '../interfaces/ito-snake-case.interface';
 
 export class RunConfiguration
   implements
-    IDeserializable<IRunConfigurations>,
+    IDeserializable<IRunConfiguration>,
     IToSnakeCase,
-    IRunConfigurations
+    IRunConfiguration
 {
-  public explicitReleaseValues: IExplicitExclusion | IExplicitInclusion;
-
-  public crucialReleaseDefinitions: string[];
-
   public organizationUrl!: string;
 
   public personalAccessToken!: string;
@@ -37,8 +31,6 @@ export class RunConfiguration
   public deploymentDetails: IDeploymentDetail[];
 
   constructor(
-    explicitReleaseValues: IExplicitExclusion | IExplicitInclusion,
-    crucialReleaseDefinitions: string[],
     organizationUrl: string,
     personalAccessToken: string,
     queries: string[],
@@ -50,8 +42,6 @@ export class RunConfiguration
     viaEnvSourceName: string,
     deploymentDetails: IDeploymentDetail[]
   ) {
-    this.explicitReleaseValues = explicitReleaseValues;
-    this.crucialReleaseDefinitions = crucialReleaseDefinitions;
     this.personalAccessToken = personalAccessToken;
     this.organizationUrl = organizationUrl;
     this.queries = queries;
@@ -64,7 +54,7 @@ export class RunConfiguration
     this.deploymentDetails = deploymentDetails;
   }
 
-  deserialize(input: IRunConfigurations): this {
+  deserialize(input: IRunConfiguration): this {
     Object.assign(this, input);
     return this;
   }
