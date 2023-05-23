@@ -1,25 +1,21 @@
 <script lang="ts">
-    import CustomTextInput from './inputs/CustomTextInput.svelte';
+  import CustomTextInput from './inputs/CustomTextInput.svelte';
 
-  export let hasExplicitReleaseValues;
-  export let explicitReleaseValuesType;
   export let explicitReleaseValuesReleases;
+  export let explicitReleaseValuesType;
+  export let hasExplicitReleaseValues;
   export let showInput;
 </script>
 
 {#if showInput}
-  <div
-    class="items-center border-2 border-gray-600 rounded dark:border-gray-500 mb-2"
-    id="hasExplicitReleaseValues"
-  >
+  <div id="hasExplicitReleaseValues" class="border-2 border-gray-600 rounded dark:border-gray-500 my-4 items-center">
     <div
-      class="flex justify-between items-center px-1"
       on:click={() => (hasExplicitReleaseValues = !hasExplicitReleaseValues)}
       on:keypress={() => (hasExplicitReleaseValues = !hasExplicitReleaseValues)}
+      class="flex justify-between items-center px-1"
     >
-      <label for="hasExplicitReleaseValues" class="py-2 m-2 font-bold"
-        >Explicit Release Values</label
-      >
+      <label for="hasExplicitReleaseValues" class="py-2 m-2 font-bold">Explicit Release Values</label>
+
       <input
         bind:checked={hasExplicitReleaseValues}
         id="hasExplicitReleaseValues"
@@ -32,23 +28,11 @@
     {#if hasExplicitReleaseValues}
       <div class="flex justify-center">
         <label class="pr-3">
-          <input
-            type="radio"
-            name="explicitReleaseValuesOptions"
-            value="include"
-            bind:group={explicitReleaseValuesType}
-          />
-          Include
+          <input type="radio" name="explicitReleaseValuesOptions" value="include" bind:group={explicitReleaseValuesType} /> Include
         </label>
 
         <label>
-          <input
-            type="radio"
-            name="explicitReleaseValuesOptions"
-            value="exclude"
-            bind:group={explicitReleaseValuesType}
-          />
-          Exclude
+          <input type="radio" name="explicitReleaseValuesOptions" value="exclude" bind:group={explicitReleaseValuesType} /> Exclude
         </label>
       </div>
       <div class="w-full flex justify-center items-center">

@@ -1,21 +1,28 @@
 <script lang="ts">
-    export let data = '';
-  export let showIdleDots = false;
+  import { onDestroy, onMount } from 'svelte';
+
+  export let data = '';
   export let dotText;
+  export let showIdleDots = false;
 
   let displayedText = '';
   let i = 0;
 
-  $: {
-    displayedText = '';
-    typeEffect(data, 0, 15);
-  }
+  let typeEffectTimeout: number;
 
-  function typeEffect(dataInput: string, i: number, delay: number) {
-    if (i < dataInput.length) {
-      setTimeout(() => {
-        displayedText += dataInput[i];
-        typeEffect(dataInput, i + 1, delay);
+  onMount(() => {
+    typeEffect(data, 0, 15);
+  });
+
+  onDestroy(() => {
+    clearTimeout(typeEffectTimeout);
+  });
+
+  function typeEffect(dataInput: string, index: number, delay: number) {
+    if (index < dataInput.length) {
+      typeEffectTimeout = setTimeout(() => {
+        displayedText += dataInput[index];
+        typeEffect(dataInput, index + 1, delay);
       }, delay);
     }
   }
@@ -23,5 +30,7 @@
 
 <span>
   {displayedText}
-  {#if showIdleDots}{dotText}{/if}
+  {#if showIdleDots}
+    {dotText}
+  {/if}
 </span>

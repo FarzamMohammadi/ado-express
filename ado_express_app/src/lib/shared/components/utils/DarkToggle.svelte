@@ -53,7 +53,7 @@
           get(target, key) {
             return target[key];
           },
-        }
+        },
       );
 
       svgLineProxy.y = 18;
@@ -87,12 +87,8 @@
                 gsap.to(dayNight, {
                   '--new-percent': '100%',
                   '--line': night ? 'var(--day-line)' : 'var(--night-line)',
-                  '--background': night
-                    ? 'var(--day-background)'
-                    : 'var(--night-background)',
-                  '--new-background': night
-                    ? 'var(--day-background)'
-                    : 'var(--night-background)',
+                  '--background': night ? 'var(--day-background)' : 'var(--night-background)',
+                  '--new-background': night ? 'var(--day-background)' : 'var(--night-background)',
                   duration: 0.5,
                 });
               },
@@ -146,32 +142,17 @@
     });
   });
 
-  function getPoint(
-    point: number[],
-    i: number,
-    a: number[][],
-    smoothing: number
-  ) {
-    let cp = (
-      current: number[],
-      previous: number[] | null,
-      next: number[] | null,
-      reverse: boolean
-    ) => {
+  function getPoint(point: number[], i: number, a: number[][], smoothing: number) {
+    let cp = (current: number[], previous: number[] | null, next: number[] | null, reverse: boolean) => {
       let p = previous || current,
         n = next || current,
         o = {
-          length: Math.sqrt(
-            Math.pow(n[0] - p[0], 2) + Math.pow(n[1] - p[1], 2)
-          ),
+          length: Math.sqrt(Math.pow(n[0] - p[0], 2) + Math.pow(n[1] - p[1], 2)),
           angle: Math.atan2(n[1] - p[1], n[0] - p[0]),
         },
         angle = o.angle + (reverse ? Math.PI : 0),
         length = o.length * smoothing;
-      return [
-        current[0] + Math.cos(angle) * length,
-        current[1] + Math.sin(angle) * length,
-      ];
+      return [current[0] + Math.cos(angle) * length, current[1] + Math.sin(angle) * length];
     };
     const cps = cp(a[i - 1], a[i - 2], point, false);
     const cpe = cp(point, a[i - 1], a[i + 1], true);
@@ -185,13 +166,7 @@
       [26, update],
       [48, 18],
     ];
-    let d = points.reduce(
-      (acc, point, i, a) =>
-        i === 0
-          ? `M ${point[0]},${point[1]}`
-          : `${acc} ${getPoint(point, i, a, smoothing)}`,
-      ''
-    );
+    let d = points.reduce((acc, point, i, a) => (i === 0 ? `M ${point[0]},${point[1]}` : `${acc} ${getPoint(point, i, a, smoothing)}`), '');
     return `<path d="${d}" />`;
   }
 </script>
@@ -213,9 +188,7 @@
         <circle cx="12" cy="12" r="6" />
       </svg>
       <svg class="moon" viewBox="0 0 24 24">
-        <path
-          d="M18,16C12.5,16,8,11.5,8,6 c0-0.9,0.1-1.8,0.4-2.6C4.1,4.5,1,8.4,1,13c0,5.5,4.5,10,10,10c4.6,0,8.5-3.1,9.6-7.4C19.8,15.9,18.9,16,18,16z"
-        />
+        <path d="M18,16C12.5,16,8,11.5,8,6 c0-0.9,0.1-1.8,0.4-2.6C4.1,4.5,1,8.4,1,13c0,5.5,4.5,10,10,10c4.6,0,8.5-3.1,9.6-7.4C19.8,15.9,18.9,16,18,16z" />
         <g class="star-1">
           <line x1="15" y1="1" x2="15" y2="5" />
           <line x1="13" y1="3" x2="17" y2="3" />
@@ -231,7 +204,6 @@
 </div>
 
 <style lang="scss">
-
   .day-night {
     --sun: #f0c644;
     --day-background: #eeeeee;
@@ -263,7 +235,6 @@
       z-index: 40;
     }
     .toggle {
-      outline: none;
       border: none;
       background: none;
       position: relative;

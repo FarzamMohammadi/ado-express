@@ -1,17 +1,22 @@
 <script lang="ts">
-  import RunConfigurationsForm from './lib/shared/components/RunConfigurationsForm.svelte';
   import CustomRunSpecifierDropdown from './lib/shared/components/custom-form-components/CustomRunSpecifierDropdown.svelte';
   import Navbar from './lib/shared/components/navbar/Navbar.svelte';
+  import RunConfigurationForm from './lib/shared/components/run-configuration-form/RunConfigurationForm.svelte';
   import RunResults from './lib/shared/components/run-results/RunResults.svelte';
   import DarkToggle from './lib/shared/components/utils/DarkToggle.svelte';
   import { running } from './lib/utils/stores';
   import { websocketStore } from './lib/utils/websocketStores/websocket-store';
 
-  let runType;
-  let runMethod;
+  let formStyle;
   let isSubmitting;
+  let resultStyle;
+  let runMethod;
+  let runType;
 
   websocketStore.connect();
+
+  $: formStyle = `transform: ${$running ? 'translateX(-25%)' : 'translateX(0)'} width: ${$running ? '100%' : '50%'};`;
+  $: resultStyle = `width: ${$running ? '50%' : '0'}; transform: ${$running ? 'translateX(25%)' : 'translateX(0)'}; max-width: 35vw; min-width: ${$running ? '35vw' : '0'};`;
 </script>
 
 <svelte:head>
@@ -25,26 +30,20 @@
   </style>
 </svelte:head>
 
-<main class="min-w-full min-h-screen">
-  <div>
-    <Navbar />
-  </div>
+<main class="min-w-full min-h-screen bg-[#eeeeee] dark:bg-[#1a1e24]">
+
+  <Navbar />
 
   <div class="flex flex-col items-center justify-center to-gray-600 pb-8">
-    <div class="z-50 mb-5">
-      <h1
-        class="text-4xl font-bold text-gray-900 dark:text-white z-50 max-w-4xl"
-      >
-        Effortlessly Manage ADO Releases & Deployments
-      </h1>
-    </div>
 
-    <div class="z-50">
-      <h6 class="text-md text-gray-900 dark:text-white mb-4 max-w-3xl">
-        ADO Express is a meticulously crafted release management tool, tailored
-        to simplify and enhance the Azure DevOps release deployment process.
-      </h6>
-    </div>
+    <h1 class="z-50 text-4xl font-bold text-gray-900 dark:text-white mb-5 max-w-4xl">
+      Effortlessly Manage ADO Releases & Deployments
+    </h1>
+    
+    <p class="z-50 text-md text-gray-900 dark:text-white mb-4 max-w-3xl">
+      ADO Express is a meticulously crafted release management tool, tailored
+      to simplify and enhance the Azure DevOps release deployment process.
+    </p>
 
     <div class="z-50 mb-12">
       <DarkToggle />
@@ -68,16 +67,10 @@
       </a>
     {/if}
 
-    <div
-      class="z-30 flex justify-center items-center"
-      style="max-width: 100vw;"
-    >
-      <div
-        class="smooth-transition"
-        style="transform: {$running ? 'translateX(-25%)' : 'translateX(0)'}
-        width: {$running ? '100%' : '50%'}"
-      >
-        <RunConfigurationsForm
+    <div class="z-30 flex justify-center items-center max-w-screen">
+      
+      <div class="smooth-transition" style={formStyle}>
+        <RunConfigurationForm
           bind:running={$running}
           bind:runType
           bind:runMethod
@@ -85,18 +78,12 @@
         />
       </div>
 
-      <div
-        class="overflow-hidden smooth-transition items-center z-30"
-        style="
-          width: {$running ? '50%' : '0'};
-          transform: {$running ? 'translateX(25%)' : 'translateX(0)'};
-          max-width: 35vw;
-          min-width: {$running ? '35vw' : '0'};
-        "
-      >
+      <div class="overflow-hidden smooth-transition items-center z-30" style={resultStyle}>
         <RunResults />
       </div>
+      
     </div>
+    
   </div>
 </main>
 

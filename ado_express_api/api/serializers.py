@@ -21,8 +21,6 @@ class DeploymentDetailSerializer(serializers.Serializer):
         self.fields['releaseRollback'].required = False
 
 class RunConfigurationSerializer(serializers.Serializer):
-    explicitReleaseValues = serializers.DictField(allow_empty=True, allow_null=True, source='explicit_release_values')
-    crucialReleaseDefinitions = serializers.ListField(child=serializers.CharField(max_length=200, allow_blank=True), allow_empty=True, allow_null=True, source='crucial_release_definitions')
     organizationUrl = serializers.CharField(max_length=200, required=True, source='organization_url')
     personalAccessToken = serializers.CharField(max_length=200, required=True, source='personal_access_token')
     queries = serializers.ListField(child=serializers.CharField(max_length=200), allow_empty=True, allow_null=True)
