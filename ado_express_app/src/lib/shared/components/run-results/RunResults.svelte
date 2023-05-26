@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onDestroy, onMount } from 'svelte';
+  import { afterUpdate, onDestroy, onMount } from 'svelte';
   import { writable } from 'svelte/store';
 
   import type { IDeploymentStatuses } from '../../../models/interfaces/ilive-deployment-details.interface';
@@ -16,6 +16,7 @@
 
   export let displayIdleDots = false;
 
+  let container;
   let deploymentStatuses: IDeploymentStatuses = {};
   let displayDataInputs: string[] = [];
   let displayItems = [];
@@ -35,6 +36,7 @@
   let prevDeploymentStatuses: IDeploymentStatuses = {};
   let prevGenericMessageDataLength = 0;
   let prevLocalResultDataLength = localResultData.length;
+  let shouldAutoScroll = true;
   let unsubscribeDeploymentStatus;
   let unsubscribeDisplayedRunResultData;
 
@@ -43,9 +45,15 @@
   onMount(() => {
     localResultData = $displayedRunResultData;
     displayDataInputs = new Array(localResultData.length + $genericMessageStore.length).fill('');
-
-    setupSubscriptions();
+    
+    prepareSubscriptions();
+    prepareObserver();
+    prepareKeyboardAccessibility();
     setInterval(updateDots, 400);
+  });
+
+  afterUpdate(() => {
+    shouldAutoScroll = container.scrollTop + container.clientHeight === container.scrollHeight;
   });
 
   onDestroy(() => {
@@ -53,7 +61,34 @@
     unsubscribeDisplayedRunResultData();
   });
 
-  function setupSubscriptions() {
+  function prepareKeyboardAccessibility() {
+    // Making div focusable
+    container.setAttribute('tabindex', '0');
+
+    // Adding event listener for keydown
+    container.addEventListener('keydown', (e) => {
+      switch(e.key) {
+        case 'ArrowUp':
+          container.scrollBy({ top: -100, behavior: 'smooth' }); // replace 100 with desired scroll amount
+          break;
+        case 'ArrowDown':
+          container.scrollBy({ top: 100, behavior: 'smooth' }); // replace 100 with desired scroll amount
+          break;
+      }
+    });
+  }
+
+  function prepareObserver() {
+    const observer = new MutationObserver(() => {
+      if (shouldAutoScroll) {
+        container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
+      }
+    });
+
+    observer.observe(container, { childList: true });
+  }
+
+  function prepareSubscriptions() {
     unsubscribeDeploymentStatus = deploymentStatusStore.subscribe((value) => {
       deploymentStatuses = {
         ...deploymentStatuses,
@@ -170,7 +205,7 @@
   }
 </script>
 
-<div class="terminal-container my-4">
+<div class="terminal-container my-4" bind:this={container}>
   <div class="terminal-content flex-col items-center justify-end mx-6" class:matrix={matrixTheme}>
     {#each displayItems as item, i}
       {#if item.type === 'message'}
