@@ -110,7 +110,7 @@ def deploy(request):
                 process_deployments(deployment_details, ado_express)
 
                 message = GenericWebsocketMessageSerializer(
-                    '\nAll release deployments are now complete.', False)
+                    '\nAll release deployments are now complete. Have a great day!', False)
                 WebSocketConsumer.send_message(json.dumps(
                     message.to_dict()), WebsocketMessageType.Generic.value)
 
