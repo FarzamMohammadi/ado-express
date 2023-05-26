@@ -145,14 +145,6 @@
         bind:isSubmitting={isSubmitting}
       />
       <CustomTextInput
-        label="Release Target Environment"
-        id="releaseTargetEnv"
-        bind:required={formInputs.rte.required}
-        bind:showInput={formInputs.rte.show}
-        bind:bindValue={formInputs.rte.bindValue}
-        bind:isSubmitting={isSubmitting}
-      />
-      <CustomTextInput
         label="Release Source Environment"
         id="viaEnvSourceName"
         bind:required={formInputs.rse.required}
@@ -160,7 +152,15 @@
         bind:bindValue={formInputs.rse.bindValue}
         bind:isSubmitting={isSubmitting}
       />
-
+      <CustomTextInput
+        label="Release Target Environment"
+        id="releaseTargetEnv"
+        bind:required={formInputs.rte.required}
+        bind:showInput={formInputs.rte.show}
+        bind:bindValue={formInputs.rte.bindValue}
+        bind:isSubmitting={isSubmitting}
+      />
+      
       <SubmitButton
         bind:disableSubmitButton={disableSubmitButton}
         handleSubmit={handleSubmit}
