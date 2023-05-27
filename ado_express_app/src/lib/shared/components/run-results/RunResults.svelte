@@ -1,9 +1,9 @@
 <script lang="ts">
-  import { afterUpdate, onDestroy, onMount } from 'svelte';
+  import { onDestroy, onMount, tick } from 'svelte';
   import { writable } from 'svelte/store';
 
+  import type { IDisplayedRunResultData } from '../../../models/interfaces/idisplayed-run-result-data';
   import type { IDeploymentStatuses } from '../../../models/interfaces/ilive-deployment-details.interface';
-  import type { IDisplayedRunResultData } from '../../../models/interfaces/irun-result-data';
 
   import { displayedRunResultData } from '../../../utils/stores/stores';
   import { deploymentStatusStore } from '../../../utils/websocketStores/deployment-status-store';
@@ -45,15 +45,12 @@
   onMount(() => {
     localResultData = $displayedRunResultData;
     displayDataInputs = new Array(localResultData.length + $genericMessageStore.length).fill('');
-    
-    prepareSubscriptions();
-    prepareObserver();
-    prepareKeyboardAccessibility();
-    setInterval(updateDots, 400);
-  });
 
-  afterUpdate(() => {
-    shouldAutoScroll = container.scrollTop + container.clientHeight === container.scrollHeight;
+    setupAutoScroll();
+    setupKeyboardAccessibility();
+    setupSubscriptions();
+
+    setInterval(updateDots, 400);
   });
 
   onDestroy(() => {
@@ -61,34 +58,34 @@
     unsubscribeDisplayedRunResultData();
   });
 
-  function prepareKeyboardAccessibility() {
-    // Making div focusable
+  function setupAutoScroll() {
+    container.addEventListener('scroll', (e) => {
+      const manualScrollThreshold = container.scrollHeight * 0.87;
+
+      if (container.scrollTop + container.clientHeight < manualScrollThreshold) {
+        shouldAutoScroll = false;
+      } else if (container.scrollTop + container.clientHeight >= manualScrollThreshold) {
+        shouldAutoScroll = true;
+      }
+    });
+  }
+
+  function setupKeyboardAccessibility() {
     container.setAttribute('tabindex', '0');
 
-    // Adding event listener for keydown
     container.addEventListener('keydown', (e) => {
-      switch(e.key) {
+      switch (e.key) {
         case 'ArrowUp':
-          container.scrollBy({ top: -100, behavior: 'smooth' }); // replace 100 with desired scroll amount
+          container.scrollBy({ top: -100, behavior: 'smooth' });
           break;
         case 'ArrowDown':
-          container.scrollBy({ top: 100, behavior: 'smooth' }); // replace 100 with desired scroll amount
+          container.scrollBy({ top: 100, behavior: 'smooth' });
           break;
       }
     });
   }
 
-  function prepareObserver() {
-    const observer = new MutationObserver(() => {
-      if (shouldAutoScroll) {
-        container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
-      }
-    });
-
-    observer.observe(container, { childList: true });
-  }
-
-  function prepareSubscriptions() {
+  function setupSubscriptions() {
     unsubscribeDeploymentStatus = deploymentStatusStore.subscribe((value) => {
       deploymentStatuses = {
         ...deploymentStatuses,
@@ -103,6 +100,13 @@
         displayDataInputs = [...displayDataInputs, ''];
       }
     });
+  }
+
+  async function scrollToBottom() {
+    if (!shouldAutoScroll || !container) return;
+
+    await tick();
+    container.scroll({ top: container.scrollHeight, behavior: 'smooth' });
   }
 
   function updateDots() {
@@ -201,6 +205,8 @@
     if (hasChanges) {
       prevDeploymentStatusKeys = newDeploymentStatusKeys;
       prevDeploymentStatuses = newDeploymentStatuses;
+
+      scrollToBottom();
     }
   }
 </script>
@@ -209,7 +215,12 @@
   <div class="terminal-content flex-col items-center justify-end mx-6" class:matrix={matrixTheme}>
     {#each displayItems as item, i}
       {#if item.type === 'message'}
-        <DisplayDataInput data={item.data.message} showIdleDots={item.data.showIdleDots && i === lastMessageIndex} bind:dotText={dotText} />
+        <DisplayDataInput
+          data={item.data.message}
+          showIdleDots={item.data.showIdleDots && i === lastMessageIndex}
+          bind:dotText={dotText}
+          on:scrollDown={scrollToBottom}
+        />
       {:else}
         <LiveDeploymentStatus key={item.key} status={item.value.status} percentage={item.value.percentage} bind:matrixTheme={matrixTheme} />
       {/if}
