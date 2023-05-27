@@ -1,14 +1,24 @@
+import json
+import threading
+import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from datetime import datetime
+
 import status
 from api.utils.snake_to_camel import SnakeToCamelCaseConverter
 from base.models.DeploymentDetail import DeploymentDetail
+from base.models.enums.WebsocketMessageType import WebsocketMessageType
 from base.models.ReleaseDetail import ReleaseDetail
 from base.models.RunConfiguration import RunConfiguration
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from websocket_server.consumers.consumers import WebSocketConsumer
 
 from ado_express.main import Startup
 
-from .serializers import DeploymentDetailSerializer, RunConfigurationSerializer
+from .serializers import (DeploymentDetailSerializer,
+                          GenericWebsocketMessageSerializer,
+                          RunConfigurationSerializer)
 
 
 @api_view(['POST'])
@@ -44,8 +54,10 @@ def search_via_release_environment(request):
         ado_express = Startup(run_configurations)
         release_details = dict()
 
-        # TODO Make concurrent
-        for deployment in run_configurations.deployment_details:
+        send_generic_message(f"\n\nInitiating search to identify the most recent releases within the designated target environment: {run_configurations.RELEASE_TARGET_ENV}", True)
+        search_start_time = datetime.now()
+
+        def process_deployment(deployment):
             converted_deployment_details = DeploymentDetail(
                 deployment['release_project_name'], deployment['release_name'], None, None, False)
 
@@ -53,8 +65,24 @@ def search_via_release_environment(request):
                 converted_deployment_details)
 
             if releases:
-                release_details[deployment['release_name']] = [
-                    release.__dict__ for release in releases]
+                return (deployment['release_name'], [release.__dict__ for release in releases])
+
+            return None
+
+        with ThreadPoolExecutor(max_workers=50) as executor:
+            futures = [executor.submit(process_deployment, deployment)
+                       for deployment in run_configurations.deployment_details]
+
+            for future in as_completed(futures):
+                result = future.result()
+
+                if result:
+                    release_details[result[0]] = result[1]
+
+        search_end_time = datetime.now()
+        total_search_time = round((search_end_time - search_start_time).total_seconds())
+
+        delayed_function_call(2, send_generic_message, [f"\n\nSearch is now complete. Total Search Time: {total_search_time} seconds"])
 
         return Response(status=status.HTTP_200_OK, data=SnakeToCamelCaseConverter.convert(release_details))
     else:
@@ -96,8 +124,10 @@ def search_via_latest_release(request):
         ado_express = Startup(run_configurations)
         deployment_details = dict()
 
-        # TODO Make concurrent
-        for deployment in run_configurations.deployment_details:
+        send_generic_message(f"\n\nInitiating search to identify the most recent releases within the designated target environment: {run_configurations.RELEASE_TARGET_ENV}", True)
+        search_start_time = datetime.now()
+
+        def process_deployment(deployment):
             converted_deployment_details = DeploymentDetail(
                 deployment['release_project_name'], deployment['release_name'], None, None, deployment['is_crucial'])
 
@@ -105,8 +135,24 @@ def search_via_latest_release(request):
                 converted_deployment_details)
 
             if deployment_detail:
-                deployment_details[deployment['release_name']
-                                   ] = deployment_detail.__dict__
+                return (deployment['release_name'], deployment_detail.__dict__)
+
+            return None
+
+        with ThreadPoolExecutor(max_workers=50) as executor:
+            futures = [executor.submit(process_deployment, deployment)
+                       for deployment in run_configurations.deployment_details]
+
+            for future in as_completed(futures):
+                result = future.result()
+
+                if result:
+                    deployment_details[result[0]] = result[1]
+
+        search_end_time = datetime.now()
+        total_search_time = round((search_end_time - search_start_time).total_seconds())
+
+        delayed_function_call(2, send_generic_message, [f"\n\nSearch is now complete.\n\nSearch Time: {total_search_time} seconds\nReleases Searched: {len(run_configurations.deployment_details)}\nDeployments Found: {len(deployment_details)}"])
 
         return Response(status=status.HTTP_200_OK, data=SnakeToCamelCaseConverter.convert(deployment_details))
     else:
@@ -148,8 +194,11 @@ def search_via_release_number(request):
         ado_express = Startup(run_configurations)
         release_details = dict()
 
-        # TODO Make concurrent
-        for deployment in run_configurations.deployment_details:
+        send_generic_message(f"\n\nInitiating search to identify the most recent releases within the designated target environment: {run_configurations.RELEASE_TARGET_ENV}", True)
+        search_start_time = datetime.now()
+
+
+        def process_deployment(deployment):
             converted_deployment_details = DeploymentDetail(
                 deployment['release_project_name'], deployment['release_name'], deployment['release_number'], None, deployment['is_crucial'])
 
@@ -157,8 +206,24 @@ def search_via_release_number(request):
                 converted_deployment_details)
 
             if releases:
-                release_details[deployment['release_name']] = [
-                    release.__dict__ for release in releases]
+                return (deployment['release_name'], [release.__dict__ for release in releases])
+
+            return None
+
+        with ThreadPoolExecutor(max_workers=50) as executor:
+            futures = [executor.submit(process_deployment, deployment)
+                       for deployment in run_configurations.deployment_details]
+
+            for future in as_completed(futures):
+                result = future.result()
+
+                if result:
+                    release_details[result[0]] = result[1]
+
+        search_end_time = datetime.now()
+        total_search_time =  round(search_end_time - search_start_time)
+
+        delayed_function_call(2, send_generic_message, [f"\n\nSearch is now complete. Total Search Time: {total_search_time} seconds"])
 
         return Response(status=status.HTTP_200_OK, data=SnakeToCamelCaseConverter.convert(release_details))
     else:
@@ -193,11 +258,50 @@ def search_via_query(request):
 
         ado_express = Startup(run_configurations)
         deployment_details = dict()
-        deployment_details_list = ado_express.get_deployment_details_from_query()
 
-        for deployment in deployment_details_list:
-            deployment_details[deployment.release_name] = deployment.__dict__
+        send_generic_message(f"\n\nInitiating search to identify the most recent releases within the designated target environment: {run_configurations.RELEASE_TARGET_ENV}", True)
+        search_start_time = datetime.now()
+
+        def process_deployment(deployment):
+            converted_deployment_details = DeploymentDetail(
+                deployment['release_project_name'], deployment['release_name'], None, None, deployment['is_crucial'])
+
+            deployment_detail = ado_express.get_deployment_detail_from_latest_release(
+                converted_deployment_details)
+
+            if deployment_detail:
+                return (deployment['release_name'], deployment_detail.__dict__)
+
+            return None
+
+        with ThreadPoolExecutor(max_workers=50) as executor:
+            futures = [executor.submit(process_deployment, deployment)
+                       for deployment in run_configurations.deployment_details]
+
+            for future in as_completed(futures):
+                result = future.result()
+
+                if result:
+                    deployment_details[result[0]] = result[1]
+
+        search_end_time = datetime.now()
+        total_search_time = round((search_end_time - search_start_time).total_seconds())
+
+        delayed_function_call(2, send_generic_message, [f"\n\nSearch is now complete.\n\nSearch Time: {total_search_time} seconds\nReleases Searched: {len(run_configurations.deployment_details)}\nDeployments Found: {len(deployment_details)}"])
 
         return Response(status=status.HTTP_200_OK, data=SnakeToCamelCaseConverter.convert(deployment_details))
     else:
         return Response(status=status.HTTP_400_BAD_REQUEST, data=f"Fields are invalid.\n{serializer.errors}")
+
+
+
+def send_generic_message(message: str, showIdleDots: bool = False):
+    message = GenericWebsocketMessageSerializer(message, showIdleDots)
+    WebSocketConsumer.send_message(json.dumps(message.to_dict()), WebsocketMessageType.Generic.value)
+
+def delayed_function_call(delay, func, args):
+    def delayed_call():
+        time.sleep(delay)
+        func(*args)
+    thread = threading.Thread(target=delayed_call)
+    thread.start()
