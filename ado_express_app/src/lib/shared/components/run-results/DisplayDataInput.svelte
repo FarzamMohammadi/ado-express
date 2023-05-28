@@ -1,9 +1,11 @@
 <script lang="ts">
-  import { onDestroy, onMount } from 'svelte';
+  import { createEventDispatcher, onDestroy, onMount } from 'svelte';
 
   export let data = '';
   export let dotText;
   export let showIdleDots = false;
+
+  const dispatch = createEventDispatcher();
 
   let displayedText = '';
   let i = 0;
@@ -24,6 +26,9 @@
         displayedText += dataInput[index];
         typeEffect(dataInput, index + 1, delay);
       }, delay);
+    }
+    else {
+      dispatch('scrollDown');
     }
   }
 </script>
