@@ -23,281 +23,112 @@ from .serializers import (DeploymentDetailSerializer,
 
 @api_view(['POST'])
 def search_via_release_environment(request):
-    deployment_details = DeploymentDetailSerializer()
-    deployment_details.set_required_fields_for_via_environment()
+    request_data, error = setup_serializer_and_validate(
+        request,
+        DeploymentDetailSerializer.set_field_requirements_for_via_environment,
+        RunConfigurationSerializer.set_field_requirements_for_via_environment,
+    )
 
-    serializer = RunConfigurationSerializer(data=request.data)
-    serializer.fields['deploymentDetails'].child = deployment_details
+    if error:
+        return Response(status=status.HTTP_400_BAD_REQUEST, data=error)
 
-    # Fields required for via environment run
-    serializer.fields['deploymentDetails'].allow_empty = False
-    # Fields not required for via environment run
-    serializer.fields['searchOnly'].required = False
-    serializer.fields['viaEnv'].required = False
-    serializer.fields['viaEnvLatestRelease'].required = False
+    run_configurations = initialize_run_configuration(
+        request_data, None, True, False)
+    ado_express = Startup(run_configurations)
 
-    if serializer.is_valid():
-        run_configurations = RunConfiguration(
-            None,
-            None,
-            serializer.validated_data['organization_url'],
-            serializer.validated_data['personal_access_token'],
-            None,    # queries
-            serializer.validated_data['release_name_format'],
-            serializer.validated_data['release_target_env'],
-            True,    # search_only
-            True,    # via_env
-            False,   # via_env_latest_release
-            None,    #
-            serializer.validated_data['deployment_details'])
+    result = process_search(
+        ado_express,
+        run_configurations.deployment_details,
+        process_search_via_release_environment,
+        f"\n\nInitiating search to identify the most recent releases within the designated target environment: {run_configurations.RELEASE_TARGET_ENV}",
+        False
+    )
 
-        ado_express = Startup(run_configurations)
-        release_details = dict()
-
-        send_generic_message(f"\n\nInitiating search to identify the most recent releases within the designated target environment: {run_configurations.RELEASE_TARGET_ENV}", True)
-        search_start_time = datetime.now()
-
-        def process_deployment(deployment):
-            converted_deployment_details = DeploymentDetail(
-                deployment['release_project_name'], deployment['release_name'], None, None, False)
-
-            releases: list[ReleaseDetail] = ado_express.search_and_log_details_only(
-                converted_deployment_details)
-
-            if releases:
-                return (deployment['release_name'], [release.__dict__ for release in releases])
-
-            return None
-
-        with ThreadPoolExecutor(max_workers=50) as executor:
-            futures = [executor.submit(process_deployment, deployment)
-                       for deployment in run_configurations.deployment_details]
-
-            for future in as_completed(futures):
-                result = future.result()
-
-                if result:
-                    release_details[result[0]] = result[1]
-
-        search_end_time = datetime.now()
-        total_search_time = round((search_end_time - search_start_time).total_seconds())
-
-        delayed_function_call(2, send_generic_message, [f"\n\nSearch is now complete. Total Search Time: {total_search_time} seconds"])
-
-        return Response(status=status.HTTP_200_OK, data=SnakeToCamelCaseConverter.convert(release_details))
-    else:
-        return Response(status=status.HTTP_400_BAD_REQUEST, data=f"Errors:\n{serializer.errors}")
+    return Response(status=status.HTTP_200_OK, data=SnakeToCamelCaseConverter.convert(result))
 
 
 @api_view(['POST'])
 def search_via_latest_release(request):
-    deployment_details = DeploymentDetailSerializer()
-    deployment_details.set_required_fields_for_via_latest()
+    request_data, error = setup_serializer_and_validate(
+        request,
+        DeploymentDetailSerializer.set_field_requirements_for_via_latest,
+        RunConfigurationSerializer.set_field_requirements_for_via_latest,
+    )
 
-    serializer = RunConfigurationSerializer(data=request.data)
-    serializer.fields['deploymentDetails'].child = deployment_details
+    if error:
+        return Response(status=status.HTTP_400_BAD_REQUEST, data=error)
 
-    # Fields required for via latest run
-    serializer.fields['deploymentDetails'].allow_empty = True
-    serializer.fields['releaseTargetEnv'].required = True
-    serializer.fields['viaEnvSourceName'].required = True
-    # Fields not required for via latest run
-    serializer.fields['searchOnly'].required = False
-    serializer.fields['viaEnv'].required = False
-    serializer.fields['viaEnvLatestRelease'].required = False
+    run_configurations = initialize_run_configuration(
+        request_data, None, True, True)
+    ado_express = Startup(run_configurations)
 
-    if serializer.is_valid():
-        run_configurations = RunConfiguration(
-            None,
-            None,
-            serializer.validated_data['organization_url'],
-            serializer.validated_data['personal_access_token'],
-            serializer.validated_data['queries'],
-            serializer.validated_data['release_name_format'],
-            serializer.validated_data['release_target_env'],
-            True,    # search_only
-            True,    # via_env
-            True,    # via_env_latest_release
-            serializer.validated_data['via_env_source_name'],
-            serializer.validated_data['deployment_details'])
+    result = process_search(
+        ado_express,
+        run_configurations.deployment_details,
+        process_search_via_latest_release,
+        f"\n\nInitiating search to identify the most recent releases within\n\nThe Source Environment: {run_configurations.VIA_ENV_SOURCE_NAME}\nTo Be Deployed to Target environment: {run_configurations.RELEASE_TARGET_ENV}"
+    )
 
-        ado_express = Startup(run_configurations)
-        deployment_details = dict()
-
-        send_generic_message(f"\n\nInitiating search to identify the most recent releases within the designated target environment: {run_configurations.RELEASE_TARGET_ENV}", True)
-        search_start_time = datetime.now()
-
-        def process_deployment(deployment):
-            converted_deployment_details = DeploymentDetail(
-                deployment['release_project_name'], deployment['release_name'], None, None, deployment['is_crucial'])
-
-            deployment_detail = ado_express.get_deployment_detail_from_latest_release(
-                converted_deployment_details)
-
-            if deployment_detail:
-                return (deployment['release_name'], deployment_detail.__dict__)
-
-            return None
-
-        with ThreadPoolExecutor(max_workers=50) as executor:
-            futures = [executor.submit(process_deployment, deployment)
-                       for deployment in run_configurations.deployment_details]
-
-            for future in as_completed(futures):
-                result = future.result()
-
-                if result:
-                    deployment_details[result[0]] = result[1]
-
-        search_end_time = datetime.now()
-        total_search_time = round((search_end_time - search_start_time).total_seconds())
-
-        delayed_function_call(2, send_generic_message, [f"\n\nSearch is now complete.\n\nSearch Time: {total_search_time} seconds\nReleases Searched: {len(run_configurations.deployment_details)}\nDeployments Found: {len(deployment_details)}"])
-
-        return Response(status=status.HTTP_200_OK, data=SnakeToCamelCaseConverter.convert(deployment_details))
-    else:
-        return Response(status=status.HTTP_400_BAD_REQUEST, data=f"Errors:\n{serializer.errors}")
+    return Response(status=status.HTTP_200_OK, data=SnakeToCamelCaseConverter.convert(result))
 
 
 @api_view(['POST'])
 def search_via_release_number(request):
-    deployment_details = DeploymentDetailSerializer()
-    deployment_details.set_required_fields_for_via_number()
+    request_data, error = setup_serializer_and_validate(
+        request,
+        DeploymentDetailSerializer.set_field_requirements_for_via_number,
+        RunConfigurationSerializer.set_field_requirements_for_via_number,
+    )
 
-    serializer = RunConfigurationSerializer(data=request.data)
-    serializer.fields['deploymentDetails'].child = deployment_details
+    if error:
+        return Response(status=status.HTTP_400_BAD_REQUEST, data=error)
 
-    # Fields required for via number run
-    serializer.fields['deploymentDetails'].allow_empty = True
-    # Fields not required for via number run
-    serializer.fields['searchOnly'].required = False
-    serializer.fields['viaEnv'].required = False
-    serializer.fields['viaEnvLatestRelease'].required = False
-    serializer.fields['releaseTargetEnv'].allow_blank = True
-    serializer.fields['viaEnvSourceName'].allow_blank = True
+    run_configurations = initialize_run_configuration(
+        request_data, None, False, False)
+    ado_express = Startup(run_configurations)
 
-    if serializer.is_valid():
-        run_configurations = RunConfiguration(
-            None,  # explicit_release_values
-            None,  # crucial_release_definitions
-            serializer.validated_data['organization_url'],
-            serializer.validated_data['personal_access_token'],
-            None,    # queries
-            serializer.validated_data['release_name_format'],
-            None,    # release_target_env
-            True,    # search_only
-            False,   # via_env
-            False,   # via_env_latest_release
-            None,    # via_env_source_name
-            serializer.validated_data['deployment_details'])
+    result = process_search(
+        ado_express,
+        run_configurations.deployment_details,
+        process_search_via_release_number,
+        f"\n\nInitiating retrieval of corresponding release information based provided release numbers",
+        False
+    )
 
-        ado_express = Startup(run_configurations)
-        release_details = dict()
-
-        send_generic_message(f"\n\nInitiating search to identify the most recent releases within the designated target environment: {run_configurations.RELEASE_TARGET_ENV}", True)
-        search_start_time = datetime.now()
-
-
-        def process_deployment(deployment):
-            converted_deployment_details = DeploymentDetail(
-                deployment['release_project_name'], deployment['release_name'], deployment['release_number'], None, deployment['is_crucial'])
-
-            releases: list[ReleaseDetail] = ado_express.search_and_log_details_only(
-                converted_deployment_details)
-
-            if releases:
-                return (deployment['release_name'], [release.__dict__ for release in releases])
-
-            return None
-
-        with ThreadPoolExecutor(max_workers=50) as executor:
-            futures = [executor.submit(process_deployment, deployment)
-                       for deployment in run_configurations.deployment_details]
-
-            for future in as_completed(futures):
-                result = future.result()
-
-                if result:
-                    release_details[result[0]] = result[1]
-
-        search_end_time = datetime.now()
-        total_search_time =  round(search_end_time - search_start_time)
-
-        delayed_function_call(2, send_generic_message, [f"\n\nSearch is now complete. Total Search Time: {total_search_time} seconds"])
-
-        return Response(status=status.HTTP_200_OK, data=SnakeToCamelCaseConverter.convert(release_details))
-    else:
-        return Response(status=status.HTTP_400_BAD_REQUEST, data=f"Fields are invalid.\n{serializer.errors}")
+    return Response(status=status.HTTP_200_OK, data=SnakeToCamelCaseConverter.convert(result))
 
 
 @api_view(['POST'])
 def search_via_query(request):
-    serializer = RunConfigurationSerializer(data=request.data)
+    request_data, error = setup_serializer_and_validate(
+        request,
+        None,
+        RunConfigurationSerializer.set_field_requirements_for_via_query,
+    )
 
-    # Fields required for query run
-    serializer.fields['queries'].required = True
-    serializer.fields['releaseTargetEnv'].required = True
-    serializer.fields['viaEnv'].required = True
-    # Fields not required for query run
-    serializer.fields['searchOnly'].required = False
+    if error:
+        return Response(status=status.HTTP_400_BAD_REQUEST, data=error)
 
-    if serializer.is_valid():
-        run_configurations = RunConfiguration(
-            None,
-            None,
-            serializer.validated_data['organization_url'],
-            serializer.validated_data['personal_access_token'],
-            serializer.validated_data['queries'],
-            serializer.validated_data['release_name_format'],
-            serializer.validated_data['release_target_env'],
-            True,    # search_only
-            serializer.validated_data['via_env'],
-            serializer.validated_data['via_env_latest_release'],
-            serializer.validated_data['via_env_source_name'],
-            serializer.validated_data['deployment_details'])
+    run_configurations = initialize_run_configuration(
+        request_data, request_data['queries'], True, True)
+    ado_express = Startup(run_configurations)
 
-        ado_express = Startup(run_configurations)
-        deployment_details = dict()
+    result = process_search(
+        ado_express,
+        None,
+        process_search_via_query,
+        f"\n\nInitiating search to identify the most recent releases based on the provided queries within\n\nThe Source Environment: {run_configurations.VIA_ENV_SOURCE_NAME}\nTo Be Deployed to Target environment: {run_configurations.RELEASE_TARGET_ENV}"
+    )
 
-        send_generic_message(f"\n\nInitiating search to identify the most recent releases within the designated target environment: {run_configurations.RELEASE_TARGET_ENV}", True)
-        search_start_time = datetime.now()
-
-        def process_deployment(deployment):
-            converted_deployment_details = DeploymentDetail(
-                deployment['release_project_name'], deployment['release_name'], None, None, deployment['is_crucial'])
-
-            deployment_detail = ado_express.get_deployment_detail_from_latest_release(
-                converted_deployment_details)
-
-            if deployment_detail:
-                return (deployment['release_name'], deployment_detail.__dict__)
-
-            return None
-
-        with ThreadPoolExecutor(max_workers=50) as executor:
-            futures = [executor.submit(process_deployment, deployment)
-                       for deployment in run_configurations.deployment_details]
-
-            for future in as_completed(futures):
-                result = future.result()
-
-                if result:
-                    deployment_details[result[0]] = result[1]
-
-        search_end_time = datetime.now()
-        total_search_time = round((search_end_time - search_start_time).total_seconds())
-
-        delayed_function_call(2, send_generic_message, [f"\n\nSearch is now complete.\n\nSearch Time: {total_search_time} seconds\nReleases Searched: {len(run_configurations.deployment_details)}\nDeployments Found: {len(deployment_details)}"])
-
-        return Response(status=status.HTTP_200_OK, data=SnakeToCamelCaseConverter.convert(deployment_details))
-    else:
-        return Response(status=status.HTTP_400_BAD_REQUEST, data=f"Fields are invalid.\n{serializer.errors}")
+    return Response(status=status.HTTP_200_OK, data=SnakeToCamelCaseConverter.convert(result))
 
 
+def calculate_search_duration(search_start_time):
+    search_end_time = datetime.now()
+    total_search_time = round(
+        (search_end_time - search_start_time).total_seconds())
+    return total_search_time
 
-def send_generic_message(message: str, showIdleDots: bool = False):
-    message = GenericWebsocketMessageSerializer(message, showIdleDots)
-    WebSocketConsumer.send_message(json.dumps(message.to_dict()), WebsocketMessageType.Generic.value)
 
 def delayed_function_call(delay, func, args):
     def delayed_call():
@@ -305,3 +136,129 @@ def delayed_function_call(delay, func, args):
         func(*args)
     thread = threading.Thread(target=delayed_call)
     thread.start()
+
+
+def initialize_run_configuration(request_data, queries, via_env, via_env_latest_release):
+    run_configurations = RunConfiguration(
+        None,
+        None,
+        request_data['organization_url'],
+        request_data['personal_access_token'],
+        queries,
+        request_data['release_name_format'],
+        request_data['release_target_env'],
+        True,    # search_only
+        via_env,
+        via_env_latest_release,
+        request_data['via_env_source_name'],
+        request_data['deployment_details'])
+
+    return run_configurations
+
+
+def process_search(ado_express, deployment_details, process_search_function, initiation_message, finding_deployments=True):
+    details = dict()
+
+    send_generic_message(initiation_message, True)
+    search_start_time = datetime.now()
+
+    with ThreadPoolExecutor(max_workers=50) as executor:
+        if (deployment_details):
+            futures = [executor.submit(process_search_function, deployment_detail, ado_express)
+                       for deployment_detail in deployment_details]
+
+            for future in as_completed(futures):
+                result = future.result()
+
+                if result:
+                    details[result[0]] = result[1]
+
+            finalization_message = f"\n\nSearch is now complete.\n\nSearch Time: {calculate_search_duration(search_start_time)} seconds\nSearched Releases: {len(deployment_details)}\n{'Found Deployments: ' + str(len(details)) if finding_deployments else 'Found Releases: ' + str(len(details))}\n\nHave a great day!"
+
+        else:
+            details = process_search_function(ado_express)
+
+            if not details or len(details) == 0:
+                send_generic_message(
+                    f"\n\nResults not found. Please check your run configuration.", False)
+            # TODO: would be cool to add a -Releases Scope: NAME OF QUERY- here
+            finalization_message = f"\n\nSearch is now complete.\n\nSearch Time: {calculate_search_duration(search_start_time)} seconds\nFound Deployments: {len(details)}\n\nHave a great day!"
+
+    delayed_function_call(2, send_generic_message, [
+                          finalization_message, False])
+
+    return details
+
+
+def process_search_via_latest_release(deployment, ado_express):
+    converted_deployment_details = DeploymentDetail(
+        deployment['release_project_name'], deployment['release_name'], None, None, deployment['is_crucial'])
+
+    deployment_detail = ado_express.get_deployment_detail_from_latest_release(
+        converted_deployment_details)
+
+    if deployment_detail:
+        return (deployment['release_name'], deployment_detail.__dict__)
+
+    return None
+
+
+def process_search_via_release_environment(deployment, ado_express):
+    converted_deployment_details = DeploymentDetail(
+        deployment['release_project_name'], deployment['release_name'], None, None, False)
+
+    releases: list[ReleaseDetail] = ado_express.search_and_log_details_only(
+        converted_deployment_details)
+
+    if releases:
+        return (deployment['release_name'], [release.__dict__ for release in releases])
+
+    return None
+
+
+def process_search_via_release_number(deployment, ado_express):
+    converted_deployment_details = DeploymentDetail(
+        deployment['release_project_name'], deployment['release_name'], deployment['release_number'], None, deployment['is_crucial'])
+
+    releases: list[ReleaseDetail] = ado_express.search_and_log_details_only(
+        converted_deployment_details)
+
+    if releases:
+        return (deployment['release_name'], [release.__dict__ for release in releases])
+
+    return None
+
+
+def process_search_via_query(ado_express):
+    deployment_details = dict()
+    deployment_details_list = ado_express.get_deployment_details_from_query()
+
+    for deployment in deployment_details_list:
+        deployment_details[deployment.release_name] = deployment.__dict__
+
+    return deployment_details
+
+
+def send_generic_message(message: str, showIdleDots: bool = False):
+    message = GenericWebsocketMessageSerializer(message, showIdleDots)
+    WebSocketConsumer.send_message(json.dumps(
+        message.to_dict()), WebsocketMessageType.Generic.value)
+
+
+def setup_serializer_and_validate(request, set_deployment_detail_field_requirements_function, set_run_configuration_field_requirements_function):
+    deployment_details_serializer = DeploymentDetailSerializer()
+    if set_deployment_detail_field_requirements_function:
+        set_deployment_detail_field_requirements_function(
+            deployment_details_serializer)
+
+    run_config_serializer = RunConfigurationSerializer(data=request.data)
+    run_config_serializer.fields['deploymentDetails'].child = deployment_details_serializer
+    if set_run_configuration_field_requirements_function:
+        set_run_configuration_field_requirements_function(
+            run_config_serializer)
+
+    if run_config_serializer.is_valid():
+        request_data = run_config_serializer.validated_data
+        return request_data, None
+    else:
+        return None, f"Errors:\n{run_config_serializer.errors}"
