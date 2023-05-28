@@ -76,7 +76,7 @@
   }
 </script>
 
-<div class="relative" use:clickOutside on:click_outside={handleClickOutside}>
+<div class="relative lg:w-full w-5/6 mx-auto" use:clickOutside on:click_outside={handleClickOutside}>
   <button
     class="w-full px-4 text-left text-gray-800 dark:text-white bg-white dark:bg-gray-700 border border-gray-500 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-indigo-500 flex items-center justify-between {invalid
       ? 'invalid'

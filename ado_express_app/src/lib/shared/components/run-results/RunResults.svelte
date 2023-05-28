@@ -23,6 +23,7 @@
   let dotText = '';
   let genericMessageDataLength;
   let lastMessageIndex = -1;
+  let loadingResultsDisplay = false;
   let localResultData: IDisplayedRunResultData[] = [];
   let localResultDataLength;
   let matrixTheme = true;
@@ -62,10 +63,12 @@
     container.addEventListener('scroll', (e) => {
       const manualScrollThreshold = container.scrollHeight * 0.87;
 
-      if (container.scrollTop + container.clientHeight < manualScrollThreshold) {
+      if (!loadingResultsDisplay){
+        if (container.scrollTop + container.clientHeight < manualScrollThreshold) {
         shouldAutoScroll = false;
-      } else if (container.scrollTop + container.clientHeight >= manualScrollThreshold) {
-        shouldAutoScroll = true;
+        } else if (container.scrollTop + container.clientHeight >= manualScrollThreshold) {
+          shouldAutoScroll = true;
+        }
       }
     });
   }
@@ -211,7 +214,7 @@
   }
 </script>
 
-<div class="terminal-container my-4" bind:this={container}>
+<div class="terminal-container my-4 scroll {matrixTheme ? 'matrix-scrollbar' : 'standard-scrollbar'}" bind:this={container}>
   <div class="terminal-content flex-col items-center justify-end mx-6" class:matrix={matrixTheme}>
     {#each displayItems as item, i}
       {#if item.type === 'message'}
@@ -220,6 +223,8 @@
           showIdleDots={item.data.showIdleDots && i === lastMessageIndex}
           bind:dotText={dotText}
           on:scrollDown={scrollToBottom}
+          on:loadingResultsDisplay={() => {loadingResultsDisplay = true}}
+          on:completedLoadingResultsDisplay={() => {loadingResultsDisplay = false}}
         />
       {:else}
         <LiveDeploymentStatus key={item.key} status={item.value.status} percentage={item.value.percentage} bind:matrixTheme={matrixTheme} />
@@ -239,28 +244,55 @@
 </div>
 
 <style lang="scss">
-  .terminal-container {
-    background-color: black;
-    padding-block: 30px;
-    border-radius: 8px;
-    overflow-y: auto;
-    width: 100%;
-    height: 80vh;
-  }
+.terminal-container {
+  background-color: black;
+  padding-block: 30px;
+  border-radius: 8px;
+  overflow-y: auto;
+  width: 100%;
+  height: 80vh;
+}
 
-  .terminal-content {
-    font-family: 'Courier New', monospace;
-    font-size: 16px;
-    white-space: pre-wrap;
-    word-wrap: break-word;
-    text-align: left;
-  }
+.terminal-container.scroll::-webkit-scrollbar {
+  background: transparent;
+	width: 8px;
+}
 
-  .terminal-content.matrix {
-    color: lime;
-  }
+.matrix-scrollbar::-webkit-scrollbar-thumb {
+  background: lime;
+  border-radius: 2px;
+  height: 80px;
+}
 
-  .terminal-content:not(.matrix) {
-    color: white;
-  }
+.matrix-scrollbar.scroll::-webkit-scrollbar-track {
+  background: transparent;
+  border: 2px solid lime;
+}
+
+.standard-scrollbar::-webkit-scrollbar-thumb {
+  background: white;
+  border-radius: 2px;
+  height: 80px;
+}
+
+.standard-scrollbar.scroll::-webkit-scrollbar-track {
+  background: transparent;
+  border: 2px solid white;
+}
+
+.terminal-content {
+  font-family: 'Courier New', monospace;
+  font-size: 16px;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  text-align: left;
+}
+
+.terminal-content.matrix {
+  color: lime;
+}
+
+.terminal-content:not(.matrix) {
+  color: white;
+}
 </style>

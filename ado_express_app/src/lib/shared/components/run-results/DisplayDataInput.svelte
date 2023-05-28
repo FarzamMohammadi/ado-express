@@ -22,6 +22,8 @@
 
   function typeEffect(dataInput: string, index: number, delay: number) {
     if (index < dataInput.length) {
+      dispatch('loadingResultsDisplay');
+
       typeEffectTimeout = setTimeout(() => {
         displayedText += dataInput[index];
         typeEffect(dataInput, index + 1, delay);
