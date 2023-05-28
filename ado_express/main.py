@@ -120,7 +120,7 @@ class Startup:
         rollback_dict = dict()
         deployment_details = []
 
-        if not found_releases: return deployment_details # If no releases are found
+        if not found_releases: return deployment_details # Didn't find any releases
 
         # Get rollback
         with concurrent.futures.ThreadPoolExecutor() as executor:

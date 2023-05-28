@@ -8,15 +8,16 @@ class DeploymentDetailSerializer(serializers.Serializer):
     releaseNumber = serializers.IntegerField(min_value=0, required=False, allow_null=True, source='release_number')
     releaseRollback = serializers.IntegerField(min_value=0, required=False, allow_null=True, source='release_rollback')
     isCrucial = serializers.BooleanField(default=False, required=False, source='is_crucial')
-
-    def set_required_fields_for_via_latest(self):
+    
+    @staticmethod
+    def set_field_requirements_for_via_latest(self):
         self.fields['releaseNumber'].required = False
         self.fields['releaseRollback'].required = False
-
-    def set_required_fields_for_via_number(self):
+    @staticmethod
+    def set_field_requirements_for_via_number(self):
         self.fields['releaseRollback'].required = False
-
-    def set_required_fields_for_via_environment(self):
+    @staticmethod
+    def set_field_requirements_for_via_environment(self):
         self.fields['releaseNumber'].required = False
         self.fields['releaseRollback'].required = False
 
@@ -30,8 +31,44 @@ class RunConfigurationSerializer(serializers.Serializer):
     viaEnv = serializers.BooleanField(source='via_env')
     viaEnvSourceName = serializers.CharField(max_length=200, allow_null=True, allow_blank=True, required=False, source='via_env_source_name')
     viaEnvLatestRelease = serializers.BooleanField(source='via_env_latest_release')
-
     deploymentDetails = serializers.ListSerializer(child=DeploymentDetailSerializer(), allow_empty=True, allow_null=True, source='deployment_details')
+
+    @staticmethod
+    def set_field_requirements_for_via_latest(self):
+        # Fields required for via latest run
+        self.fields['deploymentDetails'].allow_empty = True
+        self.fields['releaseTargetEnv'].required = True
+        self.fields['viaEnvSourceName'].required = True
+        # Fields not required for via latest run
+        self.fields['searchOnly'].required = False
+        self.fields['viaEnv'].required = False
+        self.fields['viaEnvLatestRelease'].required = False
+    @staticmethod
+    def set_field_requirements_for_via_number(self):
+        # Fields required for via number run
+        self.fields['deploymentDetails'].allow_empty = True
+        # Fields not required for via number run
+        self.fields['searchOnly'].required = False
+        self.fields['viaEnv'].required = False
+        self.fields['viaEnvLatestRelease'].required = False
+        self.fields['releaseTargetEnv'].allow_blank = True
+        self.fields['viaEnvSourceName'].allow_blank = True
+    @staticmethod
+    def set_field_requirements_for_via_environment(self):
+        # Fields required for via environment run
+        self.fields['deploymentDetails'].allow_empty = False
+        # Fields not required for via environment run
+        self.fields['searchOnly'].required = False
+        self.fields['viaEnv'].required = False
+        self.fields['viaEnvLatestRelease'].required = False
+    @staticmethod
+    def set_field_requirements_for_via_query(self):
+        # Fields required for query run
+        self.fields['queries'].required = True
+        self.fields['releaseTargetEnv'].required = True
+        self.fields['viaEnv'].required = True
+        # Fields not required for query run
+        self.fields['searchOnly'].required = False
 
 
 
