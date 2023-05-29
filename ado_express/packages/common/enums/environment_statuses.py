@@ -1,5 +1,6 @@
 from .base_enum import BaseEnum
 
+
 class ReleaseEnvironmentStatuses:
     class InProgress(BaseEnum):
         IN_PROGRESS = 'inProgress'
@@ -14,6 +15,9 @@ class ReleaseEnvironmentStatuses:
         NOT_STARTED = 'notStarted'
 
     class Failed(BaseEnum):
+        FAILED = 'failed'
         CANCELED = 'canceled'
         REJECTED = 'rejected'
+    
+    class Undefined(BaseEnum):
         UNDEFINED = 'undefined'

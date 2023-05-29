@@ -3,6 +3,7 @@ from enum import Enum
 
 class DeploymentStatusLabel(Enum):
     canceled = "Canceled"
+    failed = "Failed"
     inProgress = "In Progress"
     notStarted = "Not Started"
     partiallySucceeded = "Partially Succeeded"

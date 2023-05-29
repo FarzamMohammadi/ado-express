@@ -1,6 +1,10 @@
 import os
 import sys
 
+from ado_express.packages.common.enums.environment_statuses import \
+    ReleaseEnvironmentStatuses
+from ado_express.packages.common.models.deployment_status import \
+    DeploymentStatus
 from ado_express.packages.utils.asset_retrievers.release_environment_finder.release_environment_finder import \
     ReleaseEnvironmentFinder
 from ado_express.packages.utils.release_manager.update_progress_retriever.update_progress_retriever import \
@@ -187,15 +191,21 @@ class Startup:
                 try:
                     updating_release = self.release_finder.get_release(deployment_detail, self.via_env, False, self.via_latest)
                 except IndexError:
-                    logging.error(f"Error: Cannot find the release for {deployment_detail.release_name}")
-                    return None
+                    errorMessage = f"Error: Cannot find the release for {deployment_detail.release_name}"
+                    logging.error(errorMessage)
+                    
+                    deployment_status = DeploymentStatus(errorMessage, 0, ReleaseEnvironmentStatuses.Failed)
+                    return deployment_status
 
                 try:
                     release_environment_finder = ReleaseEnvironmentFinder(self.ms_authentication, self.environment_variables)
                     updating_release_environment = release_environment_finder.get_release_environment(deployment_detail, updating_release.id)
                 except IndexError:
-                    logging.error(f"Error: Cannot find the release environment for {deployment_detail.release_name} and release ID {updating_release.id}")
-                    return None
+                    errorMessage = f"Error: Cannot find the release environment for {deployment_detail.release_name} and release ID {updating_release.id}"
+                    logging.error(errorMessage)
+                    
+                    deployment_status = DeploymentStatus(errorMessage, 0, ReleaseEnvironmentStatuses.Failed)
+                    return deployment_status
 
                 release_progress = UpdateProgressRetriever(self.ms_authentication, self.environment_variables)
                 current_deployment_status = release_progress.monitor_release_progress(deployment_detail.release_project_name, updating_release, updating_release_environment.id)
