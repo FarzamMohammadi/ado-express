@@ -51,8 +51,25 @@ class UpdateRelease:
         for environment in release_to_update_data.environments:
             if (str(environment.name).lower() == self.environment_variables.RELEASE_TARGET_ENV.lower()):
                 if environment.status in ReleaseEnvironmentStatuses.Succeeded: 
-                    return True
+                    return True, True
                 elif environment.status in ReleaseEnvironmentStatuses.Failed:
+                    return True, False
+                else:
+                    return False, False
+                
+    def is_deployment_in_progress(self, deployment_detail, release_to_update):
+        release_to_update_data = self.release_client.get_release(project=deployment_detail.release_project_name, release_id=release_to_update.id)
+        print()
+        print()
+        print(release_to_update_data)
+        print()
+        print()
+        print(release_to_update_data.environments)
+        for environment in release_to_update_data.environments:
+            print(environment.name, environment.status)
+            if (str(environment.name).lower() == self.environment_variables.RELEASE_TARGET_ENV.lower()):
+                print(environment.status)
+                if environment.status in ReleaseEnvironmentStatuses.InProgress: 
                     return True
                 else:
                     return False
@@ -106,11 +123,6 @@ class UpdateRelease:
                 logging.info(f'Release is already rolling back - {release_log_details}')
                 
             # Check the status of release update
-            logging.info(f'Monitoring rollback Status - {release_log_details}')
-            updated_successfully = self.get_release_update_result(deployment_detail, release_to_update)
+            logging.info(f'Please proceed with manually monitoring the rollback Status - {release_log_details}')
 
-            if updated_successfully:
-                logging.info(f'Release roll back Successful - {release_log_details}')
-                return
-
-        logging.error(f'Unable to roll back. Please check this release manually. - {release_log_details}')
+        return

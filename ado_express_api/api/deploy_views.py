@@ -2,6 +2,7 @@ import json
 import time
 from threading import Thread
 
+import numpy as np
 import status
 from base.models.DeploymentDetail import DeploymentDetail
 from base.models.enums.WebsocketMessageType import WebsocketMessageType
@@ -13,6 +14,8 @@ from websocket_server.consumers import WebSocketConsumer
 from ado_express.main import Startup
 from ado_express.packages.common.models.deployment_status import \
     DeploymentStatus
+from ado_express_api.base.models.enums.DeploymentStatusLabel import \
+    DeploymentStatusLabel
 
 from .serializers import (DeploymentDetailSerializer,
                           DeploymentStatusSerializer,
@@ -83,7 +86,23 @@ def deploy(request):
 
                 ado_express.run_release_deployments(
                     crucial_deployment_details, True)
-                process_deployments(crucial_deployment_details, ado_express)
+
+                failed_deployment_details = send_live_status_data_and_check_for_failures(
+                    crucial_deployment_details, ado_express)
+
+                if failed_deployment_details.__len__() > 0:
+                    ado_express.run_release_deployments(
+                        failed_deployment_details, True, True)
+
+                    message = GenericWebsocketMessageSerializer(
+                        'Crucial release deployment(s) failed. Stopping deployment process and rolling back the failed deployment(s).', False)
+                    WebSocketConsumer.send_message(json.dumps(
+                        message.to_dict()), WebsocketMessageType.Generic.value)
+
+                    send_live_status_data_and_check_for_failures(
+                        failed_deployment_details, ado_express, True)
+
+                    return
 
                 has_crucial_deployments = True
 
@@ -107,7 +126,22 @@ def deploy(request):
 
                 ado_express.run_release_deployments(
                     deployment_details, False, has_crucial_deployments)
-                process_deployments(deployment_details, ado_express)
+                failed_deployment_details = send_live_status_data_and_check_for_failures(
+                    deployment_details, ado_express)
+                
+                if failed_deployment_details.__len__() > 0:
+                    ado_express.run_release_deployments(
+                        failed_deployment_details, True, True)
+
+                    message = GenericWebsocketMessageSerializer(
+                        'Release deployment(s) failed. Rolling back the failed deployment(s).', False)
+                    WebSocketConsumer.send_message(json.dumps(
+                        message.to_dict()), WebsocketMessageType.Generic.value)
+
+                    send_live_status_data_and_check_for_failures(
+                        failed_deployment_details, ado_express, True)
+
+                    return
 
                 message = GenericWebsocketMessageSerializer(
                     '\nAll release deployments are now complete. Have a great day!', False)
@@ -123,22 +157,35 @@ def deploy(request):
         return Response(status=status.HTTP_400_BAD_REQUEST, data=f"\n{serializer.errors}")
 
 
-def process_deployments(deployment_details, ado_express: Startup):
+def send_live_status_data_and_check_for_failures(deployment_details, ado_express: Startup, rollback=False):
     deployments_complete = False
     completed_deployments = []
+    failed_deployment_details = []
 
     while not deployments_complete:
         for deployment_detail in deployment_details:
+            
+            if rollback:
+                while not ado_express.release_deployment_is_in_progress(deployment_detail, rollback):
+                    print(ado_express.release_deployment_is_in_progress(deployment_detail, rollback))
+                    print(deployment_detail.release_name)
+                    print('Not in progress yet')
+                    time.sleep(2)
+
             if deployment_detail.release_name not in completed_deployments:
-                deployment_is_complete = ado_express.release_deployment_completed(
-                    deployment_detail)
+                deployment_is_complete, successfully_completed = ado_express.release_deployment_completed(
+                    deployment_detail, rollback)
 
                 if deployment_is_complete:
                     completed_deployments.append(
                         deployment_detail.release_name)
 
+                    if not successfully_completed:
+                        failed_deployment_details = [
+                            x for x in deployment_details if x.release_name == deployment_detail.release_name]
+
                 latest_deployment_status: DeploymentStatus = ado_express.get_deployment_status(
-                    deployment_detail)
+                    deployment_detail, rollback)
 
                 if latest_deployment_status is None:
                     deployment_status = dict()
@@ -153,8 +200,23 @@ def process_deployments(deployment_details, ado_express: Startup):
                     continue
 
                 deployment_status = dict()
+
+                if rollback:
+                    if latest_deployment_status.status == DeploymentStatusLabel.failed.value:
+                        status = 'Rollback Failed'
+                    elif latest_deployment_status.status == DeploymentStatusLabel.succeeded.value:
+                        status = 'Rollback Succeeded'
+                    else:
+                        status = 'Rollback In Progress'
+                else:
+                    status = latest_deployment_status.status
+
+                print(f'{deployment_detail.release_name} - {status} - {latest_deployment_status.percentage}%')
+                print(deployment_is_complete)
+                print(completed_deployments)
+
                 deployment_status[deployment_detail.release_name] = DeploymentStatusSerializer(
-                    latest_deployment_status.comment, latest_deployment_status.percentage, latest_deployment_status.status)
+                    latest_deployment_status.comment, latest_deployment_status.percentage, status)
 
                 WebSocketConsumer.send_message(json.dumps({key: value.to_dict(
                 ) for key, value in deployment_status.items()}), WebsocketMessageType.DeploymentStatus.value)
@@ -165,4 +227,4 @@ def process_deployments(deployment_details, ado_express: Startup):
         if len(completed_deployments) == len(deployment_details):
             deployments_complete = True
 
-    return deployments_complete
+    return failed_deployment_details

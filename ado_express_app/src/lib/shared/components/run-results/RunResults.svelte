@@ -249,6 +249,7 @@
   padding-block: 30px;
   border-radius: 8px;
   overflow-y: auto;
+  overflow-x: hidden;
   width: 100%;
   height: 80vh;
 }

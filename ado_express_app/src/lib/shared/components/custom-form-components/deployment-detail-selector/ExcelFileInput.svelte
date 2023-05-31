@@ -29,7 +29,10 @@
         const cellAddress = XLSX.utils.encode_cell({ r: rowNum, c: colNum });
         rowData.push(worksheet[cellAddress]?.v || '');
       }
-      extractedData.push(rowData);
+      // Only push the row data if Release Project and Release Name are not empty.
+      if (rowData[0].trim() !== '' && rowData[1].trim() !== '') {
+        extractedData.push(rowData);
+      }
     }
 
     return extractedData;
@@ -56,7 +59,7 @@
 </script>
 
 <div class="mb-1 mt-1 w-full">
-  <input id="file-upload" type="file" accept=".xlsx, .xls" on:change={handleFileUpload} class="inputfile"/>
+  <input id="file-upload" type="file" accept=".xlsx, .xls" on:change={handleFileUpload} class="inputfile" />
 
   <label
     for="file-upload"
@@ -68,17 +71,17 @@
 
 <style lang="scss">
   .inputfile {
-	width: 0.1px;
-	height: 0.1px;
-	opacity: 0;
-	overflow: hidden;
-	position: absolute;
-	z-index: -1;
-}
+    width: 0.1px;
+    height: 0.1px;
+    opacity: 0;
+    overflow: hidden;
+    position: absolute;
+    z-index: -1;
+  }
 
-.inputfile:focus + label {
-  outline: 10px ;
-  border-width: 2px;
-  border-color:  #3b82f6;
-}
+  .inputfile:focus + label {
+    outline: 10px;
+    border-width: 2px;
+    border-color: #3b82f6;
+  }
 </style>

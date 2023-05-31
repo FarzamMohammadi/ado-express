@@ -84,7 +84,6 @@ class UpdateProgressRetriever:
             elif latest_environment_deployment_status in ReleaseEnvironmentStatuses.Undefined:
                 return self.return_deployment_status("Deployment status is undefined.", 0, self.get_deployment_status_label(latest_environment_deployment_status))
             else:
-                print(f"Deployment status is {latest_environment_deployment_status}.")
                 return self.return_deployment_status("Waiting for deployment to start.", 0, self.get_deployment_status_label(latest_environment_deployment_status))
                     
         try:

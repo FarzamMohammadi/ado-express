@@ -3,14 +3,14 @@
 
   import GlowingBars from '../utils/GlowingBars.svelte';
 
+  const lgMediaQuery = window.matchMedia('(min-width: 1024px)');
+
   export let key = '';
   export let matrixTheme = true;
   export let percentage = 0;
   export let status = '';
-
+  let isLgViewport;
   let parentWidth;
-
-  onMount(attachResizeListener);
 
   $: updateContainerWidth();
 
@@ -22,13 +22,31 @@
     };
   }
 
+  function attachViewPortListener() {
+    lgMediaQuery.addEventListener('change', setViewPort);
+
+    return () => {
+      lgMediaQuery.removeEventListener('change', setViewPort);
+    };
+  }
+
+  function setViewPort() {
+    if (lgMediaQuery.matches) isLgViewport = true;
+    else isLgViewport = false;
+  }
+
   function updateContainerWidth() {
-    parentWidth = Math.min((window.innerWidth / 2) * 0.6);
+    parentWidth = Math.min((window.innerWidth / 2) * 0.60);
 
     if (parentWidth < 400) {
       parentWidth = parentWidth * 0.9;
     }
   }
+
+  onMount(() => {
+    attachResizeListener();
+    attachViewPortListener();
+  });
 </script>
 
 <div class="flex flex-col my-5">

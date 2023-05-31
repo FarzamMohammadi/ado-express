@@ -9,6 +9,8 @@
   import { websocketStore } from './lib/utils/websocketStores/websocket-store';
 
   websocketStore.connect();
+  
+  const lgMediaQuery = window.matchMedia('(min-width: 1024px)');
 
   let formStyle = '';
   let isSubmitting;
@@ -26,11 +28,9 @@
       formStyle = `transform: ${runningState ? 'translateX(0%)' : 'translateX(50)'} width: 100%;`;
       resultStyle = `height: ${runningState ? '100%' : '0'}; width: ${runningState ? '100%' : '0'}; width: ${runningState ? '100%' : '0'}; transform: ${
         runningState ? 'translateX(0%)' : 'translateX(50)'
-      }; max-width: 80vw; min-width: ${runningState ? '80vw' : '0'};`;
+      }; max-width: 50vw; min-width: ${runningState ? '42vw' : '0'};`;
     }
   }
-
-  const lgMediaQuery = window.matchMedia('(min-width: 1024px)');
 
   onMount(() => {
     function handleWidthChange(e) {
