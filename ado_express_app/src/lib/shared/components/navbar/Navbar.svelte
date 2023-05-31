@@ -55,7 +55,7 @@
           {#if showLinks && !isMobile}
             <a
               target="_blank"
-              href="https://github.com/FarzamMohammadi/ado-express/"
+              href="https://github.com/FarzamMohammadi"
               class="text-md font-medium text-gray-900 dark:text-white px-3 py-2 border-2 rounded border-gray-700 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-800 hover:shadow-xl"
               >About</a
             >
@@ -104,7 +104,7 @@
     <div class="px-2 pt-2 pb-3 sm:px-3">
       <a
         target="_blank"
-        href="https://github.com/FarzamMohammadi/ado-express"
+        href="https://github.com/FarzamMohammadi"
         class="mt-1 block px-3 py-2 rounded-md text-base text-md font-medium text-gray-900 dark:text-white border-2 border-gray-700 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-800 hover:shadow-xl"
         >About</a
       >
