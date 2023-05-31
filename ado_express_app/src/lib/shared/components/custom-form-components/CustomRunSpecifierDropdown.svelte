@@ -11,7 +11,7 @@
 
   let categories = [
     {
-      name: RunType.Deployment,
+      name: RunType.Deploy,
       tasks: [DeploymentRunMethod.ViaNumber],
     },
     {

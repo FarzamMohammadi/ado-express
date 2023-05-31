@@ -40,7 +40,7 @@ export function generateRunConfiguration(formInputs, viaEnv, viaEnvLatestRelease
 }
 
 export function getFormValuesForDeployment(deploymentDetailsStore, runResultData): [RunType, DeploymentRunMethod] {
-    const runType = RunType.Deployment;
+    const runType = RunType.Deploy;
     const runMethod = DeploymentRunMethod.ViaNumber;
     deploymentDetailsStore.set([]);
 
@@ -90,9 +90,9 @@ export function isRunResultDataValid(runResultData): boolean {
 };
 
 export function isSearchOnly(runType): boolean {
-    if (runType === 'Search') {
+    if (runType === RunType.Search) {
         return true;
-    } else if (runType === 'Deployment') {
+    } else if (runType === RunType.Deploy) {
         return false;
     }
 }
@@ -137,7 +137,7 @@ export function onRunMethodSelection(runType, runMethod, running, formInputs, sh
             formInputs.dd.required = false;
             formInputs.dd.show = false;
         }
-    } else if (runType === RunType.Deployment && runMethod === DeploymentRunMethod.ViaNumber) {
+    } else if (runType === RunType.Deploy && runMethod === DeploymentRunMethod.ViaNumber) {
         // Allow deployment after search
         if (running) {
             showSubmitButton = true;
@@ -155,7 +155,7 @@ export function onRunMethodSelection(runType, runMethod, running, formInputs, sh
 export function onRunTypeSelection(runType): string {
     if (runType === RunType.Search) {
         return 'Initiate Search';
-    } else if (runType === RunType.Deployment) {
+    } else if (runType === RunType.Deploy) {
         return 'Execute Deployment';
     }
 }
@@ -182,7 +182,7 @@ export function setupRunTypeVariables(runType, runMethod, viaEnv, viaEnvLatestRe
             viaEnv = true;
             viaEnvLatestRelease = false;
         }
-    } else if (runType === RunType.Deployment && runMethod === DeploymentRunMethod.ViaNumber) {
+    } else if (runType === RunType.Deploy && runMethod === DeploymentRunMethod.ViaNumber) {
         viaEnv = false;
         viaEnvLatestRelease = false;
         formInputs.queries.bindValue = null;

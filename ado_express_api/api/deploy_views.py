@@ -130,6 +130,8 @@ def deploy(request):
                     deployment_details, ado_express)
                 
                 if failed_deployment_details.__len__() > 0:
+                    for deployment in failed_deployment_details:
+                        print(deployment.release_name)
                     ado_express.run_release_deployments(
                         failed_deployment_details, True, True)
 
@@ -165,13 +167,6 @@ def send_live_status_data_and_check_for_failures(deployment_details, ado_express
     while not deployments_complete:
         for deployment_detail in deployment_details:
             
-            if rollback:
-                while not ado_express.release_deployment_is_in_progress(deployment_detail, rollback):
-                    print(ado_express.release_deployment_is_in_progress(deployment_detail, rollback))
-                    print(deployment_detail.release_name)
-                    print('Not in progress yet')
-                    time.sleep(2)
-
             if deployment_detail.release_name not in completed_deployments:
                 deployment_is_complete, successfully_completed = ado_express.release_deployment_completed(
                     deployment_detail, rollback)
@@ -181,9 +176,10 @@ def send_live_status_data_and_check_for_failures(deployment_details, ado_express
                         deployment_detail.release_name)
 
                     if not successfully_completed:
-                        failed_deployment_details = [
-                            x for x in deployment_details if x.release_name == deployment_detail.release_name]
+                        failed_deployment = next(x for x in deployment_details if x.release_name == deployment_detail.release_name)
+                        failed_deployment_details.append(failed_deployment)
 
+                
                 latest_deployment_status: DeploymentStatus = ado_express.get_deployment_status(
                     deployment_detail, rollback)
 
@@ -210,10 +206,6 @@ def send_live_status_data_and_check_for_failures(deployment_details, ado_express
                         status = 'Rollback In Progress'
                 else:
                     status = latest_deployment_status.status
-
-                print(f'{deployment_detail.release_name} - {status} - {latest_deployment_status.percentage}%')
-                print(deployment_is_complete)
-                print(completed_deployments)
 
                 deployment_status[deployment_detail.release_name] = DeploymentStatusSerializer(
                     latest_deployment_status.comment, latest_deployment_status.percentage, status)
