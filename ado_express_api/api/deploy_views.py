@@ -165,13 +165,6 @@ def send_live_status_data_and_check_for_failures(deployment_details, ado_express
     while not deployments_complete:
         for deployment_detail in deployment_details:
             
-            if rollback:
-                while not ado_express.release_deployment_is_in_progress(deployment_detail, rollback):
-                    print(ado_express.release_deployment_is_in_progress(deployment_detail, rollback))
-                    print(deployment_detail.release_name)
-                    print('Not in progress yet')
-                    time.sleep(2)
-
             if deployment_detail.release_name not in completed_deployments:
                 deployment_is_complete, successfully_completed = ado_express.release_deployment_completed(
                     deployment_detail, rollback)
@@ -183,7 +176,7 @@ def send_live_status_data_and_check_for_failures(deployment_details, ado_express
                     if not successfully_completed:
                         failed_deployment_details = [
                             x for x in deployment_details if x.release_name == deployment_detail.release_name]
-
+                
                 latest_deployment_status: DeploymentStatus = ado_express.get_deployment_status(
                     deployment_detail, rollback)
 

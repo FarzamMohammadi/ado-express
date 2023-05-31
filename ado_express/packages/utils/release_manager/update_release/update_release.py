@@ -56,25 +56,8 @@ class UpdateRelease:
                     return True, False
                 else:
                     return False, False
-                
-    def is_deployment_in_progress(self, deployment_detail, release_to_update):
-        release_to_update_data = self.release_client.get_release(project=deployment_detail.release_project_name, release_id=release_to_update.id)
-        print()
-        print()
-        print(release_to_update_data)
-        print()
-        print()
-        print(release_to_update_data.environments)
-        for environment in release_to_update_data.environments:
-            print(environment.name, environment.status)
-            if (str(environment.name).lower() == self.environment_variables.RELEASE_TARGET_ENV.lower()):
-                print(environment.status)
-                if environment.status in ReleaseEnvironmentStatuses.InProgress: 
-                    return True
-                else:
-                    return False
+              
         
-
     def update_release_environment(self, comment, deployment_detail, release_to_update, matching_release_environment):
         update_metadata = ReleaseEnvironmentUpdateMetadata(comment, status=2)
         return self.release_client_v6.update_release_environment(environment_update_data=update_metadata, project=deployment_detail.release_project_name, release_id=release_to_update.id, environment_id=matching_release_environment.id)

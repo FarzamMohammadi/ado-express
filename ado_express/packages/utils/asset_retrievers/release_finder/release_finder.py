@@ -98,7 +98,7 @@ class ReleaseFinder:
         # Get release id from release to know which needs to be deployed to new env
         releases = self.release_client.get_releases(project, definition_id=release_definition.id, top='250').value
         
-        if find_via_env and via_latest or rollback:
+        if find_via_env and (via_latest or rollback):
             return self.find_matching_release_via_source_stage(releases, deployment_detail, rollback) 
         else:
             if rollback:
