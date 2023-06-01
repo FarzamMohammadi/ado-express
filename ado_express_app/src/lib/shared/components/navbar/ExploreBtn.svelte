@@ -31,7 +31,7 @@
   onMount(initParticles);
 </script>
 
-<a target="_blank" href="https://github.com/FarzamMohammadi">
+<a target="_blank" href="https://github.com/FarzamMohammadi?tab=repositories">
   <button class="text-xl">
     <span class="spark" />
     <span class="backdrop" />

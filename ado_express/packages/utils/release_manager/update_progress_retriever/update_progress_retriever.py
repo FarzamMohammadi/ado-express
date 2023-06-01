@@ -81,6 +81,8 @@ class UpdateProgressRetriever:
                 return self.return_deployment_status("Something went wrong with the deployment, please check the errors on ADO.", 0, self.get_deployment_status_label(latest_environment_deployment_status))
             elif latest_environment_deployment_status in ReleaseEnvironmentStatuses.Succeeded:
                 return self.return_deployment_status("The deployment process has finished successfully.", 100, self.get_deployment_status_label(latest_environment_deployment_status))
+            elif latest_environment_deployment_status in ReleaseEnvironmentStatuses.Undefined:
+                return self.return_deployment_status("Deployment status is undefined.", 0, self.get_deployment_status_label(latest_environment_deployment_status))
             else:
                 return self.return_deployment_status("Waiting for deployment to start.", 0, self.get_deployment_status_label(latest_environment_deployment_status))
                     

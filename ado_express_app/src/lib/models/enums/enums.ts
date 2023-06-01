@@ -7,7 +7,7 @@ export enum ToastType {
 
 export enum RunType {
     Search = 'Search',
-    Deployment = 'Deployment'
+    Deploy = 'Deploy'
 }
 
 export enum SearchRunMethod {

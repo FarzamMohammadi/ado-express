@@ -1,6 +1,12 @@
 import os
 import sys
 
+from ado_express.packages.common.enums.deployment_status_label import \
+    DeploymentStatusLabel
+from ado_express.packages.common.enums.environment_statuses import \
+    ReleaseEnvironmentStatuses
+from ado_express.packages.common.models.deployment_status import \
+    DeploymentStatus
 from ado_express.packages.utils.asset_retrievers.release_environment_finder.release_environment_finder import \
     ReleaseEnvironmentFinder
 from ado_express.packages.utils.release_manager.update_progress_retriever.update_progress_retriever import \
@@ -165,37 +171,51 @@ class Startup:
     def search_and_log_details_only(self, deployment_detail: DeploymentDetails):
         return self.release_finder.get_releases(deployment_detail, find_via_env=self.via_env)
         
-    def deploy(self, deployment_detail: DeploymentDetails):
+    def deploy_to_target_or_rollback(self, deployment_detail: DeploymentDetails, rollback: bool=False):
         try:
             if deployment_detail is not None: # The ThreadPoolExecutor may return None for some releases
-                release_to_update = self.release_finder.get_release(deployment_detail, self.via_env, False, self.via_latest)
                 update_manager = UpdateRelease(constants, self.ms_authentication, self.environment_variables, self.release_finder)
+                
+                release_to_update = self.release_finder.get_release(deployment_detail, self.via_env, rollback, self.via_latest)
 
-                attempt_was_successful, update_error = update_manager.update_release(deployment_detail, release_to_update)
+                if rollback: 
+                    logging.info(f'Attempting to rollback: {deployment_detail.release_name}')
+                    update_manager.roll_back_release(deployment_detail, release_to_update)
 
-                if not attempt_was_successful:
-                    logging.error(f'There was an error with deployment for: {deployment_detail.release_name}.\n:{update_error}')
+                    return True
+                else:
+                    update_manager = UpdateRelease(constants, self.ms_authentication, self.environment_variables, self.release_finder)
+                    attempt_was_successful, update_error = update_manager.update_release(deployment_detail, release_to_update)
+
+                    if not attempt_was_successful:
+                        logging.error(f'There was an error with deployment for: {deployment_detail.release_name}.\n:{update_error}')
 
                 return attempt_was_successful
         except Exception as e:
             logging.error(f'There was an error with deployment for: {deployment_detail.release_name}. Please check their status and continue manually.\nException:{e}')
             return False
-
-    def get_deployment_status(self, deployment_detail: DeploymentDetails):
+        
+    def get_deployment_status(self, deployment_detail: DeploymentDetails, rollback: bool=False):
         try:
             if deployment_detail is not None:
                 try:
-                    updating_release = self.release_finder.get_release(deployment_detail, self.via_env, False, self.via_latest)
+                    updating_release = self.release_finder.get_release(deployment_detail, self.via_env, rollback, self.via_latest)
                 except IndexError:
-                    logging.error(f"Error: Cannot find the release for {deployment_detail.release_name}")
-                    return None
+                    errorMessage = f"Error: Cannot find the release for {deployment_detail.release_name}"
+                    logging.error(errorMessage)
+                    
+                    deployment_status = DeploymentStatus(errorMessage, 0, DeploymentStatusLabel.failed)
+                    return deployment_status
 
                 try:
                     release_environment_finder = ReleaseEnvironmentFinder(self.ms_authentication, self.environment_variables)
                     updating_release_environment = release_environment_finder.get_release_environment(deployment_detail, updating_release.id)
                 except IndexError:
-                    logging.error(f"Error: Cannot find the release environment for {deployment_detail.release_name} and release ID {updating_release.id}")
-                    return None
+                    errorMessage = f"Error: Cannot find the release environment for {deployment_detail.release_name} and release ID {updating_release.id}"
+                    logging.error(errorMessage)
+                    
+                    deployment_status = DeploymentStatus(errorMessage, 0, DeploymentStatusLabel.failed)
+                    return deployment_status
 
                 release_progress = UpdateProgressRetriever(self.ms_authentication, self.environment_variables)
                 current_deployment_status = release_progress.monitor_release_progress(deployment_detail.release_project_name, updating_release, updating_release_environment.id)
@@ -206,13 +226,19 @@ class Startup:
             logging.error(f'There was an error with retrieving live deployment status of {updating_release.release_definition}.\nException:{e}')
 
 
-    def release_deployment_completed(self, deployment_detail): 
+    def release_deployment_completed(self, deployment_detail, rollback=False): 
         update_manager = UpdateRelease(constants, self.ms_authentication, self.environment_variables, self.release_finder)
-        release_to_update = self.release_finder.get_release(deployment_detail, self.via_env, False, self.via_latest)
-        deployment_is_complete = update_manager.is_deployment_complete(deployment_detail, release_to_update)
-        return deployment_is_complete
+        release_to_update = self.release_finder.get_release(deployment_detail, self.via_env, rollback, self.via_latest)
+        deployment_is_complete, successfully_completed = update_manager.is_deployment_complete(deployment_detail, release_to_update)
+        return deployment_is_complete, successfully_completed
     
-    def run_release_deployments(self, deployment_details, is_deploying_crucial_releases, had_crucial_releases=False):
+    def release_deployment_is_in_progress(self, deployment_detail, rollback): 
+        update_manager = UpdateRelease(constants, self.ms_authentication, self.environment_variables, self.release_finder)
+        release_to_update = self.release_finder.get_release(deployment_detail, self.via_env, rollback, self.via_latest)
+        is_in_progress = update_manager.is_deployment_in_progress(deployment_detail, release_to_update)
+        return is_in_progress
+    
+    def run_release_deployments(self, deployment_details, is_deploying_crucial_releases, rollback=False, had_crucial_releases=False):
         releases = []
         
         if is_deploying_crucial_releases: logging.info('Deploying the crucial releases first')
@@ -223,7 +249,7 @@ class Startup:
             elif not is_deploying_crucial_releases and had_crucial_releases:
                 logging.info('Deploying releases')
             
-            releases = executor.map(self.deploy, deployment_details)
+            releases = executor.map(self.deploy_to_target_or_rollback, deployment_details, repeat(rollback))
         
         return releases
     
@@ -294,7 +320,7 @@ if __name__ == '__main__':
             with concurrent.futures.ThreadPoolExecutor() as executor:
                 logging.info('Deploying the crucial releases first')
                 
-                executor.map(startup.deploy, crucial_deployment_details)
+                executor.map(startup.deploy_to_target_or_rollback, crucial_deployment_details)
                 executor.shutdown(wait=True)
 
         with concurrent.futures.ThreadPoolExecutor() as executor: # Then, deploy the rest of the releases
@@ -303,7 +329,7 @@ if __name__ == '__main__':
             else:
                 logging.info('Deploying releases')
             
-            executor.map(startup.deploy, deployment_details)
+            executor.map(startup.deploy_to_target_or_rollback, deployment_details)
 
     task_end = time.perf_counter()
     logging.info(f'Tasks completed in {task_end-task_start} seconds')

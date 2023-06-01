@@ -51,13 +51,13 @@ class UpdateRelease:
         for environment in release_to_update_data.environments:
             if (str(environment.name).lower() == self.environment_variables.RELEASE_TARGET_ENV.lower()):
                 if environment.status in ReleaseEnvironmentStatuses.Succeeded: 
-                    return True
+                    return True, True
                 elif environment.status in ReleaseEnvironmentStatuses.Failed:
-                    return True
+                    return True, False
                 else:
-                    return False
+                    return False, False
+              
         
-
     def update_release_environment(self, comment, deployment_detail, release_to_update, matching_release_environment):
         update_metadata = ReleaseEnvironmentUpdateMetadata(comment, status=2)
         return self.release_client_v6.update_release_environment(environment_update_data=update_metadata, project=deployment_detail.release_project_name, release_id=release_to_update.id, environment_id=matching_release_environment.id)
@@ -106,11 +106,6 @@ class UpdateRelease:
                 logging.info(f'Release is already rolling back - {release_log_details}')
                 
             # Check the status of release update
-            logging.info(f'Monitoring rollback Status - {release_log_details}')
-            updated_successfully = self.get_release_update_result(deployment_detail, release_to_update)
+            logging.info(f'Please proceed with manually monitoring the rollback Status - {release_log_details}')
 
-            if updated_successfully:
-                logging.info(f'Release roll back Successful - {release_log_details}')
-                return
-
-        logging.error(f'Unable to roll back. Please check this release manually. - {release_log_details}')
+        return

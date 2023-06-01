@@ -95,12 +95,12 @@ class ReleaseFinder:
             if str(definition.name).lower() == str(release_name).lower():
                 release_definition = definition
 
-        # Get release id from release to know which needs to be deployed to new env
+        # Get release id from release to know which needs to be deployed to new environment
         # Default top = 50, increase to 250 helps to retrieve more releases if it's necessary. Most time it will not reach any where near this limit
         # Personal Experience: My organization returns ~70 at most, but you may need to adjust this based on how many releases your org retains
         releases = self.release_client.get_releases(project, definition_id=release_definition.id, top='250').value
         
-        if find_via_env and via_latest or rollback:
+        if find_via_env and (via_latest or rollback):
             return self.find_matching_release_via_source_stage(releases, deployment_detail, rollback) 
         else:
             if rollback:
@@ -119,7 +119,7 @@ class ReleaseFinder:
             if str(definition.name).lower() == str(deployment_detail.release_name).lower():
                 release_definition = definition
 
-        # Get release id from release to know which needs to be deployed to new env
+        # Get release id from release to know which needs to be deployed to new environment
         # Default top = 50, increase to 250 helps to retrieve more releases if it's necessary. Most time it will not reach any where near this limit
         # Personal Experience: My organization returns ~70 at most, but you may need to adjust this based on how many releases your org retains
         releases = self.release_client.get_releases(project=deployment_detail.release_project_name, definition_id=release_definition.id, top='250').value

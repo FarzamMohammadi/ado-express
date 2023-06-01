@@ -1,6 +1,6 @@
 <script lang="ts">
   import { ADOExpressApi } from '../../../core/services/api';
-  import { ToastType } from '../../../models/enums/enums';
+  import { RunType, ToastType } from '../../../models/enums/enums';
   import { ResultHandler } from '../../../utils/result-handler';
   import { deploymentDetails, runResultData } from '../../../utils/stores';
   import DeploymentDetailsSelector from '../custom-form-components/deployment-detail-selector/DeploymentDetailSelector.svelte';
@@ -67,7 +67,7 @@
     showSubmitButton = false;
     running = true;
 
-    ResultHandler.sendMessage(running ? `\n\nRunning ${runType}` : `\nRunning ${runType}`, true);
+    ResultHandler.sendMessage(running ? `\n\nRunning ${runType === RunType.Search ? RunType.Search : 'Deployment'}` : `\nRunning ${runType === RunType.Search ? RunType.Search : 'Deployment'}`, true);
 
     if (isNullOrUndefined(runType) || isNullOrUndefined(runMethod)) {
       return showToast(ToastType.Warning, 'Please complete the run type selection at the top');
