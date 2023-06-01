@@ -163,7 +163,8 @@ class Startup:
                 
                 logging.info(f'Latest release found: Project:{deployment_detail.release_project_name}, Release Definition:{deployment_detail.release_name}, Target:{target_release_number}, Rollback:{rollback_release_number}')
                 return deployment_detail
-            else: return None
+            else: return logging.info(f'No Deployable releases found: Project:{deployment_detail.release_project_name}, Release Definition:{deployment_detail.release_name}, Latest release found: Target:{target_release_number}, Rollback:{rollback_release_number}')
+
         except:
             logging.error(f'Latest release not found: Project:{deployment_detail.release_project_name}, Release Definition:{deployment_detail.release_name}\n - Possible cause: The release does not have either the source or target stage you are looking for')
             return None
