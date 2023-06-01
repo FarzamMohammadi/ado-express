@@ -81,7 +81,7 @@
 
   .inputfile:focus + label {
     outline: 10px;
-    border-width: 2px;
+    box-shadow: var(--tw-ring-inset) 0 0 0 calc(1px + var(--tw-ring-offset-width)) var(--tw-ring-color);
     border-color: #3b82f6;
   }
 </style>

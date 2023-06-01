@@ -233,7 +233,7 @@
   </div>
 </div>
 
-<div class="flex flex-row items-center justify-between">
+<div class="flex flex-row items-center justify-between m-2">
   <div>
     <ThemeChangeButton bind:matrixTheme={matrixTheme} />
   </div>
