@@ -128,7 +128,7 @@ def deploy(request):
                     deployment_details, False, has_crucial_deployments)
                 failed_deployment_details = send_live_status_data_and_check_for_failures(
                     deployment_details, ado_express)
-                
+
                 if failed_deployment_details.__len__() > 0:
                     for deployment in failed_deployment_details:
                         print(deployment.release_name)
@@ -166,52 +166,19 @@ def send_live_status_data_and_check_for_failures(deployment_details, ado_express
 
     while not deployments_complete:
         for deployment_detail in deployment_details:
-            
+
             if deployment_detail.release_name not in completed_deployments:
-                deployment_is_complete, successfully_completed = ado_express.release_deployment_completed(
-                    deployment_detail, rollback)
+                completed_deployments, failed_deployment_details, deployment_is_complete = handle_deployment_completion(
+                    ado_express, deployment_detail, deployment_details, rollback, completed_deployments, failed_deployment_details)
 
-                if deployment_is_complete:
-                    completed_deployments.append(
-                        deployment_detail.release_name)
-
-                    if not successfully_completed:
-                        failed_deployment = next(x for x in deployment_details if x.release_name == deployment_detail.release_name)
-                        failed_deployment_details.append(failed_deployment)
-
-                
-                latest_deployment_status: DeploymentStatus = ado_express.get_deployment_status(
-                    deployment_detail, rollback)
+                latest_deployment_status = retrieve_deployment_status(deployment_detail, ado_express, rollback)
 
                 if latest_deployment_status is None:
-                    deployment_status = dict()
-                    deployment_status[deployment_detail.release_name] = DeploymentStatusSerializer(
-                        'Unable to retrieve deployment status - Please check ADO', 0, 'Unknown')
-
-                    WebSocketConsumer.send_message(json.dumps({key: value.to_dict(
-                    ) for key, value in deployment_status.items()}), WebsocketMessageType.DeploymentStatus.value)
-
                     completed_deployments.append(
                         deployment_detail.release_name)
                     continue
 
-                deployment_status = dict()
-
-                if rollback:
-                    if latest_deployment_status.status == DeploymentStatusLabel.failed.value:
-                        status = 'Rollback Failed'
-                    elif latest_deployment_status.status == DeploymentStatusLabel.succeeded.value:
-                        status = 'Rollback Succeeded'
-                    else:
-                        status = 'Rollback In Progress'
-                else:
-                    status = latest_deployment_status.status
-
-                deployment_status[deployment_detail.release_name] = DeploymentStatusSerializer(
-                    latest_deployment_status.comment, latest_deployment_status.percentage, status)
-
-                WebSocketConsumer.send_message(json.dumps({key: value.to_dict(
-                ) for key, value in deployment_status.items()}), WebsocketMessageType.DeploymentStatus.value)
+                construct_and_send_deployment_status(deployment_detail, latest_deployment_status, rollback)
 
                 if not deployment_is_complete:
                     time.sleep(1)
@@ -220,3 +187,46 @@ def send_live_status_data_and_check_for_failures(deployment_details, ado_express
             deployments_complete = True
 
     return failed_deployment_details
+
+
+def handle_deployment_completion(ado_express, deployment_detail, deployment_details, rollback, completed_deployments, failed_deployment_details):
+    deployment_is_complete, successfully_completed = ado_express.release_deployment_completed(deployment_detail, rollback)
+
+    if deployment_is_complete:
+        completed_deployments.append(
+            deployment_detail.release_name)
+
+        if not successfully_completed:
+            failed_deployment = next(x for x in deployment_details if x.release_name == deployment_detail.release_name)
+            failed_deployment_details.append(failed_deployment)
+
+    return completed_deployments, failed_deployment_details, deployment_is_complete
+
+
+def retrieve_deployment_status(deployment_detail, ado_express, rollback):
+    latest_deployment_status: DeploymentStatus = ado_express.get_deployment_status(deployment_detail, rollback)
+    deployment_status = dict()
+
+    if latest_deployment_status is None:
+        deployment_status[deployment_detail.release_name] = DeploymentStatusSerializer('Unable to retrieve deployment status - Please check ADO', 0, 'Unknown')
+        WebSocketConsumer.send_message(json.dumps({key: value.to_dict() for key, value in deployment_status.items()}), WebsocketMessageType.DeploymentStatus.value)
+        return None
+
+    return latest_deployment_status
+
+
+def construct_and_send_deployment_status(deployment_detail, latest_deployment_status, rollback):
+    deployment_status = dict()
+
+    if rollback:
+        if latest_deployment_status.status == DeploymentStatusLabel.failed.value:
+            status = 'Rollback Failed'
+        elif latest_deployment_status.status == DeploymentStatusLabel.succeeded.value:
+            status = 'Rollback Succeeded'
+        else:
+            status = 'Rollback In Progress'
+    else:
+        status = latest_deployment_status.status
+
+    deployment_status[deployment_detail.release_name] = DeploymentStatusSerializer(latest_deployment_status.comment, latest_deployment_status.percentage, status)
+    WebSocketConsumer.send_message(json.dumps({key: value.to_dict() for key, value in deployment_status.items()}), WebsocketMessageType.DeploymentStatus.value)
