@@ -70,16 +70,18 @@
     $deploymentDetails = Array(rows)
       .fill(null)
       .map((_, row) => new DeploymentDetail(cells[cellId(row, 1)], cells[cellId(row, 2)], cells[cellId(row, 3)], cells[cellId(row, 4)], cells[cellId(row, 5)]))
-      .filter((deploymentDetail) =>
-        deploymentDetail.releaseNumber && deploymentDetail.releaseRollback && deploymentDetail.releaseNumber < deploymentDetail.releaseRollback
+      .filter((deploymentDetail) => {
+        let releaseNumber = deploymentDetail.releaseNumber && !isNaN(deploymentDetail.releaseNumber) ? Number(deploymentDetail.releaseNumber) : null;
+        let releaseRollback = deploymentDetail.releaseRollback && !isNaN(deploymentDetail.releaseRollback) ? Number(deploymentDetail.releaseRollback) : null;
+        return releaseNumber !== null && releaseRollback !== null && releaseNumber < releaseRollback
           ? showToast(
               ToastType.Error,
               deploymentDetail.releaseName
                 ? `Release number cannot be less than rollback number: Release: ${deploymentDetail.releaseName}`
                 : `Release number cannot be less than rollback number`,
             )
-          : deploymentDetail.releaseProjectName && deploymentDetail.releaseName,
-      );
+          : deploymentDetail.releaseProjectName && deploymentDetail.releaseName;
+      });
   }
 
   onMount(() => {
