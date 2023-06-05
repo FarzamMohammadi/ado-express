@@ -76,7 +76,7 @@ def deploy(request):
                 deployment_details, crucial_release_definitions)
 
         def run_deployments_in_background():
-            has_crucial_deployments = False
+            had_crucial_deployments = False
 
             if crucial_deployment_details:
                 message = GenericWebsocketMessageSerializer(
@@ -104,7 +104,7 @@ def deploy(request):
 
                     return
 
-                has_crucial_deployments = True
+                had_crucial_deployments = True
 
                 message = GenericWebsocketMessageSerializer(
                     'Crucial release deployments are now complete.')
@@ -113,7 +113,7 @@ def deploy(request):
 
             if deployment_details:
 
-                if has_crucial_deployments:
+                if had_crucial_deployments:
                     message = GenericWebsocketMessageSerializer(
                         '\nNow, deploying the rest of the releases', True)
                     WebSocketConsumer.send_message(json.dumps(
@@ -125,13 +125,12 @@ def deploy(request):
                         message.to_dict()), WebsocketMessageType.Generic.value)
 
                 ado_express.run_release_deployments(
-                    deployment_details, False, has_crucial_deployments)
+                    deployment_details, False, False, had_crucial_deployments)
+                
                 failed_deployment_details = send_live_status_data_and_check_for_failures(
                     deployment_details, ado_express)
 
                 if failed_deployment_details.__len__() > 0:
-                    for deployment in failed_deployment_details:
-                        print(deployment.release_name)
                     ado_express.run_release_deployments(
                         failed_deployment_details, True, True)
 

@@ -1,23 +1,36 @@
 <script lang="ts">
+  import { saveAs } from 'file-saver';
+  import * as XLSX from 'xlsx';
+  import type { IDeploymentDetails } from '../../../models/interfaces/ideployment-details.interface';
   import { runResultData } from '../../../utils/stores';
 
   export let matrixTheme: boolean;
   let buttonClass: string;
+  let hasValidDeploymentDetails: boolean;
 
-  function downloadResultsAsJSONFile(): void {
-    const jsonString = JSON.stringify($runResultData);
-    const blob = new Blob([jsonString], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
+  function downloadResultsAsExcelFile(): void {
+    let updatedData = [];
 
-    const anchor = document.createElement('a');
-    anchor.href = url;
-    anchor.download = 'results.json';
-    anchor.click();
+    if (hasValidDeploymentDetails) {
+      const deploymentDetails = $runResultData as IDeploymentDetails;
+      const deploymentDetailsArray = Object.values(deploymentDetails);
 
-    setTimeout(() => {
-      URL.revokeObjectURL(url);
-      anchor.remove();
-    }, 0);
+      updatedData = deploymentDetailsArray.map((item) => ({
+        'Project Name': item.releaseProjectName,
+        'Release Name': item.releaseName,
+        'Release Number': item.releaseNumber,
+        'Rollback Number': item.releaseRollback,
+        'Is Crucial': item.isCrucial,
+      }));
+    }
+
+    const ws = XLSX.utils.json_to_sheet(updatedData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+
+    const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+    const blob = new Blob([wbout], { type: 'application/octet-stream' });
+    saveAs(blob, 'results.xlsx');
   }
 
   $: if (matrixTheme) {
@@ -27,9 +40,11 @@
     buttonClass =
       'focus:ring-1 focus:outline-none focus:ring-purple-500 bg-transparent hover:bg-purple-700 text-purple-900 dark:text-purple-500 font-semibold hover:text-white dark:hover:text-white py-2 px-4 border border-purple-800 hover:border-transparent rounded-lg shadow-lg';
   }
+
+  $: hasValidDeploymentDetails = $runResultData !== undefined && Object.values($runResultData)[0].releaseProjectName !== undefined;
 </script>
 
-<button class={buttonClass} on:click={downloadResultsAsJSONFile}> Download JSON </button>
+<button class={buttonClass} disabled={!hasValidDeploymentDetails} on:click={downloadResultsAsExcelFile}> Download Excel </button>
 
 <style>
   button {
