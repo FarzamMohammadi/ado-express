@@ -2,7 +2,7 @@
   import { ADOExpressApi } from '../../../core/services/api';
   import { RunType, ToastType } from '../../../models/enums/enums';
   import { ResultHandler } from '../../../utils/result-handler';
-  import { deploymentDetails, runResultData } from '../../../utils/stores';
+  import { deploymentDetails, ranDeployment, runResultData } from '../../../utils/stores';
   import DeploymentDetailsSelector from '../custom-form-components/deployment-detail-selector/DeploymentDetailSelector.svelte';
   import CustomPasswordInput from '../custom-form-components/inputs/CustomPasswordInput.svelte';
   import CustomTextInput from '../custom-form-components/inputs/CustomTextInput.svelte';
@@ -81,6 +81,8 @@
     $runResultData = await adoExpressApi.runADOExpress(runConfigurations);
     ResultHandler.sendRunResults(runConfigurations);
 
+    if (runType === RunType.Deploy) $ranDeployment = true;
+    
     isSubmitting = false;
     disableSubmitButton = false;
   }

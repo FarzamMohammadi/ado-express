@@ -1,5 +1,6 @@
 <script lang="ts">
   import { RunType, SearchRunMethod } from '../../../models/enums/enums';
+  import { ranDeployment } from '../../../utils/stores';
 
   export let disableSubmitButton: boolean;
   export let handleSubmit: (event: MouseEvent) => void;
@@ -14,7 +15,7 @@
 </script>
 
 <div>
-  {#if showSubmitButton}
+  {#if showSubmitButton && !$ranDeployment}
     <div class="flex justify-center pt-4">
       <button
         disabled={disableSubmitButton}
