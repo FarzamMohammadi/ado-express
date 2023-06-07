@@ -22,6 +22,8 @@ export function clonedDefaultFormInputsWithUserValues(formInputs) {
 }
 
 function extractIdsFromQueries(queries: string): string[] {
+    if (!queries) return null;
+    
     const guidRegExp = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;
 
     const parts = queries.split(",");
