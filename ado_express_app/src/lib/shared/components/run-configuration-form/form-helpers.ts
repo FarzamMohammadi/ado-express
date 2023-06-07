@@ -21,14 +21,25 @@ export function clonedDefaultFormInputsWithUserValues(formInputs) {
     return newFormInputs;
 }
 
+function extractIdsFromQueries(queries: string): string[] {
+    const guidRegExp = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;
+
+    const parts = queries.split(",");
+
+    const ids = parts.map(part => {
+        const match = part.trim().match(guidRegExp);
+
+        return match ? match[0] : null;
+    }).filter(id => id !== null);
+
+    return ids;
+}
+
 export function generateRunConfiguration(formInputs, viaEnv, viaEnvLatestRelease, runType): RunConfiguration {
     return new RunConfiguration(
         formInputs.org_url.bindValue.trim(),
         formInputs.pat.bindValue.trim(),
-        formInputs.queries.bindValue
-            ?.trim()
-            .split(',')
-            .map((s) => s.trim()) ?? null,
+        extractIdsFromQueries(formInputs.queries.bindValue),
         formInputs.rnf.bindValue.trim(),
         formInputs.rte.bindValue.trim().toLowerCase(),
         isSearchOnly(runType),

@@ -1,13 +1,15 @@
 import concurrent.futures
 
-from ado_express.packages.authentication.ms_authentication.ms_authentication import MSAuthentication
+from ado_express.packages.authentication.ms_authentication.ms_authentication import \
+    MSAuthentication
 from ado_express.packages.common.enums import RelationTypes
+
 
 class WorkItemManager:
 
     def __init__(self, ms_authentication: MSAuthentication):
         self.release_client = ms_authentication.client
-        self.buid_client = ms_authentication.build_client
+        self.build_client = ms_authentication.build_client
         self.work_item_tracking_client = ms_authentication.work_item_tracking_client
         self.git_client = ms_authentication.git_client
     
@@ -15,7 +17,7 @@ class WorkItemManager:
         build_id = status.target_url.split('/')[-1]
 
         try:
-            build = self.buid_client.get_build(project, build_id)
+            build = self.build_client.get_build(project, build_id)
             
             return build.id # Only return id if build was found and was actually triggered by commit build
         except:
