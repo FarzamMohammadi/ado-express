@@ -1,6 +1,9 @@
 # ADO Express 🚀
 ![GitHub release](https://img.shields.io/github/v/release/FarzamMohammadi/ado-express)
-![GitHub Workflow Status](https://img.shields.io/github/workflow/status/FarzamMohammadi/ado-express/Node.js%20CI)
+Executables workflow: ![Executables Workflow](https://img.shields.io/github/workflow/status/FarzamMohammadi/ado-express/executables)
+Publish workflow: ![Publish Workflow](https://img.shields.io/github/workflow/status/FarzamMohammadi/ado-express/publish)
+Release workflow: ![Release Workflow](https://img.shields.io/github/workflow/status/FarzamMohammadi/ado-express/release)
+Tests workflow: ![Tests Workflow](https://img.shields.io/github/workflow/status/FarzamMohammadi/ado-express/tests)
 ![GitHub](https://img.shields.io/github/license/FarzamMohammadi/ado-express)
 
 Welcome to the codebase for ADO Express - your new go-to release management tool. This application is designed to streamline and optimize the Azure DevOps release deployment process. Intuitive, efficient, and powerful - ADO Express will transform the way you manage releases.
