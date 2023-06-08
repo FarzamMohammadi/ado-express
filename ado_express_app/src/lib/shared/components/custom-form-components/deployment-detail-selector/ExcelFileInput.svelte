@@ -46,9 +46,18 @@
     reader.onload = (event: ProgressEvent<FileReader>) => {
       const fileData = extractFileData(event);
 
-      $deploymentDetails = fileData.map(
-        (item: any) => new DeploymentDetail(item[0], item[1], item[2] === '' ? null : item[2], item[3] === '' ? null : item[3], decodeBooleanValue(item[4])),
-      );
+      $deploymentDetails = fileData.map((item: any) => {
+        const releaseNumber = item[2] === '' ? null : parseInt(item[2]);
+        const releaseRollback = item[3] === '' ? null : parseInt(item[3]);
+
+        return new DeploymentDetail(
+          item[0],
+          item[1],
+          isNaN(releaseNumber) ? null : releaseNumber,
+          isNaN(releaseRollback) ? null : releaseRollback,
+          decodeBooleanValue(item[4]),
+        );
+      });
 
       dispatch('onDeploymentDetailsUpload');
     };

@@ -163,7 +163,7 @@ class ReleaseFinder:
         return releases_dict
     
     def get_releases_from_build_id(self, build_id):
-        release = self.release_client.get_releases(artifact_version_id=build_id).value
+        release = self.release_client.get_releases(artifact_version_id=build_id, top='250').value
         project = None
         description = None
 
@@ -200,7 +200,10 @@ class ReleaseFinder:
                 for release_definition, release_name in release_dictionary.items():
 
                     if release_definition in releases_dict:
-                        if release_name.split(release_name_split_key)[-1] > releases_dict[release_definition].split(release_name_split_key)[-1]: releases_dict[release_definition] = release_name
+                        new_release_number = int(release_name.split(release_name_split_key)[-1])
+                        existing_release_number = int(releases_dict[release_definition].split(release_name_split_key)[-1])
+                        
+                        if new_release_number > existing_release_number: releases_dict[release_definition] = release_name
                     else: 
                         releases_dict[release_definition] = release_name
         

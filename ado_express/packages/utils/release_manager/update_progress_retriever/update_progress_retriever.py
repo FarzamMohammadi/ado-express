@@ -38,7 +38,7 @@ class UpdateProgressRetriever:
         return percentage, completed_tasks, total_tasks
     
     def get_release_environment_tasks(self, release_project, release_id, environment_id, timeline_id, release_definition_id):
-        generic_release_info = self.release_client.get_releases(project=release_project, definition_id=release_definition_id, release_id_filter=[release_id])
+        generic_release_info = self.release_client.get_releases(project=release_project, definition_id=release_definition_id, release_id_filter=[release_id], top='250')
         
         for key, items in generic_release_info.__dict__.items():
             for item in items:

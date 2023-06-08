@@ -69,10 +69,14 @@
   function updateDeploymentDetails() {
     $deploymentDetails = Array(rows)
       .fill(null)
-      .map((_, row) => new DeploymentDetail(cells[cellId(row, 1)], cells[cellId(row, 2)], cells[cellId(row, 3)], cells[cellId(row, 4)], cells[cellId(row, 5)]))
+      .map((_, row) => {
+        const releaseNumber = cells[cellId(row, 3)] === '' ? null : parseInt(cells[cellId(row, 3)]);
+        const releaseRollback = cells[cellId(row, 4)] === '' ? null : parseInt(cells[cellId(row, 4)]);
+        return new DeploymentDetail(cells[cellId(row, 1)], cells[cellId(row, 2)], releaseNumber, releaseRollback, cells[cellId(row, 5)]);
+      })
       .filter((deploymentDetail) => {
-        let releaseNumber = deploymentDetail.releaseNumber && !isNaN(deploymentDetail.releaseNumber) ? Number(deploymentDetail.releaseNumber) : null;
-        let releaseRollback = deploymentDetail.releaseRollback && !isNaN(deploymentDetail.releaseRollback) ? Number(deploymentDetail.releaseRollback) : null;
+        let releaseNumber = deploymentDetail.releaseNumber;
+        let releaseRollback = deploymentDetail.releaseRollback;
         return releaseNumber !== null && releaseRollback !== null && releaseNumber < releaseRollback
           ? showToast(
               ToastType.Error,

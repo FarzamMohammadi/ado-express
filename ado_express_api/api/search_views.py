@@ -17,17 +17,14 @@ from websocket_server.consumers.consumers import WebSocketConsumer
 from ado_express.main import Startup
 
 from .serializers import (DeploymentDetailSerializer,
+                          DeploymentStatusSerializer,
                           GenericWebsocketMessageSerializer,
                           RunConfigurationSerializer)
 
 
 @api_view(['POST'])
 def search_via_release_environment(request):
-    request_data, error = setup_serializer_and_validate(
-        request,
-        DeploymentDetailSerializer.set_field_requirements_for_via_environment,
-        RunConfigurationSerializer.set_field_requirements_for_via_environment,
-    )
+    request_data, error = setup_serializer_and_validate(request, RunConfigurationSerializer.set_field_requirements_for_via_environment)
 
     if error:
         return Response(status=status.HTTP_400_BAD_REQUEST, data=error)
@@ -49,11 +46,7 @@ def search_via_release_environment(request):
 
 @api_view(['POST'])
 def search_via_latest_release(request):
-    request_data, error = setup_serializer_and_validate(
-        request,
-        DeploymentDetailSerializer.set_field_requirements_for_via_latest,
-        RunConfigurationSerializer.set_field_requirements_for_via_latest,
-    )
+    request_data, error = setup_serializer_and_validate(request, RunConfigurationSerializer.set_field_requirements_for_via_latest)
 
     if error:
         return Response(status=status.HTTP_400_BAD_REQUEST, data=error)
@@ -74,11 +67,7 @@ def search_via_latest_release(request):
 
 @api_view(['POST'])
 def search_via_release_number(request):
-    request_data, error = setup_serializer_and_validate(
-        request,
-        DeploymentDetailSerializer.set_field_requirements_for_via_number,
-        RunConfigurationSerializer.set_field_requirements_for_via_number,
-    )
+    request_data, error = setup_serializer_and_validate(request, RunConfigurationSerializer.set_field_requirements_for_via_number)
 
     if error:
         return Response(status=status.HTTP_400_BAD_REQUEST, data=error)
@@ -100,11 +89,7 @@ def search_via_release_number(request):
 
 @api_view(['POST'])
 def search_via_query(request):
-    request_data, error = setup_serializer_and_validate(
-        request,
-        None,
-        RunConfigurationSerializer.set_field_requirements_for_via_query,
-    )
+    request_data, error = setup_serializer_and_validate(request, RunConfigurationSerializer.set_field_requirements_for_via_query)
 
     if error:
         return Response(status=status.HTTP_400_BAD_REQUEST, data=error)
@@ -245,17 +230,10 @@ def send_generic_message(message: str, showIdleDots: bool = False):
         message.to_dict()), WebsocketMessageType.Generic.value)
 
 
-def setup_serializer_and_validate(request, set_deployment_detail_field_requirements_function, set_run_configuration_field_requirements_function):
-    deployment_details_serializer = DeploymentDetailSerializer()
-    if set_deployment_detail_field_requirements_function:
-        set_deployment_detail_field_requirements_function(
-            deployment_details_serializer)
-
+def setup_serializer_and_validate(request, set_run_configuration_field_requirements_function):
     run_config_serializer = RunConfigurationSerializer(data=request.data)
-    run_config_serializer.fields['deploymentDetails'].child = deployment_details_serializer
-    if set_run_configuration_field_requirements_function:
-        set_run_configuration_field_requirements_function(
-            run_config_serializer)
+
+    if set_run_configuration_field_requirements_function: set_run_configuration_field_requirements_function(run_config_serializer)
 
     if run_config_serializer.is_valid():
         request_data = run_config_serializer.validated_data
