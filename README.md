@@ -1,347 +1,124 @@
-# ADO Express
-**Azure DevOps Release Management Tool**
-
-Create release notes, search, and deploy releases - all in the most automated way possible. 
-
-Benefits:
-- Save time managing release deployments
-- Achieve release uniformity in all environment deployments
-- Prevent inclusion/exclusion of unwanted releases in deployments
-- Automate your CD from start to finish 
-
-Enjoy!
-
-----------------------------------
-# Search
-There are two types of search available:
-1. [**Export the results (to an excel file & logs)**](#create-search-release-notes-export-search-results-to-excel-file)
-2. [**Log the results**](#create-search-release-logs)
-
-## Create Search Release Notes (Export search results to excel file)
-1. Using ADO query:
-    - How does it work?
-        - Iterates through work items (regardless of type) in query to find the last release created by builds of merged commits
-        - Steps for target release retrieval: 
-            1. Gets each work item in query
-            2. Goes through each work item to get merged commit builds from pull requests and pushes
-            3. Gets all releases created by builds and compares them to find the latest 
-            4. The latest deployed release specified by environment (*VIA_ENV_SOURCE_NAME*) gets returned
-                - Grabbing the latest release already deployed to *VIA_ENV_SOURCE_NAME* and not yet deployed to *RELEASE_TARGET_ENV*
-        - Multiple query runs will combine all releases found and grab the latest from them
-        - [Steps for rollback release retrieval](#getting-rollback-releases)
-        
-        [EXAMPLE CONFIGURATION](#search-via-query)
-
-2. Using deployment plan excel file:
-    - How does it work?
-        - Iterates through release definitions found in deployment plan file to create release notes
-        - Steps for target release retrieval:
-            1. Goes through each release definition in the deployment plan 
-            2. Finds the latest release based on last successful deployment
-            3. The latest deployed release specified by environment (*VIA_ENV_SOURCE_NAME*) gets returned
-                - Grabbing the latest release already deployed to *VIA_ENV_SOURCE_NAME* and not yet deployed to *RELEASE_TARGET_ENV*
-        - [Steps for rollback release retrieval](#getting-rollback-releases)
-
-        [EXAMPLE CONFIGURATION](#search-via-latest-release)
-    
-## Create Search Release Logs 
-1. Search via environment in release definition:
-    - How does it work? 
-        - Must set release details in the deployment plan excel file
-        - Goes through each release definition in deployment plan 
-        - Checks the environment and deployment status of each release
-        - Logs all releases in the release definition, which are successfully deployed to the environment specified by *RELEASE_TARGET_ENV*
-    
-    [EXAMPLE CONFIGURATION](#search-via-environment-in-release-defintions) 
-
-2. Search via release definition and release number:
-    - How does it work? 
-        - Must set release details in the deployment plan excel file
-        - Goes through each release definition in deployment plan
-        - Finds the exact release specified by release number 
-        - Logs the name and deployment status of each environments for that particular release
-
-    [EXAMPLE CONFIGURATION](#search-via-release-number-in-release-defintions)
-
-# Deploy
-There are three types of deployment available:
-1. [**Deploy via query**](#deploy-via-query)
-2. [**Deploy via release number**](#deploy-via-release-number)
-3. [**Deploy via environment**](#deploy-via-environment)
-
-**If deployment of some release definitions are crucial**: 
-- Same process for all three deployment methods
-- Set the "Crucial" value to True in the deployment plan file (or pass as *CRUCIAL_RELEASE_DEFINITIONS* in command line argument or as environment variable). See [List of Variables/Arguments](#list-of-variablesarguments) for more information
-- In cases of deployments where the deployment plan is used, first the deployment plan file is checked for crucial release definitions via the "Crucial" column value, if nothing is found, then the *CRUCIAL_RELEASE_DEFINITIONS* is checked
-- These deployments will run first in parallel
-- After successfully completion, the rest of the deployments run in parallel
-- In case of a crucial deployment error:
-    - The application will attempt to rollback (deploy to rollback number) 
-    - Then will stop the processes regardless of the status of rollback
-
-## Deploy via ADO query
-- How does it work?
-    - Iterates through work items (regardless of type) in query to find the last release created by builds of merged commits
-    - Steps for target release retrieval: 
-        1. Gets each work item in query
-        2. Goes through each work item to get merged commit builds from pull requests and pushes
-        3. Gets all releases created by builds and compares them to find the latest 
-        4. The latest deployed release specified by environment (*VIA_ENV_SOURCE_NAME*) gets returned
-            - Grabbing the latest release already deployed to *VIA_ENV_SOURCE_NAME* and not yet deployed to *RELEASE_TARGET_ENV*
-    - Multiple query runs will combine all releases found and grab the latest from them
-    - [Steps for rollback release retrieval](#getting-rollback-releases)
-    
-    [EXAMPLE CONFIGURATION](#deploy-via-query-1)
-## Deploy via release number
-The use of a deployment plan file is required. The default deployment plan can be found [here](./ado_express/files/deployment). 
-- How does it work? 
-    - Goes through each release number in the deployment plan and deploys it to environment specified by *RELEASE_TARGET_ENV*
-    - **Target Release**: Set by "Release Number" in the deployment plan (or pass as command line argument) 
-    - **Target Environment**: Set by *RELEASE_TARGET_ENV* environment variable (or pass as command line argument)
-    - **Rollback**: Set the "Rollback Number" in the deployment plan file (or pass as command line argument)
-    
-    [EXAMPLE CONFIGURATION](#deploy-via-release-number-1)
-
-## Deploy via environment
-The use of a deployment plan file is required. The default deployment plan can be found [here](./ado_express/files/deployment). 
-- How does it work?
-    - Goes through each release definition in the deployment plan. Then finds and deploys latest release based on RELEASE_TARGET_ENV.
-    - **Target**: Found by going through all the releases in release definition. Then selecting the last release successfully deployed to environment specified by *VIA_ENV_SOURCE_NAME*
-    - **Rollback**: Found by going through all the releases in release definition. Then selecting the last release successfully deployed to environment specified by *RELEASE_TARGET_ENV*
-
-    [EXAMPLE CONFIGURATION](#deploy-via-environment-1)
-
-# Getting Rollback Releases
-Finds the last deployed release in target environment and sets it as rollback. **QUERIES** and **VIA_LATEST** features use this method for getting rollback releases.
-
-- How does it work?
-    - Iterates through release definitions found in the release target retrieval step
-    - Checks the environment and deployment status of each
-    - Returns the latest deployed release that matches environment specified by *RELEASE_TARGET_ENV*
-        - In other words, the last release in the release definition deployed to *RELEASE_TARGET_ENV*
-
----------------------------------
-# Ways to run
-- [**Docker**](#1-docker)
-- [**Executable** (No installation required)](#2-executable-simplest-method---no-installation-required)
-- [**Locally in development container** (Docker & VSCode installation required - Python & dependency installation not required)](#3-locally-in-development-container-docker--vscode-installation-required)
-- [**Locally** (python & dependency installation required)](#4-locally-python--dependency-installation-required)
-
-## 1. Docker
-You can pull the latest image directly from the [packages](https://github.com/FarzamMohammadi/ado-express/pkgs/container/ado-express) section of this repo.
-
-## 2. Executable (Simplest method - No installation required)
-Executables for Windows and Linux are available in repository release artifacts. Download and run the executable file with the desired parameters. 
-
-    ado-express-{OS}.exe <CRUCIAL_RELEASE_DEFINITIONS> <ORGANIZATION_URL> <PERSONAL_ACCESS_TOKEN> <QUERIES> <RELEASE_NAME_FORMAT> <RELEASE_TARGET_ENV> <SEARCH_ONLY> <VIA_ENV> <VIA_ENV_SOURCE_NAME> <VIA_ENV_LATEST_RELEASE>
-
-#### Environment Variables Configuration
-There are two ways to set the environment variables:
-1. Pass them as arguments in the run command
-2. Set them in the environment
-
-Make sure to set them according to your task. For more information about environment variables, see [Environment Variables](#Environment-Variables).
-
-## 3. Locally in Development Container (Docker & VSCode installation required)
-You can run or contribute to this project without installing python or other project dependencies. You can do this by running your local development environment inside a container. For more info, see [Developing inside a Container](https://code.visualstudio.com/docs/devcontainers/containers).
-
-Steps:
-1. Open the project in VS Code
-2. Press F1
-3. Search for "Dev Containers: Rebuild and Reopen in Container" and press enter (Docker must be running)
-
-**IMPORTANT: The start of a development container, will trigger the application to run. To prevent this, don't setup the environment variables. You can always set them after the development container has started.**
-
-### To run the application within the development container
-
-Using environment variables in .env:
-    
-    python ado_express/main.py
-
-Using command line arguments:
-    
-    python ado_express/main.py <CRUCIAL_RELEASE_DEFINITIONS> <ORGANIZATION_URL> <PERSONAL_ACCESS_TOKEN> <QUERIES> <RELEASE_NAME_FORMAT> <RELEASE_TARGET_ENV> <SEARCH_ONLY> <VIA_ENV> <VIA_ENV_SOURCE_NAME> <VIA_ENV_LATEST_RELEASE>
-
-#### Environment Variables Configuration
-There are three ways to set the environment variables:
-1. Set them in .env file
-2. Pass them as arguments in the run command
-3. Set them in the environment
-
-Make sure to set them according to your task. For more information about environment variables, see [Environment Variables](#Environment-Variables).
-## 4. Locally (Python & Dependency Installation Required)
-
-### Python & pip installation
-Must have [Python](https://www.python.org/downloads/) and [pip](https://www.activestate.com/resources/quick-reads/how-to-install-pip-on-windows/) installed. Then run the command below to update pip:
-    
-    python -m pip install --upgrade pip
-
-### Run application
-#### 1. Create virtual environment
-    python -m venv ./venv
-#### 2. Activate VENV
-    Windows - .\venv\Scripts\activate
-    Linux/macOS - source venv/bin/activate
-#### 3. Install Dependencies
-    pip install -r requirements.txt
-#### 4. Run application
-Using environment variables in .env:
-    
-    python ado_express/main.py
-
-Using command line arguments:
-    
-    python ado_express/main.py <CRUCIAL_RELEASE_DEFINITIONS> <ORGANIZATION_URL> <PERSONAL_ACCESS_TOKEN> <QUERIES> <RELEASE_NAME_FORMAT> <RELEASE_TARGET_ENV> <SEARCH_ONLY> <VIA_ENV> <VIA_ENV_SOURCE_NAME> <VIA_ENV_LATEST_RELEASE>
-
-#### Environment Variables Configuration
-There are three ways to set the environment variables:
-1. Set them in .env file
-2. Pass them as arguments in the run command
-3. Set them in the environment
-
-Make sure to set them according to your task. For more information about environment variables, see [Environment Variables](#Environment-Variables).
-
----------------------------------
-# Files & Resources
-All the files and resources can be found under the [files directory](./ado_express/files).
-
-## [/deployment](./ado_express/files/deployment)
-- *deployment-plan.xlsx*: Deployment plan file used by default for search and deployment
-
-## [/logs](./ado_express/files/logs)
-- *deployment-stale.log*: Used by development container postCreateCommand to copy contents of deployment.log
-- *deployment.log*: Contains all logs
-
-## [/search-results](./ado_express/files/search-results)
-- *deployment-plan.xlsx*: The output of search results
-  
-# Environment Variables
-## List of Variables/Arguments
-Note: The default values of these variables are none/null and false
-
-- **EXPLICIT_RELEASE_VALUES**=< dict with key matching the type explicit release values (either 'include' or 'exclude') and an array of release definitions as the dict value. E.g. {'include': ['releaseone','releasetwo','releasethree']} >
-- **CRUCIAL_RELEASE_DEFINITIONS**=< Array of release definitions that are crucial to the deployment process - E.g. releaseone,releasetwo,releasethree >
-- **ORGANIZATION_URL**=< Your organizations ADO URL - E.g. https://dev.azure.com/{organization} >
-- **PERSONAL_ACCESS_TOKEN**=< Personal access token (https://learn.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate?view=azure-devops&tabs=Windows) >
-- **QUERIES**=< List of Ids or URL paths to ADO queries separated via commas >
-- **RELEASE_NAME_FORMAT**=< Release name format - E.g. Release-$(rev:r) >
-- **RELEASE_TARGET_ENV**=< Name of the environment you wish to deploy your releases to (Target)- E.g. PROD >
-- **SEARCH_ONLY**=< true/false >
-- **VIA_ENV**=< true/false >
-- **VIA_ENV_SOURCE_NAME**=< Name of the environment that has releases successfully deployed to it already (Rollback) - E.g. QA >
-- **VIA_ENV_LATEST_RELEASE**=< true/false >
-
-### Order of Command Line Arguments
-    <CRUCIAL_RELEASE_DEFINITIONS> <ORGANIZATION_URL> <PERSONAL_ACCESS_TOKEN> <QUERIES> <RELEASE_NAME_FORMAT> <RELEASE_TARGET_ENV> <SEARCH_ONLY> <VIA_ENV> <VIA_ENV_SOURCE_NAME> <VIA_ENV_LATEST_RELEASE>
-
-**Based on your format, you may need to set *RELEASE_NAME_FORMAT* in quotation marks**
-
-# Configuration Examples
-While I continue to work on making the use of this tool easier, it could be confusing at first to know how to set the environment variables. Here are examples of each run setting environment variables to help with the use of this tool:
-
-## Search
-### Search via query
-Required: ORGANIZATION_URL, PERSONAL_ACCESS_TOKEN, RELEASE_NAME_FORMAT, RELEASE_TARGET_ENV, SEARCH_ONLY, VIA_ENV, VIA_ENV_SOURCE_NAME, QUERIES
-
-.env:
-
-    ORGANIZATION_URL=https://dev.azure.com/xxxx
-    PERSONAL_ACCESS_TOKEN=tokenxxxx
-    RELEASE_NAME_FORMAT=Release-$(rev:r) <- '$' will be used to split the release names and numbers
-    RELEASE_TARGET_ENV=PROD
-    SEARCH_ONLY=True
-    VIA_ENV=True
-    VIA_ENV_SOURCE_NAME=QA
-    QUERIES=queryID,queryID,queryID
-
-CMD:
-
-    ./ado-express-linux.exe None https://dev.azure.com/xxxx tokenxxxx queryID,queryID,queryID "Release-$(rev:r)" PROD True True QA
-**Set *RELEASE_NAME_FORMAT* in quotations**
-
-### Search via latest release
-Required: ORGANIZATION_URL, PERSONAL_ACCESS_TOKEN, RELEASE_NAME_FORMAT, RELEASE_TARGET_ENV, SEARCH_ONLY, VIA_ENV, VIA_ENV_LATEST_RELEASE, VIA_ENV_SOURCE_NAME
-
-.env:
-
-    ORGANIZATION_URL=https://dev.azure.com/xxxx
-    PERSONAL_ACCESS_TOKEN=xxxx
-    RELEASE_NAME_FORMAT=Release-$(rev:r) <- '$' will be used to split the release names and numbers
-    RELEASE_TARGET_ENV=PROD
-    SEARCH_ONLY=True
-    VIA_ENV=True
-    VIA_ENV_LATEST_RELEASE=True
-    VIA_ENV_SOURCE_NAME=QA
-
-### Search via environment in release defintions
-Required: ORGANIZATION_URL, PERSONAL_ACCESS_TOKEN, RELEASE_NAME_FORMAT, RELEASE_TARGET_ENV, SEARCH_ONLY, VIA_ENV
-
-.env:
-
-    ORGANIZATION_URL=https://dev.azure.com/xxxx
-    PERSONAL_ACCESS_TOKEN=xxxx
-    RELEASE_NAME_FORMAT=Release-$(rev:r) <- '$' will be used to split the release names and numbers
-    RELEASE_TARGET_ENV=PROD
-    SEARCH_ONLY=True
-    VIA_ENV=True
-
-### Search via release number in release defintions
-Required: ORGANIZATION_URL, PERSONAL_ACCESS_TOKEN, RELEASE_NAME_FORMAT, SEARCH_ONLY
-
-.env:
-
-    ORGANIZATION_URL=https://dev.azure.com/xxxx
-    PERSONAL_ACCESS_TOKEN=xxxx
-    RELEASE_NAME_FORMAT=Release-$(rev:r) <- '$' will be used to split the release names and numbers
-    SEARCH_ONLY=True
-
-## Deploy
-
-### Deploy via query
-Required: ORGANIZATION_URL, PERSONAL_ACCESS_TOKEN, RELEASE_NAME_FORMAT, RELEASE_TARGET_ENV, VIA_ENV, VIA_ENV_SOURCE_NAME, QUERIES
-
-.env:
-    ORGANIZATION_URL=https://dev.azure.com/xxxx
-    PERSONAL_ACCESS_TOKEN=tokenxxxx
-    RELEASE_NAME_FORMAT=Release-$(rev:r) <- '$' will be used to split the release names and numbers
-    RELEASE_TARGET_ENV=PROD
-    VIA_ENV=True
-    VIA_ENV_SOURCE_NAME=QA
-    QUERIES=queryURL
-
-CMD:
-
-    ./ado-express-linux.exe None https://dev.azure.com/xxxx tokenxxxx queryURL "Release-$(rev:r)" PROD False True QA
-**Set *RELEASE_NAME_FORMAT* in quotations**
-### Deploy via release number
-Required: ORGANIZATION_URL, PERSONAL_ACCESS_TOKEN, RELEASE_NAME_FORMAT, RELEASE_TARGET_ENV
-
-.env:
-
-    CRUCIAL_RELEASE_DEFINITIONS=realeaseX,releaseY,releaseZ
-    ORGANIZATION_URL=https://dev.azure.com/xxxx
-    PERSONAL_ACCESS_TOKEN=tokenxxxx
-    RELEASE_NAME_FORMAT=Release-$(rev:r) <- '$' will be used to split the release names and numbers
-    RELEASE_TARGET_ENV=PROD
-
-CMD:
-
-    ./ado-express-win.exe realeaseX,releaseY,releaseZ https://dev.azure.com/xxxx token None "Release-$(rev:r)" PROD False False None False
-
-**Set *RELEASE_NAME_FORMAT* in quotation marks**
-### Deploy via environment
-Required: ORGANIZATION_URL, PERSONAL_ACCESS_TOKEN, RELEASE_NAME_FORMAT, RELEASE_TARGET_ENV, VIA_ENV, VIA_ENV_SOURCE_NAME
-
-.env:
-
-    ORGANIZATION_URL=https://dev.azure.com/xxxx
-    PERSONAL_ACCESS_TOKEN=token
-    RELEASE_NAME_FORMAT=Release-$(rev:r) <- '$' will be used to split the release names and numbers
-    RELEASE_TARGET_ENV=PROD
-    VIA_ENV=True
-    VIA_ENV_SOURCE_NAME=QA
-
-----------------------------------
-
-# Contribution, Issues & New Features
-You are more than welcome to contribute to this project by sharing your work through a pull request. If you face any issues or would like to request for any features or changes, let me know by creating a new issue here: [ADO-Express Issues](https://github.com/FarzamMohammadi/ado-express/issues)
+# ADO Express 🚀
+![GitHub release](https://img.shields.io/github/v/release/FarzamMohammadi/ado-express)
+![GitHub Workflow Status](https://img.shields.io/github/workflow/status/FarzamMohammadi/ado-express/Node.js%20CI)
+![GitHub](https://img.shields.io/github/license/FarzamMohammadi/ado-express)
+
+Welcome to the codebase for ADO Express - your new go-to release management tool. This application is designed to streamline and optimize the Azure DevOps release deployment process. Intuitive, efficient, and powerful - ADO Express will transform the way you manage releases.
+
+This repository houses both the frontend and the backend of ADO Express. Keep reading to learn how to get them up and running on your local machine!
+
+## 🎨 Frontend
+
+The frontend of ADO Express is a sleek and modern web application. Let's get it running:
+
+1. Navigate into the frontend directory:
+   ```sh
+   cd ado_express_app
+   ```
+2. Run the development server:
+   `sh
+npm run dev
+`
+   Voila! You should now have the ADO Express web application running locally.
+
+## 🔧 Backend (API)
+
+The backend (API) of ADO Express powers all of the magic behind the scenes. To get it running, follow these steps:
+
+### Preparation
+
+First, you need to set up a virtual environment and install the necessary dependencies:
+
+1. Create a virtual environment:
+   ```sh
+   python -m venv ./venv
+   ```
+2. Activate the virtual environment:
+   - Windows:
+     ```sh
+     .\venv\Scripts\activate
+     ```
+   - Linux/macOS:
+     ```sh
+     source venv/bin/activate
+     ```
+3. Install Dependencies:
+   ```sh
+   pip install -r requirements.txt
+   ```
+
+### Run the API
+
+With the virtual environment set up, you can now run the API:
+
+1. Navigate into the API directory:
+   ```sh
+   cd ado_express_api
+   ```
+2. Start the application:
+   ```sh
+   daphne asgi:application
+   ```
+
+That's it! You should now have the ADO Express API running locally.
+
+## 🖥️ Want to Run the CLI Version?
+
+No problem at all! We understand some people love the good ol' command-line interface. If you're one of those CLI aficionados, and you'd like to run the CLI version of ADO Express, we've got you covered.
+
+For all things CLI, navigate to the CLI's dedicated README in the `./ado_express` directory.
+
+Here's a quick teleport for you: [CLI README](./ado_express/README.md).
+
+You'll find all the instructions, tips, and tricks for running the CLI version there. Have fun exploring!
+
+## 🌟 Shine Bright
+
+ADO Express is more than just a tool; it's a game changer. With an emphasis on usability and performance, this app aims to simplify the complexities of release management, allowing you to focus on what truly matters - creating outstanding software.
+
+Feel free to explore the repository, try out the application, and even contribute. Enjoy your journey with ADO Express!
+
+## 🎥 Demo
+
+Coming soon! Keep an eye on this space for a walkthrough video, showcasing ADO Express in action.
+
+## 💡 Features
+
+ADO Express boasts a range of features to simplify your Azure DevOps release management process. Here are some of the highlights:
+
+- **Automated Release Management**: ADO Express automates your entire release management process, saving you time and ensuring uniformity in all your deployments. It prevents unwanted releases in deployments, and takes you from start to finish in your Continuous Deployment pipeline.
+
+- **Search and Export**: With ADO Express, you can easily search through your releases and export your results to an Excel file. Whether you're using an ADO query or a deployment plan Excel file, ADO Express provides you with a detailed log of your release deployments.
+
+- **Detailed Release Deployment**: ADO Express offers three types of detailed deployments: via query, via release number, and via environment. Each deployment type comes with its unique advantages, giving you the flexibility to choose the deployment method that best suits your needs.
+
+- **Crucial Release Deployment Management**: ADO Express lets you mark certain releases as 'crucial.' These crucial deployments are run first, and in case of a deployment error, the application attempts to rollback and stop the processes.
+
+- **Easy Run Options**: ADO Express provides you with a variety of ways to run the tool, from Docker to local execution, giving you the flexibility to choose the method that fits best in your workflow.
+
+- _And many more..._: Dive in and discover what ADO Express has in store!
+
+## 🛠️ Built With
+
+ADO Express utilizes a robust tech stack:
+
+- Frontend: **Svelte**, **Typescript**, **Tailwind**
+- Backend: **Python**, **Django**
+
+## 🤝 Contributions & Feedback
+
+While we don't currently have a formal contribution guide, we still warmly welcome contributions from all! If you have suggestions, bug reports, or want to contribute code, please feel free to open an issue or pull request on our GitHub repository.
+
+Also, if you encounter any issues or have ideas for enhancements, we would love to hear from you! Just head over to the [ADO Express Issues](https://github.com/FarzamMohammadi/ado-express/issues) page and drop us a note.
+
+Whether you're providing feedback, reporting issues, or contributing to the code, your involvement is what makes this project shine. Thanks for being a part of ADO Express!
+
+## 📝 License
+
+This project is licensed under the terms of the [MIT license](LICENSE).
+
+## 📮 Get in Touch
+
+Have questions, suggestions, or just want to chat about ADO Express? Reach out!
+
+- Farzam Mohammadi: [Email](mailto:farzammohammadia@gmail.com)
