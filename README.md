@@ -6,6 +6,11 @@ Welcome to the codebase for ADO Express - your new go-to release management tool
 
 This repository houses both the frontend and the backend of ADO Express. Keep reading to learn how to get them up and running on your local machine!
 
+
+## ✨ UI Preview
+
+![Alt Text](./media/ui-preview.gif)
+
 ## 🎨 Frontend
 
 The frontend of ADO Express is a sleek and modern web application. Let's get it running:
