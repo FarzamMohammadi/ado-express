@@ -5,3 +5,4 @@
 .env
 ado_express/files/*
 *.log
+/node_modules
