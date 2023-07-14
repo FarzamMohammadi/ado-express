@@ -59,7 +59,7 @@ def search_via_latest_release(request):
         ado_express,
         run_configurations.deployment_details,
         process_search_via_latest_release,
-        f"\n\nInitiating search to identify the most recent releases within\n\nThe Source Environment: {run_configurations.VIA_ENV_SOURCE_NAME}\nTo Be Deployed to Target environment: {run_configurations.RELEASE_TARGET_ENV}"
+        f"\n\nInitiating search to identify the most recent releases within\n\nThe Source Environment: {run_configurations.VIA_ENV_SOURCE_NAME}\nTo Be Deployed to Target Environment: {run_configurations.RELEASE_TARGET_ENV}"
     )
 
     return Response(status=status.HTTP_200_OK, data=SnakeToCamelCaseConverter.convert(result))
@@ -102,7 +102,7 @@ def search_via_query(request):
         ado_express,
         None,
         process_search_via_query,
-        f"\n\nInitiating search to identify the most recent releases based on the provided queries within\n\nThe Source Environment: {run_configurations.VIA_ENV_SOURCE_NAME}\nTo Be Deployed to Target environment: {run_configurations.RELEASE_TARGET_ENV}"
+        f"\n\nInitiating search to identify the most recent releases based on the provided queries within\n\nThe Source Environment: {run_configurations.VIA_ENV_SOURCE_NAME}\nTo Be Deployed to Target Environment: {run_configurations.RELEASE_TARGET_ENV}"
     )
 
     return Response(status=status.HTTP_200_OK, data=SnakeToCamelCaseConverter.convert(result))
