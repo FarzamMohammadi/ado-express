@@ -133,12 +133,15 @@
 <div class="grid grid-cols-[repeat(6,minmax(0,auto))] gap-1 mb-3">
   {#each headers as header, col}
     <input
-      class="read-only text-center font-bold h-8 px-2 text-md border border-gray-800 rounded-md focus:outline-none focus:border-blue-500 disabled:bg-gray-900 dark:disabled:bg-gray-800 {col ===
-      0
+      class="read-only text-center text-white font-bold h-8 px-2 text-md border border-gray-800 rounded-md focus:outline-none focus:border-blue-500 disabled:bg-gray-800 
+      {col === 0 
         ? 'w-12'
-        : col === 3 || col === 4 || col === 5
-        ? 'w-24'
-        : 'w-full'}"
+        : col === 3 
+          || col === 4 
+          || col === 5 
+            ? 'w-24' 
+            : 'w-full'
+        }"
       type="text"
       value={header}
       disabled={true}
@@ -150,7 +153,7 @@
     {#each Array(columns).fill(null) as _, col}
       {#if col === 0}
         <input
-          class="read-only text-center font-bold h-8 px-2 text-md border border-gray-800 rounded-md focus:outline-none focus:border-blue-500 disabled:bg-gray-900 dark:disabled:bg-gray-800 w-12"
+          class="read-only text-center text-white font-bold h-8 px-2 text-md border border-gray-800 rounded-md focus:outline-none focus:border-blue-500 disabled:bg-gray-800 w-12"
           type="text"
           value={row + 1}
           disabled={true}
@@ -161,7 +164,6 @@
           type="checkbox"
           bind:checked={cells[cellId(row, col)]}
           disabled={disabledColumns.includes(col)}
-          class="text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:bg-gray-700 dark:border-gray-600"
           on:input={(event) => handleInput(row, col, event)}
         />
       {:else if col === 3 || col === 4}
@@ -169,7 +171,7 @@
           bind:value={cells[cellId(row, col)]}
           disabled={disabledColumns.includes(col)}
           type="number"
-          class="text-center h-8 px-2 py-1 text-sm border bg-gray-700 border-gray-800 rounded-md focus:outline-none focus:border-blue-500 w-24"
+          class="text-center text-gray-100 h-8 px-2 py-1 text-sm border bg-gray-700 border-gray-800 rounded-md focus:outline-none focus:border-blue-500 w-24"
           on:input={(event) => handleInput(row, col, event)}
         />
       {:else}
@@ -177,7 +179,7 @@
           bind:value={cells[cellId(row, col)]}
           disabled={disabledColumns.includes(col)}
           type="text"
-          class="text-center h-8 px-2 py-1 text-sm border bg-gray-700 border-gray-800 rounded-md focus:outline-none focus:border-blue-500 w-full"
+          class="text-center text-gray-100 h-8 px-2 py-1 text-sm border bg-gray-700 border-gray-800 rounded-md focus:outline-none focus:border-blue-500 w-full"
           on:input={(event) => handleInput(row, col, event)}
         />
       {/if}
