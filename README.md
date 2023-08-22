@@ -20,9 +20,9 @@ The frontend of ADO Express is a sleek and modern web application. Let's get it 
    cd ado_express_app
    ```
 2. Run the development server:
-   `sh
-npm run dev
-`
+   ```sh
+   npm run dev
+   ```
    Voila! You should now have the ADO Express web application running locally.
 
 ## 🔧 Backend (API)
