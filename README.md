@@ -123,9 +123,9 @@ ADO Express is more than just a tool; it's a game changer. With an emphasis on u
 
 Feel free to explore the repository, try out the application, and even contribute. Enjoy your journey with ADO Express!
 
-## 🎥 Demo
+## 🎥 See It To Believe It: The ADO Express Demo
 
-Coming soon! Keep an eye on this space for a walkthrough video, showcasing ADO Express in action.
+Ever wondered how 'seamless' and 'efficient' looks in action? Well, wonder no more! [Click here to witness ADO Express revolutionizing Azure DevOps release management right before your eyes!](https://www.linkedin.com/posts/farzam-m_warmest-greetings-everyone-time-does-indeed-activity-7083582850511372288-Ov6c?utm_source=share&utm_medium=member_desktop) Experience the UI, functionality, and the game-changing features that will redefine your approach to release management. Don't just take our word for it—see it for yourself!
 
 ## 💡 Features
 
