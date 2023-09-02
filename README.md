@@ -2,14 +2,61 @@
 ![GitHub release](https://img.shields.io/github/v/release/FarzamMohammadi/ado-express)
 ![GitHub](https://img.shields.io/github/license/FarzamMohammadi/ado-express)
 
-Welcome to the codebase for ADO Express - your new go-to release management tool. This application is designed to streamline and optimize the Azure DevOps release deployment process. Intuitive, efficient, and powerful - ADO Express will transform the way you manage releases.
+Welcome to the ADO Express codebase, your new go-to tool for release management. This application is crafted to simplify and enhance the Azure DevOps release deployment process. It's intuitive, efficient, and powerful; ADO Express will revolutionize the way you handle releases.
 
-This repository houses both the frontend and the backend of ADO Express. Keep reading to learn how to get them up and running on your local machine!
+## Quick Start
 
+You have two options to get started:
+
+1. **CLI Tools**: Run tasks quickly without any fuss. You can execute the CLI with either Docker or Python installed on your machine. For more details, refer to [CLI Usage](#%EF%B8%8F-cli-usage).
+   
+2. **Web Application**: For those who prefer a more graphical approach with an intuitive user interface, you can opt for the full web application. For this option, proceed to [Web Application Usage](#%EF%B8%8F-web-application-usage).
+
+---
 
 ## ✨ UI Preview
 
 ![Alt Text](./media/ui-preview.gif)
+
+# 🖥️ CLI Usage
+
+Run various tasks through the CLI with minimal setup. You can either use Docker or have Python installed. Not only will your results be logged, but they will also be saved into an Excel file located in [deployment-plan](ado_express\files\search-results\deployment-plan.xlsx).
+
+1. [Docker Deployment](#docker-deployment)
+2. [Docker Development Container](#docker-development-container)
+3. [Other methods](#additional-cli-options)
+
+## Docker Deployment
+
+1. **Prerequisite**: Ensure Docker is running.
+2. **Build Container**: Navigate to the repository directory and execute the following command:
+    ```sh
+    docker build -t <CONTAINER_NAME> .
+    ```
+3. **Environment Variables**: Configure the required environment variables in the [.env](/.env) file.
+4. **Run Container**: Execute the following command from within the repository directory:
+    ```sh
+    docker run --env-file ./.env -it <CONTAINER_NAME>
+    ```
+
+## Docker Development Container
+
+1. **Prerequisite**: Ensure Docker is running.
+2. **VS Code Setup**: Open the repository directory in Visual Studio Code.
+3. **Environment Variables**: Update your [.env](/.env) file with necessary variables.
+4. **Quick Start**: Press `F1`, then search for and select `Dev Containers: Rebuild and Reopen in Container`.
+
+## Additional CLI Options
+
+For comprehensive CLI options, navigate to the dedicated README in the `./ado_express` directory. 
+
+Quick Access: [CLI README](./ado_express/README.md)
+
+Discover various instructions, tips, and tricks for optimizing your CLI experience!
+
+# 🖥️ Web Application Usage
+
+To operate the ADO Express Web Application, you must start both the [Frontend](#-frontend) and [Backend](#-backend-api) services of this project.
 
 ## 🎨 Frontend
 
@@ -19,9 +66,13 @@ The frontend of ADO Express is a sleek and modern web application. Let's get it 
    ```sh
    cd ado_express_app
    ```
-2. Run the development server:
+2. Install Dependencies:
    ```sh
-   npm run dev
+   npm i
+   ```
+4. Run the development server:
+   ```sh
+   npm run start
    ```
    Voila! You should now have the ADO Express web application running locally.
 
@@ -65,16 +116,6 @@ With the virtual environment set up, you can now run the API:
    ```
 
 That's it! You should now have the ADO Express API running locally.
-
-## 🖥️ Want to Run the CLI Version?
-
-No problem at all! We understand some people love the good ol' command-line interface. If you're one of those CLI aficionados, and you'd like to run the CLI version of ADO Express, we've got you covered.
-
-For all things CLI, navigate to the CLI's dedicated README in the `./ado_express` directory.
-
-Here's a quick teleport for you: [CLI README](./ado_express/README.md).
-
-You'll find all the instructions, tips, and tricks for running the CLI version there. Have fun exploring!
 
 ## 🌟 Shine Bright
 

@@ -1,3 +1,8 @@
+# DEPRECATED
+## This document is outdated and retained primarily for archival purposes. While most methods for running the tool via CLI are still applicable, they may not represent the latest best practices. For the most current instructions on how to run this tool, please refer to the main [README](../README.md) file located at the root of this repository.
+
+---
+
 # ADO Express
 **Azure DevOps Release Management Tool**
 
