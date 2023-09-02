@@ -1,6 +1,9 @@
 import os
 import sys
 
+# Needed to enable segregation of projects
+sys.path.append(os.path.abspath("."))
+
 from ado_express.packages.common.enums.deployment_status_label import \
     DeploymentStatusLabel
 from ado_express.packages.common.enums.environment_statuses import \
@@ -11,9 +14,6 @@ from ado_express.packages.utils.asset_retrievers.release_environment_finder.rele
     ReleaseEnvironmentFinder
 from ado_express.packages.utils.release_manager.update_progress_retriever.update_progress_retriever import \
     UpdateProgressRetriever
-
-# Needed to enable segregation of projects
-sys.path.append(os.path.abspath("."))
 
 import concurrent.futures
 import logging
