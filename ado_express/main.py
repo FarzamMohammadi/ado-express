@@ -4,17 +4,6 @@ import sys
 # Needed to enable segregation of projects
 sys.path.append(os.path.abspath("."))
 
-from ado_express.packages.common.enums.deployment_status_label import \
-    DeploymentStatusLabel
-from ado_express.packages.common.enums.environment_statuses import \
-    ReleaseEnvironmentStatuses
-from ado_express.packages.common.models.deployment_status import \
-    DeploymentStatus
-from ado_express.packages.utils.asset_retrievers.release_environment_finder.release_environment_finder import \
-    ReleaseEnvironmentFinder
-from ado_express.packages.utils.release_manager.update_progress_retriever.update_progress_retriever import \
-    UpdateProgressRetriever
-
 import concurrent.futures
 import logging
 import sys
@@ -26,26 +15,28 @@ from pytz import timezone
 
 from ado_express.packages.authentication import MSAuthentication
 from ado_express.packages.common.constants import Constants
+from ado_express.packages.common.enums.deployment_status_label import \
+    DeploymentStatusLabel
 from ado_express.packages.common.enums.explicit_release_types import \
     ExplicitReleaseTypes
 from ado_express.packages.common.environment_variables import \
     EnvironmentVariables
-from ado_express.packages.common.models import (DeploymentDetails,
-                                                ReleaseDetails)
+from ado_express.packages.common.models import DeploymentDetails
+from ado_express.packages.common.models.deployment_status import \
+    DeploymentStatus
 from ado_express.packages.utils import DeploymentPlan
+from ado_express.packages.utils.asset_retrievers.release_environment_finder.release_environment_finder import \
+    ReleaseEnvironmentFinder
 from ado_express.packages.utils.asset_retrievers.release_finder import \
     ReleaseFinder
 from ado_express.packages.utils.asset_retrievers.work_item_manager.work_item_manager import \
     WorkItemManager
 from ado_express.packages.utils.excel_manager import ExcelManager
+from ado_express.packages.utils.release_manager.update_progress_retriever.update_progress_retriever import \
+    UpdateProgressRetriever
 from ado_express.packages.utils.release_manager.update_release import \
     UpdateRelease
 from ado_express.packages.utils.release_note_helpers import needs_deployment
-
-logging.basicConfig(filename=Constants.LOG_FILE_PATH, encoding='utf-8', level=logging.INFO,
-                    format='%(levelname)s:%(asctime)s \t%(pathname)s:line:%(lineno)d \t%(message)s')
-logging.info('Starting application')
-logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
 
 constants = Constants()
 deployment_plan_file_headers = constants.DEPLOYMENT_PLAN_HEADERS
@@ -59,13 +50,28 @@ class Startup:
         self.load_dependencies()
         self.initialize_logging()
     
-    #TODO: Create logger class & include this
+    def is_running_as_executable():
+        return getattr(sys, 'frozen', False)
+
+    #TODO: Create logger class and move this there
     def initialize_logging(self):
+        if self.is_running_as_executable():
+            # Log to console only when running as an executable
+            logging.basicConfig(stream=sys.stdout, level=logging.INFO,
+                                format='%(levelname)s:%(asctime)s \t%(pathname)s:line:%(lineno)d \t%(message)s')
+        else:
+            # Log to a file when not running as an executable
+            logging.basicConfig(filename=Constants.LOG_FILE_PATH, encoding='utf-8', level=logging.INFO,
+                                format='%(levelname)s:%(asctime)s \t%(pathname)s:line:%(lineno)d \t%(message)s')
+
+        logging.info('Starting application')
+
         if self.search_only:
             logging.info('Starting the search...')
             logging.info(f"Search Date & Time:{self.datetime_now.strftime(self.time_format)}\nResults:\n")
         else:
             logging.info('Starting the update...')
+
         
     def initialize_excel_configurations(self):
             # Create new deployment excel file
@@ -260,6 +266,7 @@ class Startup:
     def remove_crucial_deployments_from_deployment_details(self, deployment_details, crucial_release_definitions):
         return [x for x in deployment_details if x.release_name not in crucial_release_definitions]
 
+
 if __name__ == '__main__':
     environment_variables = EnvironmentVariables()
     deployment_plan = DeploymentPlan(constants, environment_variables)
@@ -278,7 +285,7 @@ if __name__ == '__main__':
             with concurrent.futures.ThreadPoolExecutor() as executor:
                     deployment_details = executor.map(startup.get_deployment_detail_from_latest_release, deployment_plan_details)
     # Run search 
-    if environment_variables.SEARCH_ONLY:
+    if environment_variables.SEARCH_ONLY and not startup.is_running_as_executable():
         # If doing a release notes search then create and export deployment details to excel file
         if environment_variables.QUERIES or environment_variables.VIA_ENV_LATEST_RELEASE:
             if deployment_details:
