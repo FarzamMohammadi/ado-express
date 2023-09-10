@@ -179,7 +179,7 @@ class ReleaseFinder:
                     return release
             except:
                 #Builds was deleted/no longer exists
-                logging.error(f"The requested build {build_id} could not be found.")
+                logging.warning(f"The requested build with ID {build_id} couldn't be found. Older builds are particularly prone to this issue because they eventually get deleted based on your retention settings. This build and any related releases will be ignored.")
         
         return None
     
