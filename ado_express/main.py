@@ -45,9 +45,23 @@ if is_running_as_executable():
     logging.basicConfig(stream=sys.stdout, level=logging.INFO,
                         format='%(levelname)s:%(asctime)s \t%(pathname)s:line:%(lineno)d \t%(message)s')
 else:
-    # Log to a file when not running as an executable
-    logging.basicConfig(filename=Constants.LOG_FILE_PATH, encoding='utf-8', level=logging.INFO,
-                        format='%(levelname)s:%(asctime)s \t%(pathname)s:line:%(lineno)d \t%(message)s')
+    # Log to a file when not running as an executable and also print to stdout
+    file_handler = logging.FileHandler(Constants.LOG_FILE_PATH, encoding='utf-8')
+    file_handler.setLevel(logging.INFO)
+
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler.setLevel(logging.INFO)
+
+    formatter = logging.Formatter('%(levelname)s:%(asctime)s \t%(pathname)s:line:%(lineno)d \t%(message)s')
+
+    file_handler.setFormatter(formatter)
+    console_handler.setFormatter(formatter)
+
+    logger = logging.getLogger()
+    logger.setLevel(logging.INFO)
+
+    logger.addHandler(file_handler)
+    logger.addHandler(console_handler)
 
 logging.info('Starting application')
 
@@ -266,6 +280,14 @@ class Startup:
         return [x for x in deployment_details if x.release_name not in crucial_release_definitions]
 
 
+def confirm_deployment():
+    user_input = input("Are you sure you want to deploy the releases? (Y/N): ").strip().lower()
+    return user_input in ["yes", "y"]
+
+def stop_process():
+    logging.info(f'Stopping process :(')
+    exit()
+
 if __name__ == '__main__':
     environment_variables = EnvironmentVariables()
     deployment_plan = DeploymentPlan(constants, environment_variables)
@@ -304,7 +326,7 @@ if __name__ == '__main__':
                     startup.search_and_log_details_only(deployment_detail)
 
     # Run deployment
-    else:
+    elif confirm_deployment():
         # Set deployment details to deployment plan details if it's not a query/latest release run
         deployment_details = deployment_plan_details if deployment_details is None else deployment_details
 
@@ -313,8 +335,8 @@ if __name__ == '__main__':
         #TODO: Create logger class & include this
         if deployment_details is None:
             logging.error(f'No deployment details found - please check the configurations')
-            logging.error(f'Stopping process :(')
-            exit()
+            
+            stop_process()
 
         crucial_release_definitions = startup.get_crucial_release_definitions(deployment_details)
         crucial_deployment_details = []
@@ -338,6 +360,8 @@ if __name__ == '__main__':
                 logging.info('Deploying releases')
             
             executor.map(startup.deploy_to_target_or_rollback, deployment_details)
+    else: 
+        stop_process()
 
     task_end = time.perf_counter()
     logging.info(f'Tasks completed in {task_end-task_start} seconds')
