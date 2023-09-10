@@ -8,23 +8,97 @@ Welcome to the ADO Express codebase, your new go-to tool for release management.
 
 You have two options to get started:
 
-1. **CLI Tools**: Run tasks quickly without any fuss. You can execute the CLI with either Docker or Python installed on your machine. For more details, refer to [CLI Usage](#%EF%B8%8F-cli-usage).
-   
+1. **CLI Tools & Executables**: Get tasks done efficiently using either CLI tools or our plug-and-play executables. The CLI requires either Docker or Python, while executables are a hassle-free option requiring no preliminary installations—ideal for getting started right away. For more on CLI, see [CLI Usage](#%EF%B8%8F-cli-usage), and for executables, check out [Executables](#executables).
+
 2. **Web Application**: For those who prefer a more graphical approach with an intuitive user interface, you can opt for the full web application. For this option, proceed to [Web Application Usage](#%EF%B8%8F-web-application-usage).
 
 ---
-
-## ✨ UI Preview
-
-![Alt Text](./media/ui-preview.gif)
 
 # 🖥️ CLI Usage
 
 Run various tasks through the CLI with minimal setup. You can either use Docker or have Python installed. Not only will your results be logged, but they will also be saved into an Excel file located in [deployment-plan](ado_express\files\search-results\deployment-plan.xlsx).
 
+0. [Environment Variables & Command Line Arguments](#environment-variables--command-line-arguments)
+    - [List of Variables/Arguments](#list-of-variablesarguments)
+    - [Command-Line Argument Order](#command-line-argument-order)
 1. [Docker Deployment](#docker-deployment)
 2. [Docker Development Container](#docker-development-container)
-3. [Other methods](#additional-cli-options)
+3. [Executables](#executables)
+4. [Additional CLI Options](#additional-cli-options) (Deprecated)
+
+## Environment Variables & Command Line Arguments
+### List of Variables/Arguments
+
+> **Note**: The default values for these variables are either `null` or `false`.
+
+- **EXPLICIT_RELEASE_VALUES**: A dictionary where the key specifies the type of explicit release values (`include` or `exclude`), and the value is an array of release definitions.
+  ```sh
+  {'include': ['releaseOne', 'releaseTwo', 'releaseThree']}  
+                  (OR)
+  {'exclude': ['releaseOne', 'releaseTwo', 'releaseThree']}
+  ```
+
+- **CRUCIAL_RELEASE_DEFINITIONS**: An array of critical release definitions, delineated by commas. These releases take precedence and will be deployed first. If any of these deployments fail, the entire process will be halted.
+   ```sh
+   releaseOne
+         (OR)
+   releaseOne,releaseTwo,releaseThree
+   ```
+
+- **ORGANIZATION_URL**: The root URL of your organization's Azure DevOps instance.
+  ```sh
+  https://dev.azure.com/{organization}
+  ```
+
+- **PERSONAL_ACCESS_TOKEN**: Your personal access token. [Learn more.](https://learn.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate?view=azure-devops&tabs=Windows)
+
+- **QUERIES**: A list of IDs or URL paths to ADO queries, separated by commas.
+  ```sh
+   queryId
+         (OR)
+   queryId,queryId,queryId
+  ```
+
+- **RELEASE_NAME_FORMAT**: The format for the release name.
+   ```sh
+   Release-$(rev:r)
+   ```
+
+- **RELEASE_TARGET_ENV**: The environment to which you want to deploy your releases.
+   ```sh
+   prod
+   ```
+
+- **SEARCH_ONLY**: A Boolean variable to specify whether or not to deploy the search results.
+   ```sh
+   True
+   (OR)
+   False
+   ```
+
+- **VIA_ENV**: A Boolean variable to specify whether the search should be based on the release environment. (Set to `True` unless searching for **NON**-deployable results.)
+   ```sh
+   True
+   (OR)
+   False
+   ```
+
+- **VIA_ENV_LATEST_RELEASE**: A Boolean variable to determine whether to retrieve the latest release from the environment. (Set to `True` only if searching via query OR for **NON**-deployable results; otherwise, set to False.)
+    ```sh
+   True
+   (OR)
+   False
+   ```
+
+- **VIA_ENV_SOURCE_NAME**: The name of the environment where you've previously deployed releases (the same environment from which you retrieve Rollback releases).
+  ```sh
+   qa
+   ```
+
+### Command-Line Argument Order
+   ```sh
+    <EXPLICIT_RELEASE_VALUES> <CRUCIAL_RELEASE_DEFINITIONS> <ORGANIZATION_URL> <PERSONAL_ACCESS_TOKEN> <QUERIES> <RELEASE_NAME_FORMAT> <RELEASE_TARGET_ENV> <SEARCH_ONLY> <VIA_ENV> <VIA_ENV_LATEST_RELEASE> <VIA_ENV_SOURCE_NAME>
+   ```
 
 ## Docker Deployment
 
@@ -38,6 +112,7 @@ Run various tasks through the CLI with minimal setup. You can either use Docker 
     ```sh
     docker run --env-file ./.env -it <CONTAINER_NAME>
     ```
+> For more details on run configurations, refer to the [Environment Variables & Command Line Arguments](#environment-variables--command-line-arguments) section.
 
 ## Docker Development Container
 
@@ -46,11 +121,29 @@ Run various tasks through the CLI with minimal setup. You can either use Docker 
 3. **Environment Variables**: Update your [.env](/.env) file with necessary variables.
 4. **Quick Start**: Press `F1`, then search for and select `Dev Containers: Rebuild and Reopen in Container`.
 
-## Additional CLI Options
+> For more details on run configurations, refer to the [Environment Variables & Command Line Arguments](#environment-variables--command-line-arguments) section.
+
+## Executables
+
+Download the executables from the [GitHub Releases](https://github.com/FarzamMohammadi/ado-express/releases) page. Opt for the [latest](https://github.com/FarzamMohammadi/ado-express/releases/tag/1.36.0) to stay up-to-date with the newest features.
+
+To run the executable for your OS, execute the following command:
+
+```sh
+./ado-express-{OS}.exe <EXPLICIT_RELEASE_VALUES> <CRUCIAL_RELEASE_DEFINITIONS> <ORGANIZATION_URL> <PERSONAL_ACCESS_TOKEN> <QUERIES> <RELEASE_NAME_FORMAT> <RELEASE_TARGET_ENV> <SEARCH_ONLY> <VIA_ENV> <VIA_ENV_SOURCE_NAME> <VIA_ENV_LATEST_RELEASE>
+```
+
+**Note**: Executables will log output solely to the terminal and won't generate log or search result files. For such functionality, please refer to other [CLI execution methods](#%EF%B8%8F-cli-usage).
+
+> For more details on run configurations, refer to the [Environment Variables & Command Line Arguments](#environment-variables--command-line-arguments) section.
+
+## Additional CLI Options (Deprecated)
 
 For comprehensive CLI options, navigate to the dedicated README in the `./ado_express` directory. 
 
 Quick Access: [CLI README](./ado_express/README.md)
+
+> **Note**: Although most of the information in this document is still applicable, the document itself is deprecated and will no longer be updated.
 
 Discover various instructions, tips, and tricks for optimizing your CLI experience!
 
