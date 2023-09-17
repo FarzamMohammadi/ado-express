@@ -24,7 +24,7 @@ Run various tasks through the CLI with minimal setup. You can either use Docker 
 1. [Docker Deployment](#docker-deployment)
 2. [Docker Development Container](#docker-development-container)
 3. [Executables](#executables)
-4. [Additional CLI Options](#additional-cli-options) (Deprecated)
+4. [Additional CLI Options](#additional-cli-options-deprecated) (Deprecated)
 
 ## Environment Variables & Command Line Arguments
 ### List of Variables/Arguments
