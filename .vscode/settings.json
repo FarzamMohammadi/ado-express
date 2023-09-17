@@ -3,7 +3,7 @@
   "editor.wordWrapColumn": 200,
   "editor.codeActionsOnSave": {
     "source.fixAll": true,
-    "source.organizeImports": true,
+    "source.organizeImports": false,
     "source.sortMembers": true
   },
   "python.formatting.autopep8Args": [
