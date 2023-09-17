@@ -8,7 +8,6 @@ def is_running_as_executable(): return getattr(sys, 'frozen', False)
 
 import concurrent.futures
 import logging
-import sys
 import time
 from datetime import datetime
 from itertools import repeat
@@ -34,37 +33,14 @@ from ado_express.packages.utils.asset_retrievers.release_finder import \
 from ado_express.packages.utils.asset_retrievers.work_item_manager.work_item_manager import \
     WorkItemManager
 from ado_express.packages.utils.excel_manager import ExcelManager
+from ado_express.packages.utils.logger import Logger
 from ado_express.packages.utils.release_manager.update_progress_retriever.update_progress_retriever import \
     UpdateProgressRetriever
 from ado_express.packages.utils.release_manager.update_release import \
     UpdateRelease
 from ado_express.packages.utils.release_note_helpers import needs_deployment
 
-if is_running_as_executable():
-    # Log to console only when running as an executable
-    logging.basicConfig(stream=sys.stdout, level=logging.INFO,
-                        format='%(levelname)s:%(asctime)s \t%(pathname)s:line:%(lineno)d \t%(message)s')
-else:
-    # Log to a file when not running as an executable and also print to stdout
-    file_handler = logging.FileHandler(Constants.LOG_FILE_PATH, encoding='utf-8')
-    file_handler.setLevel(logging.INFO)
-
-    console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setLevel(logging.INFO)
-
-    formatter = logging.Formatter('%(levelname)s:%(asctime)s \t%(pathname)s:line:%(lineno)d \t%(message)s')
-
-    file_handler.setFormatter(formatter)
-    console_handler.setFormatter(formatter)
-
-    logger = logging.getLogger()
-    logger.setLevel(logging.INFO)
-
-    logger.addHandler(file_handler)
-    logger.addHandler(console_handler)
-
-logging.info('Starting application')
-
+logger = Logger(is_running_as_executable())
 constants = Constants()
 deployment_plan_file_headers = constants.DEPLOYMENT_PLAN_HEADERS
 deployment_plan_path = constants.SEARCH_RESULTS_DEPLOYMENT_PLAN_FILE_PATH
@@ -75,17 +51,9 @@ class Startup:
     def __init__(self, environment_variables):
         self.environment_variables = environment_variables
         self.load_dependencies()
-        self.initialize_logging()
-    
-    #TODO: Create logger class and move this there
-    def initialize_logging(self):
-        if self.search_only:
-            logging.info('Starting the search...')
-            logging.info(f"Search Date & Time:{self.datetime_now.strftime(self.time_format)}\nResults:\n")
-        else:
-            logging.info('Starting the update...')
 
-        
+        logger.log_the_start_of_application(self.search_only)
+    
     def initialize_excel_configurations(self):
             # Create new deployment excel file
             new_df = excel_manager.create_dataframe(deployment_plan_file_headers)
@@ -331,8 +299,7 @@ if __name__ == '__main__':
         deployment_details = deployment_plan_details if deployment_details is None else deployment_details
 
         deployment_details = startup.updated_deployment_details_based_on_explicit_inclusion_and_exclusion(deployment_details)
-        
-        #TODO: Create logger class & include this
+
         if deployment_details is None:
             logging.error(f'No deployment details found - please check the configurations')
             
