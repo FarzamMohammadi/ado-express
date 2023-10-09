@@ -2,8 +2,8 @@
   "scripts": {
     "frontend": "cd ado_express_app && npm run dev",
     "backend": "cross-env-shell \"cd ado_express_api && ../venv/Scripts/activate && daphne asgi:application\"",
-    "start": "concurrently npm:frontend npm:backend"
-  },  
+    "start webapp": "concurrently npm:frontend npm:backend"
+  },
   "devDependencies": {
     "concurrently": "^8.2.0",
     "cross-env": "^7.0.3"
