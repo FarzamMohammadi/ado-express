@@ -14,7 +14,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from websocket_server.consumers.consumers import WebSocketConsumer
 
-from ado_express.main import Startup
+from ado_express.main import ADOExpress
 
 from .serializers import (DeploymentDetailSerializer,
                           DeploymentStatusSerializer,
@@ -31,7 +31,7 @@ def search_via_release_environment(request):
 
     run_configurations = initialize_run_configuration(
         request_data, None, True, False)
-    ado_express = Startup(run_configurations)
+    ado_express = ADOExpress(run_configurations)
 
     result = process_search(
         ado_express,
@@ -53,7 +53,7 @@ def search_via_latest_release(request):
 
     run_configurations = initialize_run_configuration(
         request_data, None, True, True)
-    ado_express = Startup(run_configurations)
+    ado_express = ADOExpress(run_configurations)
 
     result = process_search(
         ado_express,
@@ -74,7 +74,7 @@ def search_via_release_number(request):
 
     run_configurations = initialize_run_configuration(
         request_data, None, False, False)
-    ado_express = Startup(run_configurations)
+    ado_express = ADOExpress(run_configurations)
 
     result = process_search(
         ado_express,
@@ -96,7 +96,7 @@ def search_via_query(request):
 
     run_configurations = initialize_run_configuration(
         request_data, request_data['queries'], True, True)
-    ado_express = Startup(run_configurations)
+    ado_express = ADOExpress(run_configurations)
 
     result = process_search(
         ado_express,
