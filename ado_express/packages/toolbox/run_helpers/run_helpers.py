@@ -9,8 +9,8 @@ constants = Constants()
 excel_manager = ExcelManager()
         
 def user_confirmed_deployment():
-        user_input = input("Are you sure you want to deploy the releases? (Y/N): ").strip().lower()
-        return user_input in ["yes", "y"]
+    user_input = input("Are you sure you want to deploy the releases? (Y/N): ").strip().lower()
+    return user_input in ["yes", "y"]
 
 def stop_process():
     logging.info(f'Stopping process :(')

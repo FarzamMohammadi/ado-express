@@ -3,16 +3,9 @@ import logging
 
 import requests
 
-from ado_express.packages.authentication.ms_authentication.ms_authentication import \
-    MSAuthentication
-from ado_express.packages.shared.enums import (DeploymentStatusLabel,
-                                               ReleaseEnvironmentStatuses)
-from ado_express.packages.shared.environment_variables import \
-    EnvironmentVariables
-from ado_express.packages.shared.models.deployment_status import \
-    DeploymentStatus
-from ado_express.packages.toolbox.asset_managers.release_environment_finder.release_environment_finder import \
-    ReleaseEnvironmentFinder
+from ado_express.packages.authentication import MSAuthentication
+from ado_express.packages.shared import DeploymentStatus, DeploymentStatusLabel, EnvironmentVariables, ReleaseEnvironmentStatuses
+from ado_express.packages.toolbox.asset_managers.release_environment_finder.release_environment_finder import ReleaseEnvironmentFinder
 
 
 class UpdateProgressRetriever:

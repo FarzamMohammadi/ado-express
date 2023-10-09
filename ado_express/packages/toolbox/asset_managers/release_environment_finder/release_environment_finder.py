@@ -1,6 +1,5 @@
 from ado_express.packages.authentication import MSAuthentication
-from ado_express.packages.shared.environment_variables import \
-    EnvironmentVariables
+from ado_express.packages.shared.environment_variables import EnvironmentVariables
 from ado_express.packages.shared.models import ReleaseEnvironment
 
 

@@ -3,13 +3,8 @@ import logging
 from azure.devops.v5_1.release.models import ReleaseEnvironmentUpdateMetadata
 
 from ado_express.packages.authentication import MSAuthentication
-from ado_express.packages.shared.constants import Constants
-from ado_express.packages.shared.enums import ReleaseEnvironmentStatuses
-from ado_express.packages.shared.environment_variables import \
-    EnvironmentVariables
-from ado_express.packages.toolbox.asset_managers import ReleaseFinder
-from ado_express.packages.toolbox.asset_managers.release_environment_finder import \
-    ReleaseEnvironmentFinder
+from ado_express.packages.shared import Constants, EnvironmentVariables, ReleaseEnvironmentStatuses
+from ado_express.packages.toolbox.asset_managers import ReleaseEnvironmentFinder, ReleaseFinder
 
 
 class UpdateRelease:

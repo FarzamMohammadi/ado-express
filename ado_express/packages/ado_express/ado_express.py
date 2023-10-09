@@ -4,11 +4,14 @@ from itertools import repeat
 
 from ado_express.packages.authentication import MSAuthentication
 from ado_express.packages.shared import Constants, EnvironmentVariables
-from ado_express.packages.shared.enums import (DeploymentStatusLabel, ExplicitReleaseTypes)
-from ado_express.packages.shared.models import (DeploymentDetails, DeploymentStatus)
-from ado_express.packages.toolbox import ExcelManager, Logger, run_helpers
-from ado_express.packages.toolbox.asset_managers import (ReleaseEnvironmentFinder, ReleaseFinder, WorkItemManager)
-from ado_express.packages.toolbox.release_manager import (UpdateProgressRetriever, UpdateRelease)
+from ado_express.packages.shared.enums import DeploymentStatusLabel, ExplicitReleaseTypes
+from ado_express.packages.shared.models import DeploymentDetails, DeploymentStatus
+from ado_express.packages.toolbox import (ExcelManager, Logger,
+                                          ReleaseEnvironmentFinder,
+                                          ReleaseFinder,
+                                          UpdateProgressRetriever,
+                                          UpdateRelease, WorkItemManager,
+                                          run_helpers)
 
 
 class ADOExpress:
@@ -22,7 +25,6 @@ class ADOExpress:
 
         Logger(run_helpers.is_running_as_executable()).log_the_start_of_application(self.search_only)
 
-
     def load_dependencies(self):
         self.ms_authentication = MSAuthentication(self.environment_variables)
         self.release_finder = ReleaseFinder(self.ms_authentication, self.environment_variables)
@@ -32,8 +34,8 @@ class ADOExpress:
         self.queries = self.environment_variables.QUERIES
     
     def prepare_result_excel_file(self):
-            new_df = self.excel_manager.create_dataframe(self.constants.DEPLOYMENT_PLAN_HEADERS)
-            self.excel_manager.save_or_concat_file(new_df, self.constants.SEARCH_RESULTS_DEPLOYMENT_PLAN_FILE_PATH, True) 
+        new_df = self.excel_manager.create_dataframe(self.constants.DEPLOYMENT_PLAN_HEADERS)
+        self.excel_manager.save_or_concat_file(new_df, self.constants.SEARCH_RESULTS_DEPLOYMENT_PLAN_FILE_PATH, True) 
 
     def updated_deployment_details_based_on_explicit_inclusion_and_exclusion(self, deployment_details):
         new_deployment_details = []
@@ -78,15 +80,15 @@ class ADOExpress:
         rollback_dict = dict()
         deployment_details = []
 
-        if not found_releases: return deployment_details # Didn't find any releases
+        if not found_releases: return deployment_details
 
         # Get rollback
         with concurrent.futures.ThreadPoolExecutor() as executor:
             rollbacks = executor.map(self.release_finder.get_release, {k for k, v in found_releases.items()}, repeat(self.via_env), repeat(True), repeat(self.via_latest))
 
             for rollback in rollbacks:
-                if all(rollback.values()): rollback_dict |= rollback # If rollback for target environment is found
-                else: found_releases.pop(next(iter(rollback))) # Remove key & value from found_releases
+                if all(rollback.values()): rollback_dict |= rollback # If found rollback, add it to rollback_dict
+                else: found_releases.pop(next(iter(rollback))) # Else remove release key & value from found_releases
 
         for release_location, target_release in found_releases.items():
             project = release_location.split('/')[0] 
@@ -181,15 +183,12 @@ class ADOExpress:
 
     def release_deployment_completed(self, deployment_detail, rollback=False): 
         update_manager = UpdateRelease(self.constants, self.ms_authentication, self.environment_variables, self.release_finder)
+        
         release_to_update = self.release_finder.get_release(deployment_detail, self.via_env, rollback, self.via_latest)
+        
         deployment_is_complete, successfully_completed = update_manager.is_deployment_complete(deployment_detail, release_to_update)
+        
         return deployment_is_complete, successfully_completed
-    
-    def release_deployment_is_in_progress(self, deployment_detail, rollback): 
-        update_manager = UpdateRelease(self.constants, self.ms_authentication, self.environment_variables, self.release_finder)
-        release_to_update = self.release_finder.get_release(deployment_detail, self.via_env, rollback, self.via_latest)
-        is_in_progress = update_manager.is_deployment_in_progress(deployment_detail, release_to_update)
-        return is_in_progress
     
     def run_release_deployments(self, deployment_details, is_deploying_crucial_releases, rollback=False, had_crucial_releases=False):
         releases = []
