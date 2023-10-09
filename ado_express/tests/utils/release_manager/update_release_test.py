@@ -1,10 +1,15 @@
 import logging
-from ado_express.packages.common.enums import ReleaseEnvironmentStatuses
-from ado_express.packages.common.models.deployment_details import DeploymentDetails
-from ado_express.packages.utils.release_manager.update_release import UpdateRelease
+import unittest
+
 from faker import Faker
 from mock import patch
-import unittest
+
+from ado_express.packages.shared.enums import ReleaseEnvironmentStatuses
+from ado_express.packages.shared.models.deployment_details import \
+    DeploymentDetails
+from ado_express.packages.toolbox.release_manager.update_release import \
+    UpdateRelease
+
 
 class Empty:
     pass

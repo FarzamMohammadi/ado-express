@@ -2,7 +2,6 @@ import json
 import time
 from threading import Thread
 
-import numpy as np
 import status
 from base.models.DeploymentDetail import DeploymentDetail
 from base.models.enums.WebsocketMessageType import WebsocketMessageType
@@ -11,8 +10,8 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from websocket_server.consumers import WebSocketConsumer
 
-from ado_express.main import Startup
-from ado_express.packages.common.models.deployment_status import \
+from ado_express.main import ADOExpress
+from ado_express.packages.shared.models.deployment_status import \
     DeploymentStatus
 from ado_express_api.base.models.enums.DeploymentStatusLabel import \
     DeploymentStatusLabel
@@ -52,7 +51,7 @@ def deploy(request):
             serializer.validated_data['via_env_source_name'],
             serializer.validated_data['deployment_details'])
 
-        ado_express = Startup(run_configurations)
+        ado_express = ADOExpress(run_configurations)
         deployment_details = []
 
         for deployment in run_configurations.deployment_details:
@@ -222,7 +221,7 @@ def retrieve_deployment_status(deployment_detail, ado_express, rollback):
     return latest_deployment_status
 
 
-def send_live_status_data_and_check_for_failures(deployment_details, ado_express: Startup, rollback=False):
+def send_live_status_data_and_check_for_failures(deployment_details, ado_express: ADOExpress, rollback=False):
     threads = []
     failed_deployment_details = []
 
