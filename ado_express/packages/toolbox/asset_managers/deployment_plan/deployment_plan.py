@@ -2,8 +2,10 @@ import numpy as np
 import pandas as pd
 
 from ado_express.packages.shared.constants import Constants
-from ado_express.packages.shared.environment_variables import EnvironmentVariables
+from ado_express.packages.shared.environment_variables import \
+    EnvironmentVariables
 from ado_express.packages.shared.models import DeploymentDetails
+
 
 class DeploymentPlan():
 
@@ -16,6 +18,7 @@ class DeploymentPlan():
         file_path = self.constants.DEPLOYMENT_PLAN_FILE_PATH
         
         release_dataframe = pd.read_excel(file_path).replace(np.nan, None, regex=True).apply(lambda x: x.str.strip() if x.dtype == "object" else x)
+        
         deployment_details = []
         
         for index, row in release_dataframe.iterrows():

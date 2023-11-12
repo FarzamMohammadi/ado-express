@@ -1,5 +1,6 @@
 from ado_express.packages.authentication import MSAuthentication
-from ado_express.packages.shared.environment_variables import EnvironmentVariables
+from ado_express.packages.shared.environment_variables import \
+    EnvironmentVariables
 from ado_express.packages.shared.models import ReleaseEnvironment
 
 
@@ -21,7 +22,7 @@ class ReleaseEnvironmentFinder:
 
     def get_release_environments(self, deployment_detail, release_id):
         # Returns all the release envs (aka stages)
-        release_environments = [ReleaseEnvironment]
+        release_environments = []
         release_to_update_data = self.release_client.get_release(project=deployment_detail.release_project_name, release_id=release_id)
 
         for environment in release_to_update_data.environments:
