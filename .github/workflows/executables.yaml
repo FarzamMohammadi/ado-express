@@ -1,17 +1,7 @@
 name: Create executables
 
 # Only trigger, when the release workflow succeeded
-on:
-  workflow_run:
-    paths-ignore:
-      - 'ado_express/tests/**'
-      - '**/README.md'
-      - '.vscode/**'
-      - 'ado_express_api/**' # Not needed while developing app & api
-      - 'ado_express_app/**' # Not needed while developing app & api
-    workflows: ["Create a new release & tag commit"]
-    types:
-      - completed
+on: {}
 
 jobs:
 
