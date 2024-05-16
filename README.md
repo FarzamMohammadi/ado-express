@@ -8,7 +8,7 @@ Welcome to the ADO Express codebase, your new go-to tool for release management.
 
 You have two options to get started:
 
-1. **CLI Tools & Executables**: Get tasks done efficiently using either CLI tools or our plug-and-play executables. The CLI requires either Docker or Python, while executables are a hassle-free option requiring no preliminary installations—ideal for getting started right away. For more on CLI, see [CLI Usage](#%EF%B8%8F-cli-usage), and for executables, check out [Executables](#executables).
+1. **CLI**: Get tasks done efficiently using the CLI. The CLI requires either Docker or Python. For more on CLI, see [CLI Usage](#%EF%B8%8F-cli-usage).
 
 2. **Web Application**: For those who prefer a more graphical approach with an intuitive user interface, you can opt for the full web application. For this option, proceed to [Web Application Usage](#%EF%B8%8F-web-application-usage).
 
@@ -23,7 +23,7 @@ Run various tasks through the CLI with minimal setup. You can either use Docker 
     - [Command-Line Argument Order](#command-line-argument-order)
 1. [Docker Deployment](#docker-deployment)
 2. [Docker Development Container](#docker-development-container)
-3. [Executables](#executables)
+3. [Executables (Deprecated)](#executables)
 4. [Additional CLI Options](#additional-cli-options-deprecated) (Deprecated)
 
 ## Environment Variables & Command Line Arguments
@@ -123,7 +123,9 @@ Run various tasks through the CLI with minimal setup. You can either use Docker 
 
 > For more details on run configurations, refer to the [Environment Variables & Command Line Arguments](#environment-variables--command-line-arguments) section.
 
-## Executables
+## Executables (Deprecated)
+
+**Warning**: The executables are deprecated and may not function as expected. All features may not work properly. We strongly suggest using other methods for running the application.
 
 Download the executables from the [GitHub Releases](https://github.com/FarzamMohammadi/ado-express/releases) page. Opt for the [latest](https://github.com/FarzamMohammadi/ado-express/releases/tag/1.36.0) to stay up-to-date with the newest features.
 
