@@ -16,6 +16,7 @@ ADO Express simplifies Azure DevOps release management by streamlining the deplo
 
 Choose your preferred method:
 
+0. **Quickest Quick Start (Web Application)**: From the root directory, run `npm run install-all`, then `npm run start`.
 1. **CLI**: Efficiently perform tasks via the command line. Requires Docker or Python. See [CLI Usage](#️-cli-usage).
 2. **Web Application**: Use an intuitive UI for a graphical approach. See [Web Application Usage](#️-web-application-usage).
 
